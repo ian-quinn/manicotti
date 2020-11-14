@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>Application Manicotti</Name>
+    <Assembly>Manicotti.dll</Assembly>
+    <FullClassName>Manicotti.App</FullClassName>
+    <ClientId>0A780295-8113-4EDD-B1AE-C4CFEA1965C4</ClientId>
+    <VendorId>pan.research.group</VendorId>
+    <VendorDescription>Tongji University, http://bsim.tongji.edu.cn</VendorDescription>
+  </AddIn>
+</RevitAddIns>
