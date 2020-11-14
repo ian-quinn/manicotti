@@ -1,5 +1,5 @@
-# Manicotti
-Revit add-in to extrude walls from CAD drawings. A demo.
+# Manicotti :burrito:
+Revit add-in to extrude walls from CAD drawings. A demo in progress.
 
 
 ## Test the Dynamo workflow
@@ -20,6 +20,9 @@ The files you need are cached within $/Demo. The default Revit Add-in folder are
 - Insert -> Load Family -> `Column_demo.rfa`
 - Modify -> Explode -> Full Explode
 - Manicotti -> Extrude walls (takes almost 2s)
+
+
+![addin_demo](https://github.com/ian-quinn/manicotti/blob/main/Demo/Demo.gif)
 
 
 ## About the Dynamo Packages
