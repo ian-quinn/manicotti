@@ -27,10 +27,10 @@ The files you need are cached within $/Demo. The default Revit Add-in folder are
 
 ## About the Dynamo Packages
 Default installation folder: `C:\Users\$username$\AppData\Roaming\Dynamo\Dynamo Revit\2.1\packages\` (Dynamo Revit) `C:\Users\$username$\AppData\Roaming\Dynamo\Dynamo Core\2.8\packages\` (Dynamo Sandbox)  
-├ /bin	houses .dll files created with C# or Zero-Touch libraries  
-├ /dyf	custom nodes  
-├ /extra	any additional files such as .svg / .xls / .dyn  
-└ pkg.json	text file defining the package settings  
+├─ /bin	- houses .dll files created with C# or Zero-Touch libraries  
+├─ /dyf	- custom nodes  
+├─ /extra	- any additional files such as .svg / .xls / .dyn  
+└─ pkg.json	- text file defining the package settings  
 
 
 ## Compile the source code
@@ -43,7 +43,7 @@ Revit 2017/2016/2015 - .NET 4.5 | Revit 2014 - .NET 4.0
 **DEBUG** | Within the project property, under DEBUG panel set external program as `...\Autodesk\Revit 2020\Revit.exe`
 
 *Further development...*  
-To craft your add-in from scratch please use the template by Jeremy Tammik. ZIP the template files under `/cs` of [VisualStudioRevitAddinWizard 2020.0.0.0](https://github.com/jeremytammik/VisualStudioRevitAddinWizard/releases/tag/2020.0.0.0)) 
+To craft your add-in from scratch please use the template by Jeremy Tammik. ZIP the template files under `/cs` of [VisualStudioRevitAddinWizard 2020.0.0.0](https://github.com/jeremytammik/VisualStudioRevitAddinWizard/releases/tag/2020.0.0.0) 
 as `Revit2020AddinWizard.zip`, and place it here:
 `C:\Users\$username$\Documents\Visual Studio 2017\Templates\ProjectTemplates\`  
 References: Jeremy's blog [1](https://thebuildingcoder.typepad.com/blog/2015/05/autodesk-university-q1-adn-labs-and-wizard-update.html#5) [2](https://thebuildingcoder.typepad.com/blog/2019/04/revit-2020-c-and-vb-visual-studio-add-in-wizards.html)
@@ -53,7 +53,7 @@ Template structure
 ├ /References  - External dependencies RevitAPI.dll & RevitAPIUI.dll  
 ├ App.cs	- Class library  
 ├ Command.cs	- Class library  
-└ $projectname$.addin  - Application Manifest file  
+└ $projectname$.addin	- Application manifest file  
 
 
 ## Resources
