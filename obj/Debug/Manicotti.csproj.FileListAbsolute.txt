@@ -1,6 +1,0 @@
-C:\repos\Manicotti\bin\Debug\Manicotti.dll
-C:\repos\Manicotti\bin\Debug\Manicotti.pdb
-C:\repos\Manicotti\obj\Debug\Manicotti.csproj.CoreCompileInputs.cache
-C:\repos\Manicotti\obj\Debug\Manicotti.dll
-C:\repos\Manicotti\obj\Debug\Manicotti.pdb
-C:\repos\Manicotti\obj\Debug\Manicotti.g.resources
