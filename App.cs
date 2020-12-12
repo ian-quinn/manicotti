@@ -20,18 +20,25 @@ namespace Manicotti
             RibbonPanel panel = ribbonPanel(a);
             //string thisAssemblyPath = AssemblyLoadEventArgs.getExecutingAssembly().Location;
             string thisAssemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            PushButton button = panel.AddItem(new PushButtonData("Manicotti", "Extrude walls", thisAssemblyPath,
-                "Manicotti.Command")) as PushButton; //needs to be the ButtonName.Command
+            PushButton wall = panel.AddItem(new PushButtonData("extrude_wall", "Extrude\r\nWall", thisAssemblyPath,
+                "Manicotti.ExtrudeWall")) as PushButton; //needs to be the ButtonName.Command
 
-            button.ToolTip = "Automatically extrude walls and columns based on exploded CAD drawings. " +
-                "A work in progress.";
+            wall.ToolTip = "Automatically extrude walls based on exploded CAD drawings. " +
+                "WIP";
 
             //var globePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "icon.PNG");
             // need to load image in <filename>/bin/Debug file for windows
             // need to load image to C:\users\<USERNAME>\AppData\Roaming\Autodesk\Revit\Addins\2020
             Uri uriImage = new Uri("pack://application:,,,/Manicotti;component/ico/temp.ico", UriKind.Absolute);
             BitmapImage largeImage = new BitmapImage(uriImage);
-            button.LargeImage = largeImage;
+            wall.LargeImage = largeImage;
+
+            
+            PushButton column = panel.AddItem(new PushButtonData("extrude_column", "Extrude\r\nColumn", thisAssemblyPath,
+                "Manicotti.ExtrudeColumn")) as PushButton;
+            column.ToolTip = "Automatically extrude columns based on exploded CAD drawings. " +
+                "WIP";
+            column.LargeImage = largeImage;
 
             a.ApplicationClosing += a_ApplicationClosing;
 
@@ -58,14 +65,14 @@ namespace Manicotti
             catch { }
             try
             {
-                RibbonPanel panel = a.CreateRibbonPanel(tab, "Extrude walls");
+                RibbonPanel panel = a.CreateRibbonPanel(tab, "Geometry Formation");
             }
             catch { }
 
             List<RibbonPanel> panels = a.GetRibbonPanels(tab);
             foreach (RibbonPanel p in panels)
             {
-                if (p.Name == "Extrude walls")
+                if (p.Name == "Geometry Formation")
                 {
                     ribbonPanel = p;
                 }
