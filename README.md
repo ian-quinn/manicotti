@@ -61,3 +61,10 @@ Template structure
 **DOCUMENT** | [Revit API 2020](https://www.revitapidocs.com/2020/) | [Dynamo Dictionary **2.x**](https://dictionary.dynamobim.com/2/) | [Dynamo Primer](https://primer.dynamobim.org/en/index.html) | [Design Scripts Guide](https://dynamobim.org/wp-content/links/DesignScriptGuide.pdf)
 
 **TUTORIAL** | [Hello World Demo](http://aectechy.com/stepbystep-guide-to-your-first-revit-plugin/) | [Group Copy Demo](https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/simplecontent/content/lesson-1-the-basic-plug.html) | [Revit API Tutorials](https://www.youtube.com/channel/UCHqe6I5GKoUEH4XlPw2VGGw/videos)
+
+
+## To-do
+
+- [ ] Clean stray edges and cluster polygon boundaries by intersection
+- [ ] Adhere windows to walls
+- [ ] Create families for multi-thickness walls
