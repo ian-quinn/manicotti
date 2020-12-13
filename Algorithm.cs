@@ -76,7 +76,7 @@ namespace Manicotti
             */
         }
 
-        // Check a line is overlappint with a group of lines
+        // Check a line is overlapping with a group of lines
         public static bool IsOverlapping(Line line, List<Line> list)
         {
             int judgement = 0;

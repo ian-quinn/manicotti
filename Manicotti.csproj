@@ -58,6 +58,7 @@
     <Compile Include="ExtrudeColumn.cs" />
     <Compile Include="ExtrudeWall.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sandbox.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="ico\temp.ico" />

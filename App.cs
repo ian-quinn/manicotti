@@ -33,12 +33,18 @@ namespace Manicotti
             BitmapImage largeImage = new BitmapImage(uriImage);
             wall.LargeImage = largeImage;
 
-            
+            // Column button
             PushButton column = panel.AddItem(new PushButtonData("extrude_column", "Extrude\r\nColumn", thisAssemblyPath,
                 "Manicotti.ExtrudeColumn")) as PushButton;
             column.ToolTip = "Automatically extrude columns based on exploded CAD drawings. " +
                 "WIP";
             column.LargeImage = largeImage;
+
+            // Test button
+            PushButton test = panel.AddItem(new PushButtonData("trim_stray", "Trim\r\nStray", thisAssemblyPath,
+                "Manicotti.Sandbox")) as PushButton;
+            test.ToolTip = "This function allows you to delete orphan line segments (one endpoint not connected by others) to form a neat boundary. WIP";
+            test.LargeImage = largeImage;
 
             a.ApplicationClosing += a_ApplicationClosing;
 
