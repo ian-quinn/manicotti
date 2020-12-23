@@ -41,9 +41,9 @@ namespace Manicotti
             column.LargeImage = largeImage;
 
             // Test button
-            PushButton test = panel.AddItem(new PushButtonData("trim_stray", "Trim\r\nStray", thisAssemblyPath,
-                "Manicotti.Sandbox")) as PushButton;
-            test.ToolTip = "This function allows you to delete orphan line segments (one endpoint not connected by others) to form a neat boundary. WIP";
+            PushButton test = panel.AddItem(new PushButtonData("detect_region", "Detect\r\nRegion", thisAssemblyPath,
+                "Manicotti.RegionDetect")) as PushButton;
+            test.ToolTip = "This function allows you to detect enclosed regions based on intersected lines. What's more, boundary walls, rooms and floors are created accordingly. WIP";
             test.LargeImage = largeImage;
 
             a.ApplicationClosing += a_ApplicationClosing;
