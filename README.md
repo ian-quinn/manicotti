@@ -65,6 +65,8 @@ Template structure
 
 ## To-do
 
-- [ ] Clean stray edges and cluster polygon boundaries by intersection
+- [x] <DetectRegion> Create closed CurveArray based on intersected strays
 - [ ] Adhere windows to walls
 - [ ] Create families for multi-thickness walls
+
+<img src="/Demo/DetectRegion.gif?raw=true">
