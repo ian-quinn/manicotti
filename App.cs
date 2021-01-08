@@ -40,10 +40,16 @@ namespace Manicotti
                 "WIP";
             column.LargeImage = largeImage;
 
-            // Test button
-            PushButton test = panel.AddItem(new PushButtonData("detect_region", "Detect\r\nRegion", thisAssemblyPath,
+            // RegionDetect button
+            PushButton region = panel.AddItem(new PushButtonData("detect_region", "Detect\r\nRegion", thisAssemblyPath,
                 "Manicotti.RegionDetect")) as PushButton;
-            test.ToolTip = "This function allows you to detect enclosed regions based on intersected lines. What's more, boundary walls, rooms and floors are created accordingly. WIP";
+            region.ToolTip = "This function allows you to detect enclosed regions based on intersected lines. What's more, boundary walls, rooms and floors are created accordingly. WIP";
+            region.LargeImage = largeImage;
+
+            // Test button
+            PushButton test = panel.AddItem(new PushButtonData("test", "Test\r\nButton", thisAssemblyPath,
+                "Manicotti.FloorRegen")) as PushButton;
+            test.ToolTip = "Test button for floor generation based on walls";
             test.LargeImage = largeImage;
 
             a.ApplicationClosing += a_ApplicationClosing;

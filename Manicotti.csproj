@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="FloorRegen.cs" />
     <Compile Include="ExtrudeColumn.cs" />
     <Compile Include="ExtrudeWall.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

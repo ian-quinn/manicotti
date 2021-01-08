@@ -15,7 +15,7 @@ namespace Manicotti
     public class RegionDetect : IExternalCommand
     {
         // Print list for debug
-        public String printo(List<int> list)
+        public static String printo(List<int> list)
         {
             String fusion = "";
             for (int index = 0; index < list.Count(); index++)
@@ -25,7 +25,7 @@ namespace Manicotti
             return fusion;
         }
 
-        public String printb(List<bool> list)
+        public static String printb(List<bool> list)
         {
             String fusion = "";
             for (int index = 0; index < list.Count(); index++)
@@ -35,7 +35,7 @@ namespace Manicotti
             return fusion;
         }
 
-        public String printd(Dictionary<int, List<Curve>> dictionary)
+        public static String printd(Dictionary<int, List<Curve>> dictionary)
         {
             String fusion = "";
             foreach (KeyValuePair<int, List<Curve>> kvp in dictionary)
@@ -46,7 +46,7 @@ namespace Manicotti
         }
 
         // Perform curve splitting according to raw intersection parameters
-        public List<Curve> SplitCrv(Curve parent, List<double> parameters)
+        public static List<Curve> SplitCrv(Curve parent, List<double> parameters)
         {
             List<Curve> segments = new List<Curve>();
             parameters.Add(parent.GetEndParameter(1));
@@ -65,7 +65,7 @@ namespace Manicotti
         }
 
         // Absolute angle from curve to curve ONLY on basic horizontal plan
-        public double AngleBetweenCrv(Curve crv1, Curve crv2, XYZ axis)
+        public static double AngleBetweenCrv(Curve crv1, Curve crv2, XYZ axis)
         {
             XYZ pt_origin = new XYZ();
             Line line1 = crv1 as Line;
@@ -87,7 +87,7 @@ namespace Manicotti
         }
 
         // Shatter a bunch of curves according to their intersections 
-        public List<Curve> ExplodeCrv(List<Curve> C)
+        public static List<Curve> ExplodeCrv(List<Curve> C)
         {
             // Start by Shattering all of your input curves by intersecting them with each other
             List<Curve> shatters = new List<Curve>();
@@ -118,7 +118,7 @@ namespace Manicotti
         }
 
         // Check if 2 lines are the same by comparing endpoints
-        public bool CompareLines(Curve crv1, Curve crv2)
+        public static bool CompareLines(Curve crv1, Curve crv2)
         {
             double bias = 0.00001;
             Line line1 = crv1 as Line;
@@ -140,7 +140,7 @@ namespace Manicotti
 
         // Flatten a list of CurveArray and dump the duplicate ones
         // not a universal method. just a after-process of regionCluster()
-        public Tuple<List<Curve>, List<Curve>> FlattenLines(List<CurveArray> polys)
+        public static Tuple<List<Curve>, List<Curve>> FlattenLines(List<CurveArray> polys)
         {
             List<Curve> curvePool = new List<Curve>();
             List<Curve> curveMesh = new List<Curve>();
@@ -176,7 +176,7 @@ namespace Manicotti
 
         // Create CurveArray from List<Curve>. not a universal method. only after regionCluster()
         // Note that the curves must follow the same order (counter-clockwise)
-        public CurveArray AlignCrv(List<Curve> polylines)
+        public static CurveArray AlignCrv(List<Curve> polylines)
         {
             CurveArray polygon = new CurveArray();
             polygon.Append(polylines[0]);
@@ -206,9 +206,10 @@ namespace Manicotti
         /// <param name="C"></param>
         /// <returns></returns>
 
-        public List<CurveArray> RegionCluster(List<Curve> C) // , Plane P, ref object CN
+        public static List<CurveArray> RegionCluster(List<Curve> C) // , Plane P, ref object CN
         {
             List<Curve> Crvs = new List<Curve>();
+
             for (int CStart = 0; CStart <= C.Count - 1; CStart++)
             {
                 List<double> breakParams = new List<double>();
@@ -302,7 +303,7 @@ namespace Manicotti
             Debug.Print("Elements inside HC are " + HC.Count.ToString());
             Debug.Print("Elements inside VOut are " + VOut.Count.ToString());
             Debug.Print("Elements inside HCK are " + HCK.Count.ToString());
-            Debug.Print(printb(HCK));
+            //Debug.Print(printb(HCK));
 
 
             // Find the "next" half-curve for each starting half curve by identifying the outgoing half-curve from the end vertex
@@ -514,6 +515,5 @@ namespace Manicotti
             return Result.Succeeded;
         }
 
-        
     }
 }
