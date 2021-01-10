@@ -14,20 +14,61 @@ namespace Manicotti
     public class FloorRegen : IExternalCommand
     {
         /// <summary>
-        /// Extend a curve by 10% (centroid based)
+        /// Consider to merge this function into the RegionDetect
+        /// Get the orphan edges suspected to minor leakage of walls
+        /// Future updates must be on this
         /// </summary>
-        /// <param name="crv">A Curve</param>
-        /// <returns>An Extended Curve</returns>
-        public Curve ExtendCrv(Curve crv)
+        /// <param name="crvs"></param>
+        /// <returns></returns>
+        public Tuple<List<XYZ>, List<Curve>> Orphans(List<Curve> crvs)
         {
-            double pstart = crv.GetEndParameter(0);
-            double pend = crv.GetEndParameter(1);
-            double pdelta = 0.05 * (pend - pstart);
+            List<Curve> Crvs = new List<Curve>();
+            for (int CStart = 0; CStart <= crvs.Count - 1; CStart++)
+            {
+                List<double> breakParams = new List<double>();
+                for (int CCut = 0; CCut <= crvs.Count - 1; CCut++)
+                {
+                    if (CStart != CCut)
+                    {
+                        SetComparisonResult result = crvs[CStart].Intersect(RegionDetect.ExtendCrv(crvs[CCut], 0.01), 
+                            out IntersectionResultArray results);
+                        if (result != SetComparisonResult.Disjoint)
+                        {
+                            double breakParam = results.get_Item(0).UVPoint.U;
+                            breakParams.Add(breakParam);
+                            //Debug.Print("Projection parameter is: " + breakParam.ToString());
+                        }
+                    }
+                }
+                Crvs.AddRange(RegionDetect.SplitCrv(crvs[CStart], breakParams));
+            }
 
-            crv.MakeUnbound();
-            crv.MakeBound(pstart - pdelta, pend + pdelta);
-            return crv;
+            List<XYZ> ptPool = new List<XYZ>();
+            List<int> ptIndex = new List<int>();
+            List<XYZ> ptOrphan = new List<XYZ>();
+            List<Curve> crvOrphan = new List<Curve>();
+            for (int Cid = 0; Cid <= Crvs.Count - 1; Cid++)
+            {
+                ptPool.Add(Crvs[Cid].GetEndPoint(0));
+                ptPool.Add(Crvs[Cid].GetEndPoint(1));
+            }
+            for (int Pid = 0; Pid <= ptPool.Count -1; Pid++)
+            {
+                foreach (XYZ pt in ptPool)
+                {
+                    if (ptPool[Pid].IsAlmostEqualTo(pt))
+                    {
+                        continue;
+                    }
+                    ptIndex.Add(Pid);
+                    ptOrphan.Add(ptPool[Pid]);
+                    crvOrphan.Add(Crvs[Pid / 2]);
+                }
+            }
+
+            return new Tuple<List<XYZ>, List<Curve>>(ptOrphan, crvOrphan);
         }
+        
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -70,7 +111,7 @@ namespace Manicotti
                 foreach (Wall wall in walls)
                 {
                     LocationCurve centerLine = wall.Location as LocationCurve;
-                    strayLines.Add(ExtendCrv(centerLine.Curve));
+                    strayLines.Add(centerLine.Curve);
                 }
                 Debug.Print("The number of wall axes: " + strayLines.Count().ToString());
 
@@ -84,8 +125,29 @@ namespace Manicotti
                     //Debug.Print("Model line generated");
                 }
 
-
                 List<CurveArray> curveGroup = RegionDetect.RegionCluster(strayLines);
+
+                /*
+                // Check containment. permanent abandoned
+                var (ptOrphans, crvOrphans) = Orphans(strayLines);
+                List<Curve> drawinglist = new List<Curve>();
+                foreach (XYZ pt in ptOrphans)
+                {
+                    foreach (CurveArray poly in curveGroup)
+                    {
+                        if (RegionDetect.PointInPoly(poly, pt))
+                        {
+                            drawinglist.Add(crvOrphans[ptOrphans.IndexOf(pt)]);
+                        }
+                    }
+                }
+                foreach (Line axis in drawinglist)
+                {
+                    ModelLine line = doc.Create.NewModelCurve(axis, sketch) as ModelLine;
+                    //Debug.Print("Model line generated");
+                }
+                */
+
                 var (mesh, perimeter) = RegionDetect.FlattenLines(curveGroup);
 
                 Floor newFloor = doc.Create.NewFloor(RegionDetect.AlignCrv(perimeter), floorType, firstLevel, false, XYZ.BasisZ);

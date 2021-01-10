@@ -48,16 +48,28 @@ namespace Manicotti
         // Perform curve splitting according to raw intersection parameters
         public static List<Curve> SplitCrv(Curve parent, List<double> parameters)
         {
+            double threshold = 0.00001;
             List<Curve> segments = new List<Curve>();
             parameters.Add(parent.GetEndParameter(1));
             parameters.Insert(0, parent.GetEndParameter(0));
             double[] params_ordered = parameters.ToArray();
             Array.Sort(params_ordered);
-            //Debug.Print(params_ordered.Length.ToString());
-            for (int index = 0; index < parameters.Count - 1; index++)
+            List<double> params_rectified = new List<double>();
+            params_rectified.Add(params_ordered[0]);
+            // Cautiously add this judgement in case too small segements
+            // If a parameter inside the array too close to the previous one
+            // Delete it
+            for (int paraId = 1; paraId < params_ordered.Length; paraId++)
+            {
+                if (params_ordered[paraId] - params_rectified.Last() > threshold)
+                {
+                    params_rectified.Add(params_ordered[paraId]);
+                }
+            }
+            for (int index = 0; index < params_rectified.Count - 1; index++)
             {
                 Curve segment = parent.Clone();
-                segment.MakeBound(params_ordered[index], params_ordered[index + 1]);
+                segment.MakeBound(params_rectified[index], params_rectified[index + 1]);
                 segments.Add(segment);
             }
             //Debug.Print("Add new shatters " + segments.Count().ToString());
@@ -199,6 +211,48 @@ namespace Manicotti
             return polygon;
         }
 
+        /// <summary>
+        /// Check point in polygon containment by vector crossproduct
+        /// Only apply to cw or ccw polycurve array
+        /// </summary>
+        /// <param name="crvArr"></param>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public static bool PointInPoly(CurveArray crvArr, XYZ pt)
+        {
+            int judgement = 0;
+            int counter = 0;
+            foreach(Curve crv in crvArr)
+            {
+                XYZ ptstart = crv.GetEndPoint(0);
+                XYZ ptend = crv.GetEndPoint(1);
+                XYZ direction = (pt - ptstart).CrossProduct(pt - ptend).Normalize();
+                if (direction.IsAlmostEqualTo(new XYZ(0,0,1)))
+                {
+                    judgement += 1;
+                }
+                counter += 1;
+            }
+            if (judgement < counter){ return false; }
+            else { return true; }
+        }
+
+        /// <summary>
+        /// Extend a curve by 1% (centroid based)
+        /// </summary>
+        /// <param name="crv">A Curve</param>
+        /// <returns>An Extended Curve</returns>
+        public static Curve ExtendCrv(Curve crv, double ratio)
+        {
+            double pstart = crv.GetEndParameter(0);
+            double pend = crv.GetEndParameter(1);
+            double pdelta = ratio * (pend - pstart);
+
+            crv.MakeUnbound();
+            crv.MakeBound(pstart - pdelta, pend + pdelta);
+            return crv;
+        }
+
 
         /// <summary>
         /// Generate conter-clockwise ordered CurveArray representing enclosed areas based on a bunch of intersected lines
@@ -217,7 +271,8 @@ namespace Manicotti
                 {
                     if (CStart != CCut)
                     {
-                        SetComparisonResult result = C[CStart].Intersect(C[CCut], out IntersectionResultArray results);
+                        SetComparisonResult result = C[CStart].Intersect(ExtendCrv(C[CCut], 0.01), 
+                            out IntersectionResultArray results);
                         if (result != SetComparisonResult.Disjoint)
                         {
                             double breakParam = results.get_Item(0).UVPoint.U;
