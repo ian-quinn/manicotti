@@ -43,14 +43,21 @@ namespace Manicotti
             // RegionDetect button
             PushButton region = panel.AddItem(new PushButtonData("detect_region", "Detect\r\nRegion", thisAssemblyPath,
                 "Manicotti.RegionDetect")) as PushButton;
-            region.ToolTip = "This function allows you to detect enclosed regions based on intersected lines. What's more, boundary walls, rooms and floors are created accordingly. WIP";
+            region.ToolTip = "Detect enclosed regions based on intersected lines. WIP";
             region.LargeImage = largeImage;
 
-            // Test button
-            PushButton test = panel.AddItem(new PushButtonData("test", "Test\r\nButton", thisAssemblyPath,
-                "Manicotti.FloorRegen")) as PushButton;
-            test.ToolTip = "Test button for floor generation based on walls";
-            test.LargeImage = largeImage;
+            // Test button for mesh generation
+            PushButton mesh = panel.AddItem(new PushButtonData("mesh", "Generate\r\nMesh", thisAssemblyPath,
+                "Manicotti.MeshPatch")) as PushButton;
+            mesh.ToolTip = "Test button for space mesh generation by Basic & Curtain Wall";
+            mesh.LargeImage = largeImage;
+
+            // Test button for CAD info extraction
+            PushButton channel = panel.AddItem(new PushButtonData("channel", "Channel\r\nDWG file", thisAssemblyPath,
+                "Manicotti.Channel")) as PushButton;
+            channel.ToolTip = "Extract elements from linked CAD file (Teigha based)";
+            channel.LargeImage = largeImage;
+
 
             a.ApplicationClosing += a_ApplicationClosing;
 
