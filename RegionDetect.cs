@@ -237,6 +237,62 @@ namespace Manicotti
             else { return true; }
         }
 
+        public static CurveArray PolyLineToCurveArray(PolyLine poly, double tolerance)
+        {
+            var vertices = poly.GetCoordinates();
+            CurveArray shatters = new CurveArray();
+            for (int i = 0; i < vertices.Count() - 1; i++)
+            {
+                if ((vertices[i + 1] - vertices[i]).GetLength() >= tolerance)
+                {
+                    shatters.Append(Line.CreateBound(vertices[i], vertices[i + 1]) as Curve);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            return shatters;
+        }
+
+        public static bool PolyInPoly(PolyLine test, CurveArray target)
+        {
+            int judgement = 0;
+            int counter = 0;
+            var testPts = test.GetCoordinates();
+            foreach(XYZ testPt in testPts)
+            {
+                if (PointInPoly(target, testPt))
+                {
+                    judgement += 1;
+                }
+                counter += 1;
+            }
+            if (judgement < counter) { return false; }
+            else { return true; }
+        }
+
+        public static XYZ PolyCentPt(PolyLine poly)
+        {
+            var vertices = poly.GetCoordinates();
+            int counter;
+            XYZ sumPt = XYZ.Zero;
+            if (vertices[0].IsAlmostEqualTo(vertices.Last()))
+            {
+                counter = vertices.Count() - 1;
+            }
+            else
+            {
+                counter = vertices.Count();
+            }
+            
+            for (int i = 0; i < counter; i++)
+            {
+                sumPt += vertices[i];
+            }
+            return sumPt.Divide(counter);
+        }
+
         /// <summary>
         /// Extend a curve by 1% (centroid based)
         /// </summary>

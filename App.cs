@@ -58,6 +58,12 @@ namespace Manicotti
             channel.ToolTip = "Extract elements from linked CAD file (Teigha based)";
             channel.LargeImage = largeImage;
 
+            // Test button for floorplan split
+            PushButton distribute = panel.AddItem(new PushButtonData("distribute", "Split info\r\non Levels", thisAssemblyPath,
+                "Manicotti.Distribute")) as PushButton;
+            distribute.ToolTip = "Split DWG by different floorplans";
+            distribute.LargeImage = largeImage;
+
 
             a.ApplicationClosing += a_ApplicationClosing;
 
