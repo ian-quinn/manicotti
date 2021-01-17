@@ -44,6 +44,7 @@ namespace Manicotti
                     
                     foreach (var obj in dwg_geos)
                     {
+                        double tolerance = commandData.Application.Application.ShortCurveTolerance;
                         // The variable will be null if the implicit cast fails, thus...
                         // This will sort the curve(line) and polyline into two categories automatically
                         Curve crv = obj as Curve;
@@ -60,7 +61,14 @@ namespace Manicotti
                             CurveArray shatters = new CurveArray();
                             for (int i = 0; i < vertices.Count() - 1; i++)
                             {
-                                shatters.Append(Line.CreateBound(vertices[i], vertices[i + 1]) as Curve);
+                                if ((vertices[i + 1] - vertices[i]).GetLength() >= tolerance)
+                                {
+                                    shatters.Append(Line.CreateBound(vertices[i], vertices[i + 1]) as Curve);
+                                }
+                                else
+                                {
+                                    continue;
+                                }
                             }
                             foreach (Curve shatter in shatters)
                             {
