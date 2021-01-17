@@ -40,9 +40,6 @@
     <StartProgram>$(ProgramW6432)\Autodesk\Revit 2020\Revit.exe</StartProgram>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AdWindows">
-      <HintPath>D:\Autodesk\Revit 2020\AdWindows.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
       <HintPath>D:\Autodesk\Revit 2020\RevitAPI.dll</HintPath>
@@ -64,6 +61,7 @@
     <Compile Include="App.cs" />
     <Compile Include="CADGeoUtil.cs" />
     <Compile Include="Channel.cs" />
+    <Compile Include="TestExtrudeColumn.cs" />
     <Compile Include="Distribute.cs" />
     <Compile Include="MeshPatch.cs" />
     <Compile Include="ExtrudeColumn.cs" />
@@ -72,6 +70,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegionDetect.cs" />
     <Compile Include="CADTextUtil.cs" />
+    <Compile Include="TestExtrudeWall.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>

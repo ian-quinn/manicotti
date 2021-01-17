@@ -207,13 +207,17 @@ namespace Manicotti
         // Center point of list of lines
         public static XYZ GrabCenterPt(List<Line> lines)
         {
-            XYZ ptSum = new XYZ(0, 0, 0);
+            double ptSum_X = 0;
+            double ptSum_Y = 0;
+            double ptSum_Z = lines[0].GetEndPoint(0).Z;
             foreach (Line line in lines)
             {
-                ptSum += line.GetEndPoint(0);
-                ptSum += line.GetEndPoint(1);
+                ptSum_X += line.GetEndPoint(0).X;
+                ptSum_X += line.GetEndPoint(1).X;
+                ptSum_Y += line.GetEndPoint(0).Y;
+                ptSum_Y += line.GetEndPoint(1).Y;
             }
-            XYZ centerPt = ptSum / lines.Count / 2;
+            XYZ centerPt = new XYZ(ptSum_X / lines.Count / 2, ptSum_Y / lines.Count / 2, ptSum_Z);
             return centerPt;
         }
     }

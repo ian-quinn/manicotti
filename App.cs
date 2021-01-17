@@ -35,7 +35,7 @@ namespace Manicotti
 
             // Column button
             PushButton column = panel.AddItem(new PushButtonData("extrude_column", "Extrude\r\nColumn", thisAssemblyPath,
-                "Manicotti.ExtrudeColumn")) as PushButton;
+                "Manicotti.CmdExtrudeColumn")) as PushButton;
             column.ToolTip = "Automatically extrude columns based on exploded CAD drawings. " +
                 "WIP";
             column.LargeImage = largeImage;
@@ -61,7 +61,8 @@ namespace Manicotti
             // Test button for floorplan split
             PushButton distribute = panel.AddItem(new PushButtonData("distribute", "Split info\r\non Levels", thisAssemblyPath,
                 "Manicotti.Distribute")) as PushButton;
-            distribute.ToolTip = "Split DWG by different floorplans";
+            distribute.ToolTip = "Split geometries and texts in DWG by different floorplans." +
+                "Try to extrude walls and columns on each building level. To test this demo, Floor.dwg and Column_demo.rfa must be linked";
             distribute.LargeImage = largeImage;
 
 

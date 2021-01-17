@@ -27,7 +27,7 @@ namespace Manicotti
             Reference r = uidoc.Selection.PickObject(ObjectType.Element, new JtElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
 
-            // Data preparations
+            // DATA PREPARATIONS
 
             // Prepare frames and levels
             // Cluster all geometry elements and texts into datatrees
@@ -95,10 +95,13 @@ namespace Manicotti
             int level;
             int levelCounter = 0;
             double floorHeight = 13.1233596;  // (in feet) = 4.0 m
-            Dictionary<int, PolyLine> frameDict= new Dictionary<int, PolyLine>();
+            Dictionary<int, PolyLine> frameDict= new Dictionary<int, PolyLine>(); // cache drawing borders
             Dictionary<int, XYZ> transDict= new Dictionary<int, XYZ>();
+            // cache transform vector from the left-bottom corner of the drawing border to the Origin
             Dictionary<int, List<GeometryObject>> geoDict = new Dictionary<int, List<GeometryObject>>();
+            // cache geometries of each floorplan
             Dictionary<int, List<CADTextUtil.CADTextModel>> textDict = new Dictionary<int, List<CADTextUtil.CADTextModel>>();
+            // cache text info of each floorplan
 
             if (texts.Count > 0)
             {
@@ -113,7 +116,7 @@ namespace Manicotti
                             if (RegionDetect.PointInPoly(RegionDetect.PolyLineToCurveArray(frame, tolerance), textmodel.Location))
                             {
                                 XYZ basePt = Algorithm.BubbleSort(frame.GetCoordinates().ToList())[0];
-                                XYZ transVec = level * floorHeight * XYZ.BasisZ - basePt;
+                                XYZ transVec = XYZ.Zero - basePt;
                                 Debug.Print("Add level " + level.ToString() + " with transaction (" +
                                     transVec.X.ToString() + ", " + transVec.Y.ToString() + ", " + transVec.Z.ToString() + ")");
                                 if (!frameDict.Values.ToList().Contains(frame))
@@ -153,7 +156,13 @@ namespace Manicotti
                             Arc go_arc = go as Arc;
                             centPt = go_arc.Center;
                         }
-                        if (RegionDetect.PointInPoly(tempPolyArray, centPt))
+                        else if (go is PolyLine)
+                        {
+                            PolyLine go_poly = go as PolyLine;
+                            centPt = go_poly.GetCoordinate(0);
+                        }
+                        // Assignment
+                        if (RegionDetect.PointInPoly(tempPolyArray, centPt) && centPt != XYZ.Zero)
                         {
                             geoDict[i].Add(go);
                         }
@@ -163,9 +172,12 @@ namespace Manicotti
             Debug.Print("All levels: " + levelCounter.ToString());
             Debug.Print("frameDict: " + frameDict.Count().ToString());
             Debug.Print("transDict: " + transDict.Count().ToString());
-            Debug.Print("geoDict: " + geoDict.Count().ToString() + " " + geoDict[1].Count().ToString());
+            Debug.Print("geoDict: " + geoDict.Count().ToString() + " " + geoDict[1].Count().ToString()
+                 + " " + geoDict[2].Count().ToString() + " " + geoDict[3].Count().ToString() + " " + geoDict[4].Count().ToString());
             Debug.Print("textDict: " + textDict.Count().ToString() + " " + textDict[1].Count().ToString());
+
             
+            // MAIN TRANSACTIONS
 
             // Transactions to add stuffs to the document
             using (var t = new Transaction(doc))
@@ -194,25 +206,68 @@ namespace Manicotti
                     TextNoteOptions opts = new TextNoteOptions(tnt.Id);
                     Transform alignment = Transform.CreateTranslation(transDict[i]);
 
+                    // Create additional levels (ignore what's present)
+                    Level floor = Level.Create(doc, (i - 1) * floorHeight);
+                    ViewPlan floorView = ViewPlan.Create(doc, floorType.Id, floor.Id);
+                    floorView.Name = "F-" + i.ToString();
+
                     // The note may only show in the current view
                     // no matter we still need it anyway
-                    TextNote txNote = TextNote.Create(doc, active_view.Id, centPt, "F"+(transDict[i].Z/floorHeight).ToString(), options);
+                    TextNote txNote = TextNote.Create(doc, active_view.Id, centPt, floorView.Name, options);
                     txNote.ChangeTypeId(tnt.Id);
 
                     // Draw model lines of frames as notation
-                    Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero + transDict[i]);
+                    Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero + transDict[i] + XYZ.BasisZ * (i - 1) * floorHeight);
                     SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
                     CurveArray shatters = RegionDetect.PolyLineToCurveArray(frameDict[i], tolerance);
+                    Transform alignModelLine = Transform.CreateTranslation(transDict[i] + XYZ.BasisZ * (i - 1) * floorHeight);
                     foreach (Curve shatter in shatters)
                     {
-                        Curve alignedCrv = shatter.CreateTransformed(alignment);
+                        Curve alignedCrv = shatter.CreateTransformed(alignModelLine);
                         ModelCurve modelline = doc.Create.NewModelCurve(alignedCrv, sketch) as ModelCurve;
                     }
 
-                    // Create additional levels (ignore what's present)
-                    Level floor = Level.Create(doc, transDict[i].Z);
-                    ViewPlan floorView = ViewPlan.Create(doc, floorType.Id, floor.Id);
-                    floorView.Name = "F-" + (transDict[i].Z / floorHeight).ToString();
+                    // Create walls & columns
+                    List<Line> doubleLines = new List<Line>();
+                    List<Line> columnLines = new List<Line>();
+                    foreach (GeometryObject go in geoDict[i])
+                    {
+                        var gStyle = doc.GetElement(go.GraphicsStyleId) as GraphicsStyle;
+                        if (gStyle.GraphicsStyleCategory.Name == "WALL")
+                        {
+                            if (go.GetType().Name == "Line")
+                            {
+                                Curve wallLine = go as Curve;
+                                doubleLines.Add(wallLine.CreateTransformed(alignment) as Line);
+                            }
+                            if (go.GetType().Name == "PolyLine")
+                            {
+                                CurveArray wallPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
+                                foreach (Curve crv in wallPolyLine_shattered)
+                                {
+                                    doubleLines.Add(crv.CreateTransformed(alignment) as Line);
+                                }
+                            }
+                        }
+                        if (gStyle.GraphicsStyleCategory.Name == "COLUMN")
+                        {
+                            if (go.GetType().Name == "Line")
+                            {
+                                Curve columnLine = go as Curve;
+                                columnLines.Add(columnLine.CreateTransformed(alignment) as Line);
+                            }
+                            if (go.GetType().Name == "PolyLine")
+                            {
+                                CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
+                                foreach (Curve crv in columnPolyLine_shattered)
+                                {
+                                    columnLines.Add(crv.CreateTransformed(alignment) as Line);
+                                }
+                            }
+                        }
+                    }
+                    ExtrudeWall.Execute(uiapp, doubleLines, floor);
+                    ExtrudeColumn.Execute(uiapp, columnLines, floor);
                 }
 
                 t.Commit();
