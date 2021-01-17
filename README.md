@@ -13,16 +13,15 @@ The files you need are cached within $/Demo
 - Within Dynamo click 'RUN' (takes almost 5s)
 
 
+
 ## Test the Revit Add-in
 The files you need are cached within $/Demo. The default Revit Add-in folder is `C:\ProgramData\Autodesk\Revit\Addins\2020\` for all users or `C:\Users\$username$\AppData\Roaming\Autodesk\Revit\Addins\2020\` for individual user.
 - Copy `Manicotti.addin` and `Manicotti.dll` to the Revit Add-in folder
-- Insert -> Import CAD -> `Demo.dwg`
+- Insert -> Link CAD -> `Floor.dwg`
 - Insert -> Load Family -> `Column_demo.rfa`
-- Modify -> Explode -> Full Explode
-- Manicotti -> Extrude walls (takes almost 2s)
+- Manicotti -> Split info on Levels
+- Manual select the linked DWG in the view (process takes almost 7s)
 
-
-<img src="/Demo/Demo.gif?raw=true">
 
 
 ## About the Dynamo Packages
@@ -63,10 +62,12 @@ Template structure
 **TUTORIAL** | [Hello World Demo](http://aectechy.com/stepbystep-guide-to-your-first-revit-plugin/) | [Group Copy Demo](https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/simplecontent/content/lesson-1-the-basic-plug.html) | [Revit API Tutorials](https://www.youtube.com/channel/UCHqe6I5GKoUEH4XlPw2VGGw/videos)
 
 
-## To-do
+## What's new
 
-- [x] <DetectRegion> Create closed CurveArray based on intersected strays
-- [ ] Adhere windows to walls
-- [ ] Create families for multi-thickness walls
+To-do list moved to [TaskBoard](https://github.com/ian-quinn/manicotti/issues/1)  
 
+Demo for region detect  
 <img src="/Demo/DetectRegion.gif?raw=true">
+
+Demo for DWG information allocation  
+<img src="/Demo/AllocateInfo.gif?raw=true">
