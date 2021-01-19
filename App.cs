@@ -21,7 +21,7 @@ namespace Manicotti
             //string thisAssemblyPath = AssemblyLoadEventArgs.getExecutingAssembly().Location;
             string thisAssemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             PushButton wall = panel.AddItem(new PushButtonData("extrude_wall", "Extrude\r\nWall", thisAssemblyPath,
-                "Manicotti.ExtrudeWall")) as PushButton; //needs to be the ButtonName.Command
+                "Manicotti.TestExtrudeWall")) as PushButton; //needs to be the ButtonName.Command
 
             wall.ToolTip = "Automatically extrude walls based on exploded CAD drawings. " +
                 "WIP";
@@ -35,7 +35,7 @@ namespace Manicotti
 
             // Column button
             PushButton column = panel.AddItem(new PushButtonData("extrude_column", "Extrude\r\nColumn", thisAssemblyPath,
-                "Manicotti.CmdExtrudeColumn")) as PushButton;
+                "Manicotti.TestExtrudeColumn")) as PushButton;
             column.ToolTip = "Automatically extrude columns based on exploded CAD drawings. " +
                 "WIP";
             column.LargeImage = largeImage;
