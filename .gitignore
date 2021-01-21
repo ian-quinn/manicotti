@@ -1,3 +1,4 @@
-/obj/
-/bin/
-/.vs/
+/Manicotti/obj/
+/Manicotti/bin/
+/Manicotti/.vs/
+/Manicotti/Manicotti.csproj.user

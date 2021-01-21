@@ -11,11 +11,11 @@ using Autodesk.Revit.UI.Selection;
 
 namespace Manicotti
 {
-    public static class CADGeoUtil
+    public static class UtilGetCADGeometry
     {
         /// <summary>
         /// Pick a DWG import/linked instance (ver.2010 or below), extract all visible elements or 
-        /// ones within specific Layer(LineType) if the type is assigned.
+        /// ones within specific Layer(LineType) if the type(GeometryObjectType) is assigned.
         /// </summary>
         public static List<GeometryObject> ExtractElement(UIDocument uidoc, ImportInstance import, string layer = "*", string type = "*")
         {

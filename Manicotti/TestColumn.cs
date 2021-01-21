@@ -13,7 +13,7 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public class TestExtrudeColumn : IExternalCommand
+    public class TestColumn : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -21,7 +21,6 @@ namespace Manicotti
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
-
             
             // Access current selection
             Selection sel = uidoc.Selection;

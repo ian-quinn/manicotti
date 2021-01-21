@@ -14,7 +14,7 @@ using Teigha.Geometry;
 
 namespace Manicotti
 {
-    public static class CADTextUtil
+    public static class UtilGetCADText
     {
         // Just for the time being
         // Mixing models and methods sucks

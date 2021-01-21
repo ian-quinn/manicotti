@@ -24,10 +24,11 @@ namespace Manicotti
             View active_view = doc.ActiveView;
 
             // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new JtElementsOfClassSelectionFilter<ImportInstance>());
+            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
 
-            List<GeometryObject> dwg_geos = CADGeoUtil.ExtractElement(uidoc, import, "WALL");
+            List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import);
+            //List<GeometryObject> dwg_geos = CADGeoUtil.ExtractElement(uidoc, import, "WALL", "Line");
             //Debug.Print("Number of geos is " + dwg_geos.Count().ToString());
 
             // Create ModelCurve for all GeometryElement in DWG
@@ -82,13 +83,15 @@ namespace Manicotti
             
             // Convert texts info into TextNote by Teigha
             // Revit does not expose any API to parse text info
-            string path = CADTextUtil.GetCADPath(uidoc, import);
-            Debug.Print("The path of linked CAD file is: " + path);
-            List<CADTextUtil.CADTextModel> texts = CADTextUtil.GetCADText(path);
+            string path = UtilGetCADText.GetCADPath(uidoc, import);
+            List<UtilGetCADText.CADTextModel> texts = UtilGetCADText.GetCADText(path);
+
+            Debug.Print("The path of linked DWG file is: " + path);
+            Debug.Print("Texts.Count: " + texts.Count.ToString());
 
             if (texts.Count > 0)
             {
-                using (var t = new Autodesk.Revit.DB.Transaction(doc))
+                using (var t = new Transaction(doc))
                 {
                     t.Start("Extracting Text");
 

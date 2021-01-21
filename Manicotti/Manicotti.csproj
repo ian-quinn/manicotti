@@ -59,22 +59,32 @@
   <ItemGroup>
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="CADGeoUtil.cs" />
+    <Compile Include="UtilGetCADGeometry.cs" />
     <Compile Include="Channel.cs" />
-    <Compile Include="TestExtrudeColumn.cs" />
+    <Compile Include="TestColumn.cs" />
     <Compile Include="Distribute.cs" />
     <Compile Include="MeshPatch.cs" />
     <Compile Include="ExtrudeColumn.cs" />
     <Compile Include="ExtrudeWall.cs" />
-    <Compile Include="JtElementOfClassSelectionFilter.cs" />
+    <Compile Include="UtilElementOfClassSelectionFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegionDetect.cs" />
-    <Compile Include="CADTextUtil.cs" />
-    <Compile Include="TestExtrudeWall.cs" />
+    <Compile Include="UtilGetCADText.cs" />
+    <Compile Include="TestWall.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="ico\temp.ico" />
+    <Resource Include="ico\Annotation.ico" />
+    <Resource Include="ico\Basics.ico" />
+    <Resource Include="ico\DataExchange.ico" />
+    <Resource Include="ico\Families.ico" />
+    <Resource Include="ico\Geometry.ico" />
+    <Resource Include="ico\House.ico" />
+    <Resource Include="ico\Parameters.ico" />
+    <Resource Include="ico\Room.ico" />
+    <Resource Include="ico\Wall.ico" />
+    <Resource Include="ico\House_32.ico" />
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>

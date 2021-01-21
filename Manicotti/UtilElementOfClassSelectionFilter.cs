@@ -3,7 +3,7 @@ using Autodesk.Revit.UI.Selection;
 
 namespace Manicotti
 {
-    class JtElementsOfClassSelectionFilter<T> : ISelectionFilter where T : Element
+    class UtilElementsOfClassSelectionFilter<T> : ISelectionFilter where T : Element
     {
         /// <summary>
         /// Allow selection of elements of type T only.

@@ -24,7 +24,7 @@ namespace Manicotti
             View active_view = doc.ActiveView;
 
             // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new JtElementsOfClassSelectionFilter<ImportInstance>());
+            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
 
             // DATA PREPARATIONS
@@ -32,8 +32,8 @@ namespace Manicotti
             // Prepare frames and levels
             // Cluster all geometry elements and texts into datatrees
             // Two procedures are intertwined
-            List<GeometryObject> dwg_frames = CADGeoUtil.ExtractElement(uidoc, import, "FRAME", "PolyLine");
-            List<GeometryObject> dwg_geos = CADGeoUtil.ExtractElement(uidoc, import);
+            List<GeometryObject> dwg_frames = UtilGetCADGeometry.ExtractElement(uidoc, import, "FRAME", "PolyLine");
+            List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import);
             // Terminate if no geometry has been found
             if (dwg_geos == null)
                 return Result.Failed;
@@ -88,9 +88,9 @@ namespace Manicotti
             Debug.Print("Got closedPolys: " + closedPolys.Count().ToString());
             Debug.Print("Got parentPolys: " + parentPolys.Count().ToString());
 
-            string path = CADTextUtil.GetCADPath(uidoc, import);
+            string path = UtilGetCADText.GetCADPath(uidoc, import);
             Debug.Print("The path of linked CAD file is: " + path);
-            List<CADTextUtil.CADTextModel> texts = CADTextUtil.GetCADText(path);
+            List<UtilGetCADText.CADTextModel> texts = UtilGetCADText.GetCADText(path);
 
             int level;
             int levelCounter = 0;
@@ -100,7 +100,7 @@ namespace Manicotti
             // cache transform vector from the left-bottom corner of the drawing border to the Origin
             Dictionary<int, List<GeometryObject>> geoDict = new Dictionary<int, List<GeometryObject>>();
             // cache geometries of each floorplan
-            Dictionary<int, List<CADTextUtil.CADTextModel>> textDict = new Dictionary<int, List<CADTextUtil.CADTextModel>>();
+            Dictionary<int, List<UtilGetCADText.CADTextModel>> textDict = new Dictionary<int, List<UtilGetCADText.CADTextModel>>();
             // cache text info of each floorplan
 
             if (texts.Count > 0)
@@ -132,7 +132,7 @@ namespace Manicotti
                 // Too complicated using 2 iterations... uplift needed
                 for (int i = 1; i <= levelCounter; i++)
                 {
-                    textDict.Add(i, new List<CADTextUtil.CADTextModel>());
+                    textDict.Add(i, new List<UtilGetCADText.CADTextModel>());
                     geoDict.Add(i, new List<GeometryObject>());
                     CurveArray tempPolyArray = RegionDetect.PolyLineToCurveArray(frameDict[i], tolerance);
                     foreach (var textmodel in texts)
