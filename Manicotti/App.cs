@@ -17,7 +17,7 @@ namespace Manicotti
     {
         public Result OnStartup(UIControlledApplication a)
         {
-            RibbonPanel panel = ribbonPanel(a);
+            RibbonPanel modelBuild = ribbonPanel(a);
             //string thisAssemblyPath = AssemblyLoadEventArgs.getExecutingAssembly().Location;
             string thisAssemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
             
@@ -28,48 +28,49 @@ namespace Manicotti
             BitmapImage defaultImg = new BitmapImage(uriImage);
 
             // Test button for floorplan split
-            PushButton distribute = panel.AddItem(new PushButtonData("distribute", "Build up model\r\non all levels", thisAssemblyPath,
+            PushButton distribute = modelBuild.AddItem(new PushButtonData("distribute", "Build up model\r\non all levels", thisAssemblyPath,
                 "Manicotti.Distribute")) as PushButton;
-            distribute.ToolTip = "Split geometries and texts in DWG by different floorplans." +
-                "Try to extrude walls and columns on each building level. To test this demo, Floor.dwg and Column_demo.rfa must be linked";
+            distribute.ToolTip = "Split geometries and texts by their floors." +
+                " Try to create walls and columns on all levels. To test this demo, Link_floor.dwg and Column_demo.rfa must be linked." +
+                " (act on Linked DWG)";
             distribute.LargeImage = defaultImg;
 
             // Button list
             PushButtonData wall = new PushButtonData("extrude_wall", "Create Wall", 
                 thisAssemblyPath, "Manicotti.TestWall");
-            wall.ToolTip = "Automatically extrude walls based on exploded CAD drawings.";
+            wall.ToolTip = "Extrude walls. To test the demo, Link_demo.dwg must be imported and fully exploded. (act on ModelLines with WALL linetype)";
             BitmapImage wallImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Wall.ico", UriKind.Absolute));
             wall.Image = wallImg;
             
             PushButtonData column = new PushButtonData("extrude_column", "Create Column", 
                 thisAssemblyPath, "Manicotti.TestColumn");
-            column.ToolTip = "Automatically extrude columns based on exploded CAD drawings.";
+            column.ToolTip = "Extrude columns. To test the demo, Link_demo.dwg must be imported and fully exploded. (act on ModelLines with COLUMN linetype)";
             BitmapImage columnImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Families.ico", UriKind.Absolute));
             column.Image = columnImg;
 
             PushButtonData region = new PushButtonData("detect_region", "Detect Region",
                 thisAssemblyPath, "Manicotti.RegionDetect");
-            region.ToolTip = "Detect enclosed regions based on intersected lines.";
+            region.ToolTip = "Detect enclosed regions (act on ModelLines with WALL linetype)";
             BitmapImage regionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Room.ico", UriKind.Absolute));
             region.Image = regionImg;
 
-            IList<RibbonItem> stackedGeometry = panel.AddStackedItems(wall, column, region);
+            IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, region);
 
             // Test button for mesh generation
             PushButtonData mesh = new PushButtonData("mesh", "Fix Axes Mesh", thisAssemblyPath,
                 "Manicotti.MeshPatch");
-            mesh.ToolTip = "Test button for space mesh generation by Basic & Curtain Wall";
+            mesh.ToolTip = "Space mesh regeneration (act on Walls & Curtains)";
             BitmapImage meshImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Basics.ico", UriKind.Absolute));
             mesh.Image = meshImg;
 
             // Test button for CAD info extraction
             PushButtonData channel = new PushButtonData("channel", "Grab DWG Info", thisAssemblyPath,
                 "Manicotti.Channel");
-            channel.ToolTip = "Extract elements from linked CAD file (Teigha based)";
+            channel.ToolTip = "Extract geometries and texts. To test the demo, Link_test.dwg must be linked. (act on Linked DWG)";
             BitmapImage channelImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Parameters.ico", UriKind.Absolute));
             channel.Image = channelImg;
 
-            IList<RibbonItem> stackedAlgorithm = panel.AddStackedItems(mesh, channel);
+            IList<RibbonItem> stackedAlgorithm = modelBuild.AddStackedItems(mesh, channel);
 
 
             a.ApplicationClosing += a_ApplicationClosing;

@@ -28,6 +28,7 @@
     <WarningLevel>4</WarningLevel>
     <StartAction>Program</StartAction>
     <StartProgram>$(ProgramW6432)\Autodesk\Revit 2020\Revit.exe</StartProgram>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -42,11 +43,11 @@
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="RevitAPI">
-      <HintPath>D:\Autodesk\Revit 2020\RevitAPI.dll</HintPath>
+      <HintPath>..\..\Program Files\Autodesk\Revit 2020\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>D:\Autodesk\Revit 2020\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\Program Files\Autodesk\Revit 2020\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -85,12 +86,22 @@
     <Resource Include="ico\Room.ico" />
     <Resource Include="ico\Wall.ico" />
     <Resource Include="ico\House_32.ico" />
+    <Resource Include="lib\TD_Alloc_3.03_9.dll" />
+    <Resource Include="lib\TD_DbRoot_3.03_9.dll" />
+    <Resource Include="lib\TD_Db_3.03_9.dll" />
+    <Resource Include="lib\TD_Ge_3.03_9.dll" />
+    <Resource Include="lib\TD_Gi_3.03_9.dll" />
+    <Resource Include="lib\TD_Gs_3.03_9.dll" />
+    <Resource Include="lib\TD_Mgd_3.03_9.dll" />
+    <Resource Include="lib\TD_Root_3.03_9.dll" />
+    <Resource Include="lib\TD_SpatialIndex_3.03_9.dll" />
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="lib\" />
+    <Resource Include="lib\TD_DynBlocks_3.03_9.tx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

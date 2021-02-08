@@ -1,17 +1,23 @@
 # Manicotti :burrito:
-Revit add-in to extrude walls from CAD drawings. A demo in progress.
+Revit add-in to establish building information model automatically based on DWG drawings. A demo in progress.  
 
-
-## Test the Dynamo workflow
-The files you need are cached within $/Demo
-- File -> New Project -> Select Template: `C:\ProgramData\Autodesk\RVT 2020\Templates\US Metric\DefaultMetric.rte`
-- Insert -> Import CAD -> `Demo.dwg`
-- Insert -> Load Family -> `Column_demo.rfa`
-- Modify -> Explode -> Full Explode
-- Manage -> Dynamo -> Open -> `Demo.dyn`
-- Within Dynamo Packages -> Manage Packages -> Make sure custom nodes `Chynamo` & `Data-Shapes` are installed
-- Within Dynamo click 'RUN' (takes almost 5s)
-
+Repo structure  
+├ /Demo  
+┆ ├ Manicotti.addin  - Manifest file  
+┆ ├ Manicotti.dll  - Add-in DLL  
+┆ ├ \*.dwg  - DWG file for testing  
+┆ ├ \*.rfa  - Revit family file for testing  
+┆ ├ \*.dyn  - Dynamo file for testing  
+┆ └ \*.gif  - Example movie  
+└ /Manicotti  
+	├ /Properties  - Assembly info XML  
+	├ /ico  - Button icon files  
+	├ /lib  - Teigha DLL files  
+	├ Manicotti.csproj  - Project configuration XML  
+	├ Manicotti.sln  - VS solution file  
+	├ App.cs  - Class library for ribbon button  
+	├ \*.cs  - Class library  
+	└ Manicotti.addin  - Application manifest XML  
 
 
 ## Test the Revit Add-in
@@ -23,13 +29,15 @@ The files you need are cached within $/Demo. The default Revit Add-in folder is 
 - Manual select the linked DWG in the view (process takes almost 7s)
 
 
-
-## About the Dynamo Packages
-Default installation folder: `C:\Users\$username$\AppData\Roaming\Dynamo\Dynamo Revit\2.1\packages\` (Dynamo Revit) `C:\Users\$username$\AppData\Roaming\Dynamo\Dynamo Core\2.8\packages\` (Dynamo Sandbox)  
-├ /bin	- houses .dll files created with C# or Zero-Touch libraries  
-├ /dyf	- custom nodes  
-├ /extra	- any additional files such as .svg / .xls / .dyn  
-└ pkg.json	- text file, defining the package settings  
+## Test the Dynamo workflow
+The files you need are cached within $/Demo
+- File -> New Project -> Select Template: `C:\ProgramData\Autodesk\RVT 2020\Templates\US Metric\DefaultMetric.rte`
+- Insert -> Import CAD -> `Demo.dwg`
+- Insert -> Load Family -> `Column_demo.rfa`
+- Modify -> Explode -> Full Explode
+- Manage -> Dynamo -> Open -> `Demo.dyn`
+- Within Dynamo Packages -> Manage Packages -> Make sure custom nodes `Chynamo` & `Data-Shapes` are installed
+- Within Dynamo click 'RUN' (takes almost 5s)
 
 
 ## Compile the source code
@@ -46,13 +54,6 @@ To craft your add-in from scratch please use the template by Jeremy Tammik. ZIP 
 as `Revit2020AddinWizard.zip`, and place it here:
 `C:\Users\$username$\Documents\Visual Studio 2017\Templates\ProjectTemplates\`  
 References: Jeremy's blog [1](https://thebuildingcoder.typepad.com/blog/2015/05/autodesk-university-q1-adn-labs-and-wizard-update.html#5) [2](https://thebuildingcoder.typepad.com/blog/2019/04/revit-2020-c-and-vb-visual-studio-add-in-wizards.html)
-
-Template structure  
-├ /Properties  -  
-├ /References  - External dependencies RevitAPI.dll & RevitAPIUI.dll  
-├ App.cs	- Class library  
-├ Command.cs	- Class library  
-└ $projectname$.addin	- Application manifest file  
 
 
 ## Resources
