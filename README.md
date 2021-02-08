@@ -1,16 +1,14 @@
 # Manicotti :burrito:
 Revit add-in to establish building information model automatically based on DWG drawings. A demo in progress.  
-
-Repo structure  
 ```
 manicotti
 ├ /Demo  
 │ ├ Manicotti.addin  - Manifest file  
 │ ├ Manicotti.dll  - Add-in DLL  
-│ ├ \*.dwg  - DWG file for testing  
-│ ├ \*.rfa  - Revit family file for testing  
-│ ├ \*.dyn  - Dynamo file for testing  
-│ └ \*.gif  - Example movie  
+│ ├ *.dwg  - DWG file for testing  
+│ ├ *.rfa  - Revit family file for testing  
+│ ├ *.dyn  - Dynamo file for testing  
+│ └ *.gif  - Example movie  
 └ /Manicotti  
   ├ /Properties  - Assembly info XML  
   ├ /ico  - Button icon files  
@@ -18,7 +16,7 @@ manicotti
   ├ Manicotti.csproj  - Project configuration XML  
   ├ Manicotti.sln  - VS solution file  
   ├ App.cs  - Class library for ribbon button  
-  ├ \*.cs  - Class library  
+  ├ *.cs  - Class library  
   └ Manicotti.addin  - Application manifest XML  
 ```
 
