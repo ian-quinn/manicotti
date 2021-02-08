@@ -3,21 +3,21 @@ Revit add-in to establish building information model automatically based on DWG 
 
 Repo structure  
 ├ /Demo  
-┆ ├ Manicotti.addin  - Manifest file  
-┆ ├ Manicotti.dll  - Add-in DLL  
-┆ ├ \*.dwg  - DWG file for testing  
-┆ ├ \*.rfa  - Revit family file for testing  
-┆ ├ \*.dyn  - Dynamo file for testing  
-┆ └ \*.gif  - Example movie  
+│ ├ Manicotti.addin  - Manifest file  
+│ ├ Manicotti.dll  - Add-in DLL  
+│ ├ \*.dwg  - DWG file for testing  
+│ ├ \*.rfa  - Revit family file for testing  
+│ ├ \*.dyn  - Dynamo file for testing  
+│ └ \*.gif  - Example movie  
 └ /Manicotti  
-	├ /Properties  - Assembly info XML  
-	├ /ico  - Button icon files  
-	├ /lib  - Teigha DLL files  
-	├ Manicotti.csproj  - Project configuration XML  
-	├ Manicotti.sln  - VS solution file  
-	├ App.cs  - Class library for ribbon button  
-	├ \*.cs  - Class library  
-	└ Manicotti.addin  - Application manifest XML  
+  ├ /Properties  - Assembly info XML  
+  ├ /ico  - Button icon files  
+  ├ /lib  - Teigha DLL files  
+  ├ Manicotti.csproj  - Project configuration XML  
+  ├ Manicotti.sln  - VS solution file  
+  ├ App.cs  - Class library for ribbon button  
+  ├ \*.cs  - Class library  
+  └ Manicotti.addin  - Application manifest XML  
 
 
 ## Test the Revit Add-in
