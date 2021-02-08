@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Autodesk.Revit.DB;
 
 namespace Manicotti
 {
     public class Util
     {
+        #region Text Processing
         public static int ExtractIndex(String str)
         {
             int index = -1;
@@ -48,7 +50,9 @@ namespace Manicotti
                 default: return '*';
             }
         }
+        #endregion // for Teigha text recognition
 
+        #region Selection
         public static int GetLevel(String label, String key)
         {
             // Consider Regex here, maybe
@@ -59,5 +63,82 @@ namespace Manicotti
             }
             return level;
         }
+
+        /// <summary>
+        /// Return the first element of the given type and name.
+        /// </summary>
+        public static Element GetFirstElementOfTypeNamed(Document doc, Type type, string name)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(type);
+
+        #if EXPLICIT_CODE
+
+              // explicit iteration and manual checking of a property:
+
+              Element ret = null;
+              foreach( Element e in collector )
+              {
+                if( e.Name.Equals( name ) )
+                {
+                  ret = e;
+                  break;
+                }
+              }
+              return ret;
+        #endif // EXPLICIT_CODE
+
+        #if USE_LINQ
+
+              // using LINQ:
+
+              IEnumerable<Element> elementsByName =
+                from e in collector
+                where e.Name.Equals( name )
+                select e;
+
+              return elementsByName.First<Element>();
+        #endif // USE_LINQ
+
+            // using an anonymous method:
+
+            // if no matching elements exist, First<> throws an exception.
+
+            //return collector.Any<Element>( e => e.Name.Equals( name ) )
+            //  ? collector.First<Element>( e => e.Name.Equals( name ) )
+            //  : null;
+
+            // using an anonymous method to define a named method:
+
+            Func<Element, bool> nameEquals = e => e.Name.Equals(name);
+
+            return collector.Any<Element>(nameEquals) ? collector.First<Element>(nameEquals) : null;
+        }
+        #endregion
+
+        #region Conversion
+        /// <summary>
+        /// Convert a given length in feet to milimeters.
+        /// </summary>
+        public static double FootToMm(double length)
+        {
+            return length * 304.8;
+        }
+
+        /// <summary>
+        /// Convert a given length in milimeters to feet.
+        /// </summary>
+        public static double MmToFoot(double length)
+        {
+            return length / 304.8;
+        }
+
+        /// <summary>
+        /// Convert a given point or vector from milimeters to feet.
+        /// </summary>
+        public static XYZ MmToFoot(XYZ v)
+        {
+            return v.Divide(304.8);
+        }
+        #endregion
     }
 }

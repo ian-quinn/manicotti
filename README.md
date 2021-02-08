@@ -2,35 +2,34 @@
 Revit add-in to establish building information model automatically based on DWG drawings. A demo in progress.  
 ```
 manicotti
-├ /Demo  
-│ ├ Manicotti.addin  - Manifest file  
-│ ├ Manicotti.dll  - Add-in DLL  
-│ ├ *.dwg  - DWG file for testing  
-│ ├ *.rfa  - Revit family file for testing  
-│ ├ *.dyn  - Dynamo file for testing  
-│ └ *.gif  - Example movie  
-└ /Manicotti  
-  ├ /Properties  - Assembly info XML  
-  ├ /ico  - Button icon files  
-  ├ /lib  - Teigha DLL files  
-  ├ Manicotti.csproj  - Project configuration XML  
-  ├ Manicotti.sln  - VS solution file  
-  ├ App.cs  - Class library for ribbon button  
-  ├ *.cs  - Class library  
-  └ Manicotti.addin  - Application manifest XML  
+├ /Demo
+│ ├ Manicotti.addin  - Manifest file
+│ ├ Manicotti.dll  - Add-in DLL
+│ ├ *.dwg  - DWG file for testing
+│ ├ *.rfa  - Revit family file for testing
+│ ├ *.dyn  - Dynamo file for testing
+│ └ *.gif  - Example movie
+└ /Manicotti
+  ├ /Properties  - Assembly info XML
+  ├ /ico  - Button icon files
+  ├ /lib  - Teigha DLL files
+  ├ Manicotti.csproj  - Project configuration XML
+  ├ Manicotti.sln  - VS solution file
+  ├ App.cs  - Class library for ribbon button
+  ├ *.cs  - Class library
+  └ Manicotti.addin  - Application manifest XML
 ```
 
 ## Test the Revit Add-in
-The files you need are cached within $/Demo. The default Revit Add-in folder is `C:\ProgramData\Autodesk\Revit\Addins\2020\` for all users or `C:\Users\$username$\AppData\Roaming\Autodesk\Revit\Addins\2020\` for individual user.
+The default Revit Add-in folder is `C:\ProgramData\Autodesk\Revit\Addins\2020\` for all users or `C:\Users\$username$\AppData\Roaming\Autodesk\Revit\Addins\2020\` for individual user.
 - Copy `Manicotti.addin` and `Manicotti.dll` to the Revit Add-in folder
-- Insert -> Link CAD -> `Floor.dwg`
-- Insert -> Load Family -> `Column_demo.rfa`
-- Manicotti -> Split info on Levels
+- Insert -> Link CAD -> `Link_floor.dwg`
+- Manicotti -> Build up model on all Levels
 - Manual select the linked DWG in the view (process takes almost 7s)
 
 
 ## Test the Dynamo workflow
-The files you need are cached within $/Demo
+The Dynamo workflow has been abandoned due to its limitations.
 - File -> New Project -> Select Template: `C:\ProgramData\Autodesk\RVT 2020\Templates\US Metric\DefaultMetric.rte`
 - Insert -> Import CAD -> `Demo.dwg`
 - Insert -> Load Family -> `Column_demo.rfa`

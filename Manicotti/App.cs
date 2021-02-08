@@ -31,7 +31,7 @@ namespace Manicotti
             PushButton distribute = modelBuild.AddItem(new PushButtonData("distribute", "Build up model\r\non all levels", thisAssemblyPath,
                 "Manicotti.Distribute")) as PushButton;
             distribute.ToolTip = "Split geometries and texts by their floors." +
-                " Try to create walls and columns on all levels. To test this demo, Link_floor.dwg and Column_demo.rfa must be linked." +
+                " Try to create walls and columns on all levels. To test this demo, Link_floor.dwg must be linked." +
                 " (act on Linked DWG)";
             distribute.LargeImage = defaultImg;
 

@@ -220,5 +220,14 @@ namespace Manicotti
             XYZ centerPt = new XYZ(ptSum_X / lines.Count / 2, ptSum_Y / lines.Count / 2, ptSum_Z);
             return centerPt;
         }
+
+        // Retrieve the width and depth of a rectangle
+        // Update will be soon
+        public static Tuple<double, double> GrabSizeOfRectangle(List<Line> lines)
+        {
+            double width = Util.FootToMm(lines[0].Length);
+            double depth = Util.FootToMm(lines[1].Length);
+            return new Tuple<double, double>(width, depth);
+        }
     }
 }
