@@ -10,6 +10,15 @@ namespace Manicotti
 {
     public class Algorithm
     {
+        // Calculate the clockwise angle from vec1 to vec2
+        public static double AngleTo2PI(XYZ vec1, XYZ vec2)
+        {
+            double dot = vec1.X * vec2.X + vec1.Y * vec2.Y;    // dot product between [x1, y1] and [x2, y2]
+            double det = vec1.X * vec2.Y - vec1.Y * vec2.X;    // determinant
+            double angle = Math.Atan2(det, dot);  // Atan2(y, x) or atan2(sin, cos)
+            return angle;
+        }
+
         // Check the parallel lines
         public static bool IsParallel(Line line1, Line line2)
         {
@@ -222,12 +231,28 @@ namespace Manicotti
         }
 
         // Retrieve the width and depth of a rectangle
-        // Update will be soon
-        public static Tuple<double, double> GrabSizeOfRectangle(List<Line> lines)
+        public static Tuple<double, double, double> GrabSizeOfRectangle(List<Line> lines)
         {
-            double width = Util.FootToMm(lines[0].Length);
-            double depth = Util.FootToMm(lines[1].Length);
-            return new Tuple<double, double>(width, depth);
+            List<double> rotations = new List<double> { };  // in radian
+            List<double> lengths = new List<double> { };  // in milimeter
+            foreach (Line line in lines)
+            {
+                XYZ vec = line.GetEndPoint(1) - line.GetEndPoint(0);
+                double angle = AngleTo2PI(vec, XYZ.BasisX);
+                //Debug.Print("Iteration angle is " + angle.ToString());
+                rotations.Add(angle);
+                lengths.Add(Util.FootToMm(line.Length));
+            }
+            int baseEdgeId = rotations.IndexOf(rotations.Min());
+            double width = lengths[baseEdgeId];
+            double depth = width;
+            if (width == lengths.Min()) { depth = lengths.Max(); }
+            else { depth = lengths.Min(); }
+
+            return new Tuple<double, double, double>(width, depth, rotations.Min());
+            // clockwise rotation in radian measure
+            // x pointing right and y down as is common for computer graphics
+            // this will mean you get a positive sign for clockwise angles
         }
     }
 }

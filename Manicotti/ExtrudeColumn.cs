@@ -134,11 +134,16 @@ namespace Manicotti
             // Column generation
             foreach (List<Line> baselines in columnGroups)
             {
+                if (baselines.Count > 4) { continue; }  // can only process rectangular column for now
                 double width = Math.Round(Algorithm.GrabSizeOfRectangle(baselines).Item1, 2);
                 double depth = Math.Round(Algorithm.GrabSizeOfRectangle(baselines).Item2, 2);
+                double angle = Math.Round(Algorithm.GrabSizeOfRectangle(baselines).Item3, 2);
                 FamilySymbol cs = CreateColumn(uiapp, "M_Rectangular Column", width, depth);
                 XYZ columnCenterPt = Algorithm.GrabCenterPt(baselines);
-                doc.Create.NewFamilyInstance(columnCenterPt, cs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
+                // z pointing down to apply a clockwise rotation
+                FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, cs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
                 //Autodesk.Revit.DB.Structure.StructuralType.Column
             }
         }
