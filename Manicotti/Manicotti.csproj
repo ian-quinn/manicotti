@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="TestSubsrf.cs" />
     <Compile Include="UtilGetCADGeometry.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="TestColumn.cs" />

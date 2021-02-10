@@ -48,13 +48,13 @@ namespace Manicotti
             BitmapImage columnImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Families.ico", UriKind.Absolute));
             column.Image = columnImg;
 
-            PushButtonData region = new PushButtonData("detect_region", "Detect Region",
-                thisAssemblyPath, "Manicotti.RegionDetect");
-            region.ToolTip = "Detect enclosed regions (act on ModelLines with WALL linetype)";
-            BitmapImage regionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Room.ico", UriKind.Absolute));
-            region.Image = regionImg;
+            // Test button for bounding box and axis generation
+            PushButtonData subsrf = new PushButtonData("subsrf", "Sub-surface axes", thisAssemblyPath,
+                "Manicotti.TestSubsrf");
+            subsrf.ToolTip = "Generate axes for sub-surfaces. WIP. To test the demo, Link_demo.dwg must be imported and fully exploded. (need linetype DOOR, WINDOW & WALL)";
+            subsrf.Image = columnImg;
 
-            IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, region);
+            IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, subsrf);
 
             // Test button for mesh generation
             PushButtonData mesh = new PushButtonData("mesh", "Fix Axes Mesh", thisAssemblyPath,
@@ -70,7 +70,13 @@ namespace Manicotti
             BitmapImage channelImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Parameters.ico", UriKind.Absolute));
             channel.Image = channelImg;
 
-            IList<RibbonItem> stackedAlgorithm = modelBuild.AddStackedItems(mesh, channel);
+            PushButtonData region = new PushButtonData("detect_region", "Detect Region",
+                thisAssemblyPath, "Manicotti.RegionDetect");
+            region.ToolTip = "Detect enclosed regions (act on ModelLines with WALL linetype)";
+            BitmapImage regionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Room.ico", UriKind.Absolute));
+            region.Image = regionImg;
+
+            IList<RibbonItem> stackedAlgorithm = modelBuild.AddStackedItems(region, mesh, channel);
 
 
             a.ApplicationClosing += a_ApplicationClosing;

@@ -71,3 +71,6 @@ Demo for region detect
 
 Demo for DWG information allocation  
 <img src="/Demo/AllocateInfo.gif?raw=true">
+
+Currently working on axis generation for sub-surface. Take the DOOR blocks for example, one of the bounding box edges (green polygon) will be selected as the axis (scarlet line). The axes of sub-surfaces will be merged into wall axes to create continuous walls.  
+<img src="/Demo/DoorAxis.jpg?raw=true">

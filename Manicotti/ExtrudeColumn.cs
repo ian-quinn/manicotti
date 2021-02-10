@@ -135,9 +135,7 @@ namespace Manicotti
             foreach (List<Line> baselines in columnGroups)
             {
                 if (baselines.Count > 4) { continue; }  // can only process rectangular column for now
-                double width = Math.Round(Algorithm.GrabSizeOfRectangle(baselines).Item1, 2);
-                double depth = Math.Round(Algorithm.GrabSizeOfRectangle(baselines).Item2, 2);
-                double angle = Math.Round(Algorithm.GrabSizeOfRectangle(baselines).Item3, 2);
+                var (width, depth, angle) = Algorithm.GrabSizeOfRectangle(baselines);
                 FamilySymbol cs = CreateColumn(uiapp, "M_Rectangular Column", width, depth);
                 XYZ columnCenterPt = Algorithm.GrabCenterPt(baselines);
                 Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));

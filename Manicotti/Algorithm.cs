@@ -1,5 +1,6 @@
 ﻿#region Namespaces
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -63,9 +64,9 @@ namespace Manicotti
         }
 
         // Check the intersected lines
-        public static bool IsIntersected(Line line1, Line line2)
+        public static bool IsIntersected(Curve crv1, Curve crv2)
         {
-            SetComparisonResult result = line1.Intersect(line2, out IntersectionResultArray results);
+            SetComparisonResult result = crv1.Intersect(crv2, out IntersectionResultArray results);
             if (result == SetComparisonResult.Overlap
                 || result == SetComparisonResult.Subset
                 || result == SetComparisonResult.Superset
@@ -110,6 +111,7 @@ namespace Manicotti
         public static bool IsCrossing(Line line, List<Line> list)
         {
             int judgement = 0;
+            // shit here
             if (list.Count == 0)
             {
                 return true;
@@ -132,6 +134,138 @@ namespace Manicotti
             else
             {
                 return true;
+            }
+        }
+
+        // Check whether a line is intersected with a bunch of lines
+        public static bool IsCrossingCrv(Curve crv, List<Curve> list)
+        {
+            int judgement = 0;
+            // shit here
+            if (list.Count == 0)
+            {
+                return true;
+            }
+            else
+            {
+                foreach (Curve element in list)
+                {
+                    if (IsIntersected(crv, element))
+                    {
+                        judgement += 1;
+                    }
+                }
+            }
+
+            if (judgement == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        // Cluster lines by intersection
+        // target line will move a little bit within the tolerance to expand adjacencies
+        public static List<List<Curve>> ClusterByIntersection(List<Curve> crvs)
+        {
+            double tolerance = 0.01;
+            Transform up = Transform.CreateTranslation(tolerance * XYZ.BasisY);
+            Transform down = Transform.CreateTranslation(-tolerance * XYZ.BasisY);
+            Transform left = Transform.CreateTranslation(-tolerance * XYZ.BasisX);
+            Transform right = Transform.CreateTranslation(tolerance * XYZ.BasisX);
+            List<List<Curve>> clusters = new List<List<Curve>> { };
+            clusters.Add(new List<Curve> { });
+            for (int i = 0; i < crvs.Count; i++)
+            {
+                if (null == crvs[i]) { continue; }
+                Curve crv0 = crvs[i].Clone();
+                crv0 = RegionDetect.ExtendCrv(crv0, 0.05);
+                Curve crv1 = crv0.CreateTransformed(up);
+                Curve crv2 = crv0.CreateTransformed(down);
+                Curve crv3 = crv0.CreateTransformed(left);
+                Curve crv4 = crv0.CreateTransformed(right);
+                int iterCount = -1;
+                for (int j = 0; j < clusters.Count; j++)
+                {
+                    iterCount = j;
+                    if (IsCrossingCrv(crv0, clusters[j]) ||
+                        IsCrossingCrv(crv1, clusters[j]) ||
+                        IsCrossingCrv(crv2, clusters[j]) ||
+                        IsCrossingCrv(crv3, clusters[j]) ||
+                        IsCrossingCrv(crv4, clusters[j]))
+                    {
+                        clusters[iterCount].Add(crvs[i]);
+                        goto a;
+                    }
+                }
+                clusters.Add(new List<Curve> { crvs[i] });
+            a:
+                continue;
+            }
+            return clusters;
+        }
+
+        // Get all vertices
+        public static List<XYZ> FlattenToPts(List<Curve> crvs)
+        {
+            List<XYZ> pts = new List<XYZ> { };
+            foreach (Curve crv in crvs)
+            {
+                XYZ ptStart = crv.GetEndPoint(0);
+                XYZ ptEnd = crv.GetEndPoint(1);
+                pts.Add(ptStart);
+                pts.Add(ptEnd);
+            }
+            for (int i = 0; i < pts.Count; i++)
+            {
+                for (int j = pts.Count - 1; j > i; j--)
+                {
+                    if (pts[i].IsAlmostEqualTo(pts[j]))
+                    {
+                        pts.RemoveAt(j);
+                    }
+                }
+            }
+            Debug.Print("Vertices in all: " + pts.Count.ToString());
+            return pts;
+        }
+
+        // Create rectangular bounding box by diagonal points
+        public static List<Curve> CreateBoundingBox2D(List<XYZ> pts)
+        {
+            double Xmin = 10000;
+            double Xmax = -10000;
+            double Ymin = 10000;
+            double Ymax = -10000;
+            double ZAxis = pts[0].Z;
+            foreach (XYZ pt in pts)
+            {
+                if (pt.X < Xmin) { Xmin = pt.X; }
+                if (pt.X > Xmax) { Xmax = pt.X; }
+                if (pt.Y < Ymin) { Ymin = pt.Y; }
+                if (pt.Y > Ymax) { Ymax = pt.Y; }
+            }
+            XYZ pt1 = new XYZ(Xmin, Ymin, ZAxis);
+            XYZ pt2 = new XYZ(Xmax, Ymin, ZAxis);
+            XYZ pt3 = new XYZ(Xmax, Ymax, ZAxis);
+            XYZ pt4 = new XYZ(Xmin, Ymax, ZAxis);
+            if (Xmax - Xmin < 0.001 || Ymax - Ymin < 0.001)
+            {
+                //boundingBox.Add(Line.CreateBound(pt1, pt3));
+                Debug.Print("WARNING! the bounding box has no area! ");
+                return null;
+            }
+            else
+            {
+                Curve crv1 = Line.CreateBound(pt1, pt2) as Curve;
+                Curve crv2 = Line.CreateBound(pt2, pt3) as Curve;
+                Curve crv3 = Line.CreateBound(pt3, pt4) as Curve;
+                Curve crv4 = Line.CreateBound(pt4, pt1) as Curve;
+                List<Curve> boundingBox = new List<Curve> { crv1, crv2, crv3, crv4 };
+                return boundingBox;
             }
         }
 
@@ -249,7 +383,7 @@ namespace Manicotti
             if (width == lengths.Min()) { depth = lengths.Max(); }
             else { depth = lengths.Min(); }
 
-            return new Tuple<double, double, double>(width, depth, rotations.Min());
+            return Tuple.Create(Math.Round(width,2), Math.Round(depth,2), rotations.Min());
             // clockwise rotation in radian measure
             // x pointing right and y down as is common for computer graphics
             // this will mean you get a positive sign for clockwise angles
