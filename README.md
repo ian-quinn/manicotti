@@ -66,9 +66,6 @@ References: Jeremy's blog [1](https://thebuildingcoder.typepad.com/blog/2015/05/
 
 To-do list moved to [TaskBoard](https://github.com/ian-quinn/manicotti/issues/1)  
 
-Demo for region detect  
-<img src="/Demo/DetectRegion.gif?raw=true">
-
 Demo for DWG information allocation  
 <img src="/Demo/AllocateInfo.gif?raw=true">
 

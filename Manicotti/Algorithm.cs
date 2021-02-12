@@ -233,33 +233,95 @@ namespace Manicotti
             return pts;
         }
 
-        // Create rectangular bounding box by diagonal points
-        public static List<Curve> CreateBoundingBox2D(List<XYZ> pts)
+        // Return XYZ under rotated axis system with radian angle
+        public static XYZ AxisTransformPt2D(XYZ pt, double angle)
         {
-            double Xmin = 10000;
-            double Xmax = -10000;
-            double Ymin = 10000;
-            double Ymax = -10000;
+            double Xtrans = pt.X * Math.Cos(angle) + pt.Y * Math.Sin(angle);
+            double Ytrans = pt.Y * Math.Cos(angle) - pt.X * Math.Sin(angle);
+            return new XYZ(Xtrans, Ytrans, pt.Z);
+        }
+        
+        /// <summary>
+        /// Return the bounding box of curves. The box has minimum area with axis in align with the curve direction.
+        /// </summary>
+        /// <param name="crvs"></param>
+        /// <returns></returns>
+        public static List<Curve> CreateBoundingBox2D(List<Curve> crvs)
+        {
+            // There can be a bounding box of an arc
+            // but it is ambiguous to define the deflection of an arc-block
+            // which is not the case as a door-block or window-block
+            if (crvs.Count <= 1) { return null; }
+
+            // Tolerance is to avoid generating boxes too small
+            double tolerance = 0.001;
+            List<XYZ> pts = FlattenToPts(crvs);
             double ZAxis = pts[0].Z;
-            foreach (XYZ pt in pts)
+            List<double> processions = new List<double> { };
+            foreach (Curve crv in crvs)
             {
-                if (pt.X < Xmin) { Xmin = pt.X; }
-                if (pt.X > Xmax) { Xmax = pt.X; }
-                if (pt.Y < Ymin) { Ymin = pt.Y; }
-                if (pt.Y > Ymax) { Ymax = pt.Y; }
+                // The Arc features no deflection of the door block
+                if (crv.GetType().ToString() == "Autodesk.Revit.DB.Line")
+                {
+                    double angle = XYZ.BasisX.AngleTo(crv.GetEndPoint(1) - crv.GetEndPoint(0));
+                    if (angle > Math.PI / 2)
+                    {
+                        angle = Math.PI - angle;
+                    }
+                    if (!processions.Contains(angle))
+                    {
+                        processions.Add(angle);
+                    }
+                }
+                
             }
-            XYZ pt1 = new XYZ(Xmin, Ymin, ZAxis);
-            XYZ pt2 = new XYZ(Xmax, Ymin, ZAxis);
-            XYZ pt3 = new XYZ(Xmax, Ymax, ZAxis);
-            XYZ pt4 = new XYZ(Xmin, Ymax, ZAxis);
-            if (Xmax - Xmin < 0.001 || Ymax - Ymin < 0.001)
+            //Debug.Print("Deflections in all: " + processions.Count.ToString());
+
+            double area = double.PositiveInfinity;  // Mark the minimum bounding box area
+            double deflection = 0;  // Mark the corresponding deflection angle
+            double X0 = 0;
+            double X1 = 0;
+            double Y0 = 0;
+            double Y1 = 0;
+            foreach (double angle in processions)
             {
-                //boundingBox.Add(Line.CreateBound(pt1, pt3));
-                Debug.Print("WARNING! the bounding box has no area! ");
+                double Xmin = double.PositiveInfinity;
+                double Xmax = double.NegativeInfinity;
+                double Ymin = double.PositiveInfinity;
+                double Ymax = double.NegativeInfinity;
+                foreach (XYZ pt in pts)
+                {
+                    double Xtrans = AxisTransformPt2D(pt, angle).X;
+                    double Ytrans = AxisTransformPt2D(pt, angle).Y;
+                    if (Xtrans < Xmin) { Xmin = Xtrans; }
+                    if (Xtrans > Xmax) { Xmax = Xtrans; }
+                    if (Ytrans < Ymin) { Ymin = Ytrans; }
+                    if (Ytrans > Ymax) { Ymax = Ytrans; }
+                }
+                if (((Xmax - Xmin) * (Ymax - Ymin)) < area)
+                {
+                    area = (Xmax - Xmin) * (Ymax - Ymin);
+                    deflection = angle;
+                    X0 = Xmin;
+                    X1 = Xmax;
+                    Y0 = Ymin;
+                    Y1 = Ymax;
+                }
+            }
+            
+            if (X1 - X0 < tolerance || Y1 - Y0 < tolerance)
+            {
+                Debug.Print("WARNING! Bounding box too small to be generated! ");
                 return null;
             }
+
             else
             {
+                // Inverse transformation
+                XYZ pt1 = AxisTransformPt2D(new XYZ(X0, Y0, ZAxis), -deflection);
+                XYZ pt2 = AxisTransformPt2D(new XYZ(X1, Y0, ZAxis), -deflection);
+                XYZ pt3 = AxisTransformPt2D(new XYZ(X1, Y1, ZAxis), -deflection);
+                XYZ pt4 = AxisTransformPt2D(new XYZ(X0, Y1, ZAxis), -deflection);
                 Curve crv1 = Line.CreateBound(pt1, pt2) as Curve;
                 Curve crv2 = Line.CreateBound(pt2, pt3) as Curve;
                 Curve crv3 = Line.CreateBound(pt3, pt4) as Curve;
