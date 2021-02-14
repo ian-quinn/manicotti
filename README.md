@@ -67,7 +67,6 @@ References: Jeremy's blog [1](https://thebuildingcoder.typepad.com/blog/2015/05/
 To-do list moved to [TaskBoard](https://github.com/ian-quinn/manicotti/issues/1)  
 
 Demos  
-<img src="/Demo/AllocateInfo.gif?raw=true">
 <div align=right>
 <table>
   <tr>
