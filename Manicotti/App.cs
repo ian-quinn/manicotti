@@ -17,58 +17,55 @@ namespace Manicotti
     {
         public Result OnStartup(UIControlledApplication a)
         {
-            RibbonPanel modelBuild = ribbonPanel(a);
             //string thisAssemblyPath = AssemblyLoadEventArgs.getExecutingAssembly().Location;
             string thisAssemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            
+
+
+            // 1st Panel
+            RibbonPanel modelBuild = ribbonPanel(a, "Manicotti", "Create Model");
             //var globePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "icon.PNG");
             // need to load image in <filename>/bin/Debug file for windows
             // need to load image to C:\users\<USERNAME>\AppData\Roaming\Autodesk\Revit\Addins\2020
-            Uri uriImage = new Uri("pack://application:,,,/Manicotti;component/ico/House_32.ico", UriKind.Absolute);
-            BitmapImage defaultImg = new BitmapImage(uriImage);
+            Uri uriImage = new Uri("pack://application:,,,/Manicotti;component/ico/Model.ico", UriKind.Absolute);
+            BitmapImage modelImg = new BitmapImage(uriImage);
 
             // Test button for floorplan split
-            PushButton distribute = modelBuild.AddItem(new PushButtonData("distribute", "Build up model\r\non all levels", thisAssemblyPath,
+            PushButton distribute = modelBuild.AddItem(new PushButtonData("distribute", "Build up model\non all levels", thisAssemblyPath,
                 "Manicotti.Distribute")) as PushButton;
             distribute.ToolTip = "Split geometries and texts by their floors." +
-                " Try to create walls and columns on all levels. To test this demo, Link_floor.dwg must be linked." +
-                " (act on Linked DWG)";
-            distribute.LargeImage = defaultImg;
+                " Try to create walls and columns on all levels. To test this demo, Link_floor.dwg must be linked. (act on Linked DWG)";
+            distribute.LargeImage = modelImg;
 
             // Button list
-            PushButtonData wall = new PushButtonData("extrude_wall", "Create Wall", 
+            PushButtonData wall = new PushButtonData("extrude_wall", "Walls", 
                 thisAssemblyPath, "Manicotti.TestWall");
             wall.ToolTip = "Extrude walls. To test the demo, Link_demo.dwg must be imported and fully exploded. (act on ModelLines with WALL linetype)";
             BitmapImage wallImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Wall.ico", UriKind.Absolute));
             wall.Image = wallImg;
             
-            PushButtonData column = new PushButtonData("extrude_column", "Create Column", 
+            PushButtonData column = new PushButtonData("extrude_column", "Columns", 
                 thisAssemblyPath, "Manicotti.TestColumn");
             column.ToolTip = "Extrude columns. To test the demo, Link_demo.dwg must be imported and fully exploded. (act on ModelLines with COLUMN linetype)";
-            BitmapImage columnImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Families.ico", UriKind.Absolute));
+            BitmapImage columnImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Column.ico", UriKind.Absolute));
             column.Image = columnImg;
+            
+            PushButtonData opening = new PushButtonData("opening", "Openings", thisAssemblyPath,
+                "Manicotti.TestOpening");
+            opening.ToolTip = "Insert openings. To test the demo, Link_demo.dwg must be imported and fully exploded. (need linetype DOOR, WINDOW & WALL)";
+            BitmapImage openingImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Opening.ico", UriKind.Absolute));
+            opening.Image = openingImg;
 
-            // Test button for bounding box and axis generation
-            PushButtonData subsrf = new PushButtonData("subsrf", "Sub-surface axes", thisAssemblyPath,
-                "Manicotti.TestSubsrf");
-            subsrf.ToolTip = "Generate axes for sub-surfaces. WIP. To test the demo, Link_demo.dwg must be imported and fully exploded. (need linetype DOOR, WINDOW & WALL)";
-            subsrf.Image = columnImg;
+            IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, opening);
 
-            IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, subsrf);
 
-            // Test button for mesh generation
-            PushButtonData mesh = new PushButtonData("mesh", "Fix Axes Mesh", thisAssemblyPath,
-                "Manicotti.MeshPatch");
+            // 2nd Panel
+            RibbonPanel modelFix = ribbonPanel(a, "Manicotti", "Misc. Test");
+            
+            PushButton mesh = modelFix.AddItem(new PushButtonData("mesh", "Patch\nAxis Grid", thisAssemblyPath,
+                "Manicotti.MeshPatch")) as PushButton;
             mesh.ToolTip = "Space mesh regeneration (act on Walls & Curtains)";
-            BitmapImage meshImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Basics.ico", UriKind.Absolute));
-            mesh.Image = meshImg;
-
-            // Test button for CAD info extraction
-            PushButtonData channel = new PushButtonData("channel", "Grab DWG Info", thisAssemblyPath,
-                "Manicotti.Channel");
-            channel.ToolTip = "Extract geometries and texts. To test the demo, Link_test.dwg must be linked. (act on Linked DWG)";
-            BitmapImage channelImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Parameters.ico", UriKind.Absolute));
-            channel.Image = channelImg;
+            BitmapImage meshImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Anchor.ico", UriKind.Absolute));
+            mesh.LargeImage = meshImg;
 
             PushButtonData region = new PushButtonData("detect_region", "Detect Region",
                 thisAssemblyPath, "Manicotti.RegionDetect");
@@ -76,7 +73,13 @@ namespace Manicotti
             BitmapImage regionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Room.ico", UriKind.Absolute));
             region.Image = regionImg;
 
-            IList<RibbonItem> stackedAlgorithm = modelBuild.AddStackedItems(region, mesh, channel);
+            PushButtonData sketch = new PushButtonData("sketch", "Sketch DWG", thisAssemblyPath,
+                "Manicotti.SketchDWG");
+            sketch.ToolTip = "Extract geometries and texts. To test the demo, Link_test.dwg must be linked. (act on Linked DWG)";
+            BitmapImage channelImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Sketch.ico", UriKind.Absolute));
+            sketch.Image = channelImg;
+            
+            IList<RibbonItem> stackedAlgorithm = modelFix.AddStackedItems(region, sketch);
 
 
             a.ApplicationClosing += a_ApplicationClosing;
@@ -93,25 +96,24 @@ namespace Manicotti
             throw new NotImplementedException();
         }
 
-        public RibbonPanel ribbonPanel(UIControlledApplication a)
+        public RibbonPanel ribbonPanel(UIControlledApplication a, String tabName, String panelName)
         {
-            string tab = "Manicotti";
             RibbonPanel ribbonPanel = null;
             try
             {
-                a.CreateRibbonTab(tab);
+                a.CreateRibbonTab(tabName);
             }
             catch { }
             try
             {
-                RibbonPanel panel = a.CreateRibbonPanel(tab, "Geometry Formation");
+                RibbonPanel panel = a.CreateRibbonPanel(tabName, panelName);
             }
             catch { }
 
-            List<RibbonPanel> panels = a.GetRibbonPanels(tab);
+            List<RibbonPanel> panels = a.GetRibbonPanels(tabName);
             foreach (RibbonPanel p in panels)
             {
-                if (p.Name == "Geometry Formation")
+                if (p.Name == panelName)
                 {
                     ribbonPanel = p;
                 }

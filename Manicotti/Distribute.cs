@@ -266,8 +266,8 @@ namespace Manicotti
                             }
                         }
                     }
-                    ExtrudeWall.Execute(uiapp, doubleLines, floor);
-                    ExtrudeColumn.Execute(uiapp, columnLines, floor);
+                    CreateWall.Execute(uiapp, doubleLines, floor);
+                    CreateColumn.Execute(uiapp, columnLines, floor);
                 }
 
                 t.Commit();

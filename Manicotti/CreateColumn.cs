@@ -13,11 +13,11 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public static class ExtrudeColumn
+    public static class CreateColumn
     {
         // add new type of a family instance if not exist
         // M_Rectangular Column.rfa loaded by default is used here
-        public static FamilySymbol CreateColumn(UIApplication uiapp, String familyName, double width, double depth)
+        public static FamilySymbol NewColumnType(UIApplication uiapp, String familyName, double width, double depth)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -136,7 +136,7 @@ namespace Manicotti
             {
                 if (baselines.Count > 4) { continue; }  // can only process rectangular column for now
                 var (width, depth, angle) = Algorithm.GrabSizeOfRectangle(baselines);
-                FamilySymbol cs = CreateColumn(uiapp, "M_Rectangular Column", width, depth);
+                FamilySymbol cs = NewColumnType(uiapp, "M_Rectangular Column", width, depth);
                 XYZ columnCenterPt = Algorithm.GrabCenterPt(baselines);
                 Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
                 // z pointing down to apply a clockwise rotation

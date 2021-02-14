@@ -53,7 +53,7 @@ namespace Manicotti
             using (Transaction tx = new Transaction(doc))
             {
                 tx.Start("Generate Walls");
-                ExtrudeWall.Execute(uiapp, doubleLines, firstLevel);
+                CreateWall.Execute(uiapp, doubleLines, firstLevel);
                 tx.Commit();
             }
 

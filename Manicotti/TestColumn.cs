@@ -54,7 +54,7 @@ namespace Manicotti
             using (Transaction tx = new Transaction(doc))
             {
                 tx.Start("Generate Columns");
-                ExtrudeColumn.Execute(uiapp, columnLines, firstLevel);
+                CreateColumn.Execute(uiapp, columnLines, firstLevel);
                 tx.Commit();
             }
 

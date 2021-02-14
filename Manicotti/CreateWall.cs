@@ -13,7 +13,7 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public static class ExtrudeWall
+    public static class CreateWall
     {
         public static void Execute(UIApplication uiapp, List<Line> doubleLines, Level level)
         {

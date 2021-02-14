@@ -13,9 +13,18 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public class TestSubsrf : IExternalCommand
+    public class TestOpening : IExternalCommand
     {
-        public static FamilySymbol CreateDoor(UIApplication uiapp, String familyName, double width, double height)
+        /// <summary>
+        /// Create a new door type of default family: M_Single-Flush
+        /// </summary>
+        /// <param name="uiapp"></param>
+        /// <param name="familyName"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        private static FamilySymbol NewOpeningType(
+            UIApplication uiapp, String familyName, double width, double height, String type = "")
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -25,9 +34,23 @@ namespace Manicotti
             if (null == f)
             {
                 // add default path and error handling here
-                if (!doc.LoadFamily("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Doors\\M_Door-Single-Panel.rfa", out f))
+                if (type == "Door")
                 {
-                    Debug.Print("Unable to load M_Door-Single-Panel.rfa");
+                    if (!doc.LoadFamily("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Doors\\M_Door-Single-Panel.rfa", out f))
+                    {
+                        Debug.Print("Unable to load M_Door-Single-Panel.rfa");
+                    }
+                }
+                if (type == "Window")
+                {
+                    if (!doc.LoadFamily("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Doors\\M_Window-Fixed.rfa", out f))
+                    {
+                        Debug.Print("Unable to load M_Window-Fixed.rfa");
+                    }
+                }
+                if (type == "")
+                {
+                    Debug.Print("Please specify the type to load a default setting");
                 }
             }
 
@@ -70,8 +93,7 @@ namespace Manicotti
             }
         }
 
-
-
+        // Main execution
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiapp = commandData.Application;
@@ -79,9 +101,8 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
             View view = doc.ActiveView;
-
-            // Access current selection
             Selection sel = uidoc.Selection;
+
 
             // Grab the current building level
             FilteredElementCollector colLevels = new FilteredElementCollector(doc)
@@ -90,7 +111,8 @@ namespace Manicotti
                 .OfClass(typeof(Level));
             Level firstLevel = colLevels.FirstElement() as Level;
 
-            // Extraction of CurveElements by LineStyle COLUMN
+
+            // LineStyle filter
             CurveElementFilter filter = new CurveElementFilter(CurveElementType.ModelCurve);
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             ICollection<Element> founds = collector.WherePasses(filter).ToElements();
@@ -100,53 +122,40 @@ namespace Manicotti
             {
                 importCurves.Add(ce);
             }
-
+            
             var doorCurves = importCurves.Where(x => x.LineStyle.Name == "DOOR").ToList();
-            List<Curve> doorLines = new List<Curve>();
+            List<Curve> doorCrvs = new List<Curve>();  // The door block has one arc at least
             foreach (CurveElement ce in doorCurves)
             {
-                doorLines.Add(ce.GeometryCurve as Curve);
+                doorCrvs.Add(ce.GeometryCurve as Curve);
             }
-            
             var wallCurves = importCurves.Where(x => x.LineStyle.Name == "WALL").ToList();
-            List<Line> wallLines = new List<Line>();
+            List<Line> wallLines = new List<Line>();  // Algorithm only support walls of line type
             foreach (CurveElement ce in wallCurves)
             {
                 wallLines.Add(ce.GeometryCurve as Line);
             }
-
             var windowCurves = importCurves.Where(x => x.LineStyle.Name == "WINDOW").ToList();
-            List<Curve> windowLines = new List<Curve>();
+            List<Curve> windowCrvs = new List<Curve>();
             foreach (CurveElement ce in windowCurves)
             {
-                windowLines.Add(ce.GeometryCurve as Curve);
+                windowCrvs.Add(ce.GeometryCurve as Curve);
             }
 
 
-            // type check
-            // basically it should be an arc or a line
-            foreach (Curve crv in doorLines)
+            // type check. basically it should be an arc or a line
+            /*
+            foreach (Curve crv in doorCrvs)
             {
                 Debug.Print("Type checking... " + crv.GetType().ToString());
             }
+            */
 
-            var doorClusters = Algorithm.ClusterByIntersection(doorLines);
+            var doorClusters = Algorithm.ClusterByIntersection(doorCrvs);
             // Sometimes ClusterByIntersection will not return ideal result
             // because the intersected lines are not detected by the program for no reason
             // sometimes it goes well
             // iterate the bounding box generation 2 times may gurantee this but lacking efficiency
-            /*
-            List<Curve> boundingLines = new List<Curve> { };
-            foreach (List<Curve> cluster in doorClusters)
-            {
-                if (null != Algorithm.CreateBoundingBox2D(cluster))
-                {
-                    boundingLines.AddRange(Algorithm.CreateBoundingBox2D(cluster));
-                }
-            }
-            var boundingClusters = Algorithm.ClusterByIntersection(boundingLines);
-            */
-
             List<List<Curve>> doorBlocks = new List<List<Curve>> { };
             foreach (List<Curve> cluster in doorClusters)
             {
@@ -156,7 +165,6 @@ namespace Manicotti
                 }
             }
             Debug.Print("{0} clustered door blocks in total", doorBlocks.Count);
-
             
             List<Curve> doorAxes = new List<Curve> { };
             foreach (List<Curve> doorBlock in doorBlocks)
@@ -173,20 +181,17 @@ namespace Manicotti
                         if (result == SetComparisonResult.Overlap)
                         {
                             sectCount += 1;
-                            //doorFrame.Add(line);
                         }
                     }
                     if (sectCount == 2) { doorAxes.Add(doorBlock[i]); }
                 }
                 //Debug.Print("Curves adjoning the box: " + doorFrame.Count.ToString());
-                
             }
             Debug.Print("We got {0} door axes. ", doorAxes.Count);
 
-
-            /////////////////////////////////////
+            
             // Collect window blocks
-            var windowClusters = Algorithm.ClusterByIntersection(windowLines);
+            var windowClusters = Algorithm.ClusterByIntersection(windowCrvs);
 
             List<List<Curve>> windowBlocks = new List<List<Curve>> { };
             foreach (List<Curve> cluster in windowClusters)
@@ -216,12 +221,12 @@ namespace Manicotti
             }
             Debug.Print("We got {0} window axes. ", windowAxes.Count);
 
-
-
-            // Plot bounding box and axis
+            
+            // Main transaction
+            // Plot axis of doors/windows and create the instance
             using (Transaction tx = new Transaction(doc))
             {
-                tx.Start("Generate boundingbox");
+                tx.Start("Generate sub-surface and its mark");
 
                 Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
                 SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
@@ -229,7 +234,7 @@ namespace Manicotti
                 // Create door & window blocks
                 foreach (List<Curve> doorBlock in doorBlocks)
                 {
-                    Debug.Print("Creating new bounding box");
+                    //Debug.Print("Creating new bounding box");
                     foreach (Curve edge in doorBlock)
                     {
                         ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
@@ -237,14 +242,14 @@ namespace Manicotti
                 }
                 foreach (List<Curve> windowBlock in windowBlocks)
                 {
-                    Debug.Print("Creating new bounding box");
+                    //Debug.Print("Creating new bounding box");
                     foreach (Curve edge in windowBlock)
                     {
                         ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
                     }
                 }
 
-                // Create door & window axes
+                // Create door axis & instance
                 foreach (Curve doorAxis in doorAxes)
                 {
                     DetailLine axis = doc.Create.NewDetailCurve(view, doorAxis) as DetailLine;
@@ -252,24 +257,36 @@ namespace Manicotti
                     gs.GraphicsStyleCategory.LineColor= new Color(202, 51, 82);
                     gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
 
-                    Wall wl = Wall.Create(doc, doorAxis, firstLevel.Id, true);
+                    Wall hostWall = Wall.Create(doc, doorAxis, firstLevel.Id, true);
 
                     double width = Math.Round(Util.FootToMm(doorAxis.Length), 0);
                     double height = 2000;
 
-                    FamilySymbol cs = CreateDoor(uiapp, "M_Single-Flush", width, height);
-                    XYZ doorInsertPt = (doorAxis.GetEndPoint(0) + doorAxis.GetEndPoint(1)).Divide(2);
-                    // z pointing down to apply a clockwise rotation
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(doorInsertPt, cs, wl, firstLevel, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                    FamilySymbol cs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
+                    XYZ insertPt = (doorAxis.GetEndPoint(0) + doorAxis.GetEndPoint(1)).Divide(2);
+                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, firstLevel, 
+                        Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                 }
 
+                // Create window axis & instance
                 foreach (Curve windowAxis in windowAxes)
                 {
                     DetailLine axis = doc.Create.NewDetailCurve(view, windowAxis) as DetailLine;
                     GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
                     gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
                     gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
-                    Wall.Create(doc, windowAxis, firstLevel.Id, true);
+
+                    Wall hostWall = Wall.Create(doc, windowAxis, firstLevel.Id, true);
+
+                    double width = Math.Round(Util.FootToMm(windowAxis.Length), 0);
+                    double height = 2500;
+
+                    FamilySymbol cs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
+                    XYZ insertPt = (windowAxis.GetEndPoint(0) + windowAxis.GetEndPoint(1)).Divide(2) + 
+                        XYZ.BasisZ * Util.MmToFoot(1200);
+                    // 1200mm is the sill height by default
+                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, firstLevel, 
+                        Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                 }
                 
                 tx.Commit();

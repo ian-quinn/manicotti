@@ -66,8 +66,16 @@ References: Jeremy's blog [1](https://thebuildingcoder.typepad.com/blog/2015/05/
 
 To-do list moved to [TaskBoard](https://github.com/ian-quinn/manicotti/issues/1)  
 
-Demo for DWG information allocation  
+Demos  
 <img src="/Demo/AllocateInfo.gif?raw=true">
+<div align=right>
+<table>
+  <tr>
+    <td><img src="/Demo/DetectRegion.gif?raw=true" alt="DetectRegion" width="400"/></a></td>
+    <td><img src="/Demo/AllocateInfo.gif?raw=true" alt="AllocateInfo" width="400"/></a></td>
+  </tr>
+</table>
+</div>
 
 Currently working on axis generation for sub-surface. Take the DOOR blocks for example, one of the bounding box edges (green polygon) will be selected as the axis (scarlet line). The axes of sub-surfaces will be merged into wall axes to create continuous walls.  
 <img src="/Demo/DoorAxis.jpg?raw=true">
