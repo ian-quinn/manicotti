@@ -151,7 +151,7 @@ namespace Manicotti
             }
             */
 
-            var doorClusters = Algorithm.ClusterByIntersection(doorCrvs);
+            var doorClusters = Algorithm.ClusterByIntersect(doorCrvs);
             // Sometimes ClusterByIntersection will not return ideal result
             // because the intersected lines are not detected by the program for no reason
             // sometimes it goes well
@@ -191,7 +191,7 @@ namespace Manicotti
 
             
             // Collect window blocks
-            var windowClusters = Algorithm.ClusterByIntersection(windowCrvs);
+            var windowClusters = Algorithm.ClusterByIntersect(windowCrvs);
 
             List<List<Curve>> windowBlocks = new List<List<Curve>> { };
             foreach (List<Curve> cluster in windowClusters)

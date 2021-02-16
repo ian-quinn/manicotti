@@ -8,7 +8,7 @@ using Autodesk.Revit.DB;
 
 namespace Manicotti
 {
-    public class Util
+    public static class Util
     {
         #region Text Processing
         public static int ExtractIndex(String str)
@@ -51,6 +51,7 @@ namespace Manicotti
             }
         }
         #endregion // for Teigha text recognition
+
 
         #region Selection
         public static int GetLevel(String label, String key)
@@ -115,29 +116,51 @@ namespace Manicotti
         }
         #endregion
 
+
         #region Conversion
         /// <summary>
         /// Convert a given length in feet to milimeters.
         /// </summary>
-        public static double FootToMm(double length)
-        {
-            return length * 304.8;
-        }
+        public static double FootToMm(double length) { return length * 304.8; }
 
         /// <summary>
         /// Convert a given length in milimeters to feet.
         /// </summary>
-        public static double MmToFoot(double length)
-        {
-            return length / 304.8;
-        }
+        public static double MmToFoot(double length) { return length / 304.8; }
 
         /// <summary>
         /// Convert a given point or vector from milimeters to feet.
         /// </summary>
-        public static XYZ MmToFoot(XYZ v)
+        public static XYZ MmToFoot(XYZ v) { return v.Divide(304.8); }
+
+        /// <summary>
+        /// Convert List of lines to List of curves
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <returns></returns>
+        public static List<Curve> LinesToCrvs(List<Line> lines)
         {
-            return v.Divide(304.8);
+            List<Curve> crvs = new List<Curve>();
+            foreach (Line line in lines)
+            {
+                crvs.Add(line as Curve);
+            }
+            return crvs;
+        }
+
+        /// <summary>
+        /// Convert List of curves to List of lines
+        /// </summary>
+        /// <param name="crvs"></param>
+        /// <returns></returns>
+        public static List<Line> CrvsToLines(List<Curve> crvs)
+        {
+            List<Line> lines = new List<Line>();
+            foreach (Curve crv in crvs)
+            {
+                lines.Add(crv as Line);
+            }
+            return lines;
         }
         #endregion
     }

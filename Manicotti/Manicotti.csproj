@@ -60,6 +60,8 @@
   <ItemGroup>
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="Fusion.cs" />
+    <Compile Include="TestIntersect.cs" />
     <Compile Include="TestOpening.cs" />
     <Compile Include="UtilGetCADGeometry.cs" />
     <Compile Include="SketchDWG.cs" />
@@ -95,6 +97,7 @@
     <Resource Include="ico\House.ico" />
     <Resource Include="ico\Sketch.ico" />
     <Resource Include="ico\Fusion.ico" />
+    <Resource Include="ico\Winform.ico" />
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>

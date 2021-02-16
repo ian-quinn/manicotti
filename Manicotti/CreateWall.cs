@@ -63,7 +63,7 @@ namespace Manicotti
                     foreach (List<Line> sublist in axisGroups)
                     {
                         iterCounter += 1;
-                        if (Algorithm.IsOverlapping(element, sublist))
+                        if (Algorithm.IsLineOverlapLines(element, sublist))
                         {
                             sublist.Add(element);
                             axes.Remove(element);
@@ -87,8 +87,6 @@ namespace Manicotti
                 Line merged = Algorithm.MergeLine(axisBundle);
                 Wall.Create(doc, merged, level.Id, true);
             }
-
-
         }
     }
 }

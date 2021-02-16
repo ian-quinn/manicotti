@@ -89,7 +89,7 @@ namespace Manicotti
                     foreach (List<Line> sublist in columnGroups)
                     {
                         iterCounter += 1;
-                        if (Algorithm.IsCrossing(element, sublist))
+                        if (Algorithm.IsLineIntersectLines(element, sublist))
                         {
                             sublist.Add(element);
                             columnLines.Remove(element);
@@ -134,10 +134,10 @@ namespace Manicotti
             // Column generation
             foreach (List<Line> baselines in columnGroups)
             {
-                if (baselines.Count > 4) { continue; }  // can only process rectangular column for now
-                var (width, depth, angle) = Algorithm.GrabSizeOfRectangle(baselines);
+                if (baselines.Count != 4) { continue; }  // can only process rectangular column for now
+                var (width, depth, angle) = Algorithm.GetSizeOfRectangle(baselines);
                 FamilySymbol cs = NewColumnType(uiapp, "M_Rectangular Column", width, depth);
-                XYZ columnCenterPt = Algorithm.GrabCenterPt(baselines);
+                XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                 Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
                 // z pointing down to apply a clockwise rotation
                 FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, cs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
