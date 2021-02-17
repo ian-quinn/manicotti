@@ -17,7 +17,7 @@ namespace Manicotti
     {
         // add new type of a family instance if not exist
         // M_Rectangular Column.rfa loaded by default is used here
-        public static FamilySymbol NewColumnType(UIApplication uiapp, String familyName, double width, double depth)
+        public static FamilySymbol NewRectColumnType(UIApplication uiapp, String familyName, double width, double depth)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -27,7 +27,7 @@ namespace Manicotti
             if (null == f)
             {
                 // add default path and error handling here
-                if (!doc.LoadFamily("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Columns\\M_Rectangular Column.rfa", out f))
+                if (!doc.LoadFamily(@"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Columns\M_Rectangular Column.rfa", out f))
                 {
                     Debug.Print("Unable to load M_Rectangular Column.rfa");
                 }
@@ -72,6 +72,82 @@ namespace Manicotti
             }
         }
 
+        public static FamilySymbol NewSpecialShapedColumnType(UIApplication uiapp, CurveArray boundary)
+        {
+            UIDocument uidoc = uiapp.ActiveUIDocument;
+            Application app = uiapp.Application;
+            Document doc = uidoc.Document;
+            
+            Document familyDoc = app.NewFamilyDocument(@"C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft");
+            using (Transaction tx_createFamily = new Transaction(familyDoc))
+            {
+                tx_createFamily.Start("Create family");
+
+                Plane familyGeomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
+                SketchPlane sketch = SketchPlane.Create(familyDoc, familyGeomplane);
+
+                CurveArrArray curveArrArray = new CurveArrArray();
+                curveArrArray.Append(boundary);
+                // The end has to be 4000mm in metric which is in align with the Metric Column.rft
+                Extrusion extrusion = familyDoc.FamilyCreate.NewExtrusion(true, curveArrArray, sketch, Util.MmToFoot(4000));
+                familyDoc.FamilyManager.NewType("Type 0");
+                familyDoc.Regenerate();
+
+                Reference topFaceRef = null;
+                Options opt = new Options();
+                opt.ComputeReferences = true;
+                opt.DetailLevel = ViewDetailLevel.Fine;
+                GeometryElement gelm = extrusion.get_Geometry(opt);
+                foreach (GeometryObject gobj in gelm)
+                {
+                    if (gobj is Solid)
+                    {
+                        Solid solid = gobj as Solid;
+                        foreach (Face face in solid.Faces)
+                        {
+                            if (face.ComputeNormal(UV.Zero).IsAlmostEqualTo(XYZ.BasisZ))
+                            {
+                                topFaceRef = face.Reference;
+                            }
+                        }
+                    }
+                }
+                View v = GetView(familyDoc);
+                Reference r = GetTopLevel(familyDoc);
+                Dimension d = familyDoc.FamilyCreate.NewAlignment(v, r, topFaceRef);
+                d.IsLocked = true;
+
+                tx_createFamily.Commit();
+            }
+            //familyDoc.SaveAs("Special Shaped Column - " + boundary.Size.ToString() + ".rfa");
+            //familyDoc.Close();
+
+            Family f = familyDoc.LoadFamily(doc) as Family;
+            FamilySymbol s = null;
+            foreach (ElementId id in f.GetFamilySymbolIds())
+            {
+                s = doc.GetElement(id) as FamilySymbol;
+            }
+            return s;
+        }
+
+        public static View GetView(Document doc)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            View v = collector.OfClass(typeof(View)).First(m => m.Name == "Front") as View;
+            return v;
+        }
+
+        public static Reference GetTopLevel(Document doc)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            Level lvl = collector.OfClass(typeof(Level)).First(m => m.Name == "Upper Ref Level") as Level;
+            return new Reference(lvl);
+        }
+        
+
+
+        // Main transaction
         public static void Execute(UIApplication uiapp, List<Line> columnLines, Level level)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
@@ -123,26 +199,48 @@ namespace Manicotti
                 }
             }
             
-            /*
-            // activate
-            if (!rectangularColumn.IsActive)
-            {
-                rectangularColumn.Activate();
-            }
-            */
 
             // Column generation
             foreach (List<Line> baselines in columnGroups)
             {
-                if (baselines.Count != 4) { continue; }  // can only process rectangular column for now
-                var (width, depth, angle) = Algorithm.GetSizeOfRectangle(baselines);
-                FamilySymbol cs = NewColumnType(uiapp, "M_Rectangular Column", width, depth);
-                XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
-                Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
-                // z pointing down to apply a clockwise rotation
-                FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, cs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
-                ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
-                //Autodesk.Revit.DB.Structure.StructuralType.Column
+                if (baselines.Count <= 1) { continue; }
+                if (baselines.Count == 4) // SHIT CODE. Should check if the polygon is rectangle
+                {
+                    using (Transaction tx = new Transaction(doc))
+                    {
+                        tx.Start("Generate Columns");
+                        var (width, depth, angle) = Algorithm.GetSizeOfRectangle(baselines);
+                        FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
+                        if (!fs.IsActive) { fs.Activate(); }
+                        XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
+                        Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
+                        // z pointing down to apply a clockwise rotation
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
+                        //Autodesk.Revit.DB.Structure.StructuralType.Column
+                        tx.Commit();
+                    }
+                }
+                else
+                {
+                    var boundary = Algorithm.RectifyPolygon(baselines);
+                    FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
+                    if (null == fs)
+                    {
+                        Debug.Print("Generic Model Family returns no symbol");
+                        continue;
+                    }
+                    using (Transaction tx = new Transaction(doc))
+                    {
+                        tx.Start("Generate Columns");
+                        if (!fs.IsActive) { fs.Activate(); }
+                        XYZ basePt = XYZ.Zero;
+                        Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        // DANGEROUS! the coordination transformation should be added here
+                        tx.Commit();
+                    }
+                }
             }
         }
     }

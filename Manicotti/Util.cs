@@ -163,5 +163,13 @@ namespace Manicotti
             return lines;
         }
         #endregion
+
+        #region DEBUG
+        public static string PrintXYZ(XYZ pt)
+        {
+            return string.Format(" ({0}, {1}, {2}) ", pt.X, pt.Y, pt.Z);
+        }
+        #endregion
+
     }
 }

@@ -50,13 +50,8 @@ namespace Manicotti
                 .OfCategory(BuiltInCategory.INVALID)
                 .OfClass(typeof(Level));
             Level firstLevel = colLevels.FirstElement() as Level;
-
-            using (Transaction tx = new Transaction(doc))
-            {
-                tx.Start("Generate Columns");
-                CreateColumn.Execute(uiapp, columnLines, firstLevel);
-                tx.Commit();
-            }
+            
+            CreateColumn.Execute(uiapp, columnLines, firstLevel);
 
             return Result.Succeeded;
         }

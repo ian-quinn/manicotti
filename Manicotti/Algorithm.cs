@@ -406,48 +406,7 @@ namespace Manicotti
             //Line axis = baseline.CreateOffset(offset, vec.Normalize()) as Line;
         }
 
-        // Center point of list of lines
-        // Need upgrade to polygon center point method
-        public static XYZ GetCenterPt(List<Line> lines)
-        {
-            double ptSum_X = 0;
-            double ptSum_Y = 0;
-            double ptSum_Z = lines[0].GetEndPoint(0).Z;
-            foreach (Line line in lines)
-            {
-                ptSum_X += line.GetEndPoint(0).X;
-                ptSum_X += line.GetEndPoint(1).X;
-                ptSum_Y += line.GetEndPoint(0).Y;
-                ptSum_Y += line.GetEndPoint(1).Y;
-            }
-            XYZ centerPt = new XYZ(ptSum_X / lines.Count / 2, ptSum_Y / lines.Count / 2, ptSum_Z);
-            return centerPt;
-        }
         
-        // Retrieve the width and depth of a rectangle
-        public static Tuple<double, double, double> GetSizeOfRectangle(List<Line> lines)
-        {
-            List<double> rotations = new List<double> { };  // in radian
-            List<double> lengths = new List<double> { };  // in milimeter
-            foreach (Line line in lines)
-            {
-                XYZ vec = line.GetEndPoint(1) - line.GetEndPoint(0);
-                double angle = AngleTo2PI(vec, XYZ.BasisX);
-                //Debug.Print("Iteration angle is " + angle.ToString());
-                rotations.Add(angle);
-                lengths.Add(Util.FootToMm(line.Length));
-            }
-            int baseEdgeId = rotations.IndexOf(rotations.Min());
-            double width = lengths[baseEdgeId];
-            double depth = width;
-            if (width == lengths.Min()) { depth = lengths.Max(); }
-            else { depth = lengths.Min(); }
-
-            return Tuple.Create(Math.Round(width,2), Math.Round(depth,2), rotations.Min());
-            // clockwise rotation in radian measure
-            // x pointing right and y down as is common for computer graphics
-            // this will mean you get a positive sign for clockwise angles
-        }
         #endregion
 
 
@@ -542,6 +501,88 @@ namespace Manicotti
                 List<Curve> boundingBox = new List<Curve> { crv1, crv2, crv3, crv4 };
                 return boundingBox;
             }
+        }
+
+        // Center point of list of lines
+        // Need upgrade to polygon center point method
+        public static XYZ GetCenterPt(List<Line> lines)
+        {
+            double ptSum_X = 0;
+            double ptSum_Y = 0;
+            double ptSum_Z = lines[0].GetEndPoint(0).Z;
+            foreach (Line line in lines)
+            {
+                ptSum_X += line.GetEndPoint(0).X;
+                ptSum_X += line.GetEndPoint(1).X;
+                ptSum_Y += line.GetEndPoint(0).Y;
+                ptSum_Y += line.GetEndPoint(1).Y;
+            }
+            XYZ centerPt = new XYZ(ptSum_X / lines.Count / 2, ptSum_Y / lines.Count / 2, ptSum_Z);
+            return centerPt;
+        }
+
+        // Retrieve the width and depth of a rectangle
+        public static Tuple<double, double, double> GetSizeOfRectangle(List<Line> lines)
+        {
+            List<double> rotations = new List<double> { };  // in radian
+            List<double> lengths = new List<double> { };  // in milimeter
+            foreach (Line line in lines)
+            {
+                XYZ vec = line.GetEndPoint(1) - line.GetEndPoint(0);
+                double angle = AngleTo2PI(vec, XYZ.BasisX);
+                //Debug.Print("Iteration angle is " + angle.ToString());
+                rotations.Add(angle);
+                lengths.Add(Util.FootToMm(line.Length));
+            }
+            int baseEdgeId = rotations.IndexOf(rotations.Min());
+            double width = lengths[baseEdgeId];
+            double depth = width;
+            if (width == lengths.Min()) { depth = lengths.Max(); }
+            else { depth = lengths.Min(); }
+
+            return Tuple.Create(Math.Round(width, 2), Math.Round(depth, 2), rotations.Min());
+            // clockwise rotation in radian measure
+            // x pointing right and y down as is common for computer graphics
+            // this will mean you get a positive sign for clockwise angles
+        }
+
+        // 
+        public static CurveArray RectifyPolygon(List<Line> lines)
+        {
+            CurveArray boundary = new CurveArray();
+            List<XYZ> vertices = new List<XYZ>() { };
+            vertices.Add(lines[0].GetEndPoint(0));
+            foreach (Line line in lines)
+            {
+                XYZ ptStart = line.GetEndPoint(0);
+                XYZ ptEnd = line.GetEndPoint(1);
+                if (vertices.Last().IsAlmostEqualTo(ptStart))
+                {
+                    vertices.Add(ptEnd);
+                    continue;
+                }
+                if (vertices.Last().IsAlmostEqualTo(ptEnd))
+                {
+                    vertices.Add(ptStart);
+                    continue;
+                }
+            }
+            Debug.Print("number of vertices: " + vertices.Count());
+            foreach (XYZ pt in vertices)
+            {
+                Debug.Print(Util.PrintXYZ(pt));
+            }
+            for (int i = 0; i < lines.Count; i++)
+            {
+                boundary.Append(Line.CreateBound(vertices[i], vertices[i + 1]));
+            }
+            return boundary;
+        }
+
+        // 
+        public static Tuple<double, double, double> GetSizeOfFootprint(List<Line> lines)
+        {
+            return null;
         }
         #endregion
 
