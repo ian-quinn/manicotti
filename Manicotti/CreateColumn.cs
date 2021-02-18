@@ -113,7 +113,7 @@ namespace Manicotti
                     }
                 }
                 View v = GetView(familyDoc);
-                Reference r = GetTopLevel(familyDoc);
+                Reference r = GetUpperRefLevel(familyDoc);
                 Dimension d = familyDoc.FamilyCreate.NewAlignment(v, r, topFaceRef);
                 d.IsLocked = true;
 
@@ -138,7 +138,7 @@ namespace Manicotti
             return v;
         }
 
-        public static Reference GetTopLevel(Document doc)
+        public static Reference GetUpperRefLevel(Document doc)
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc);
             Level lvl = collector.OfClass(typeof(Level)).First(m => m.Name == "Upper Ref Level") as Level;
@@ -221,7 +221,7 @@ namespace Manicotti
                         tx.Commit();
                     }
                 }
-                else
+                if (baselines.Count > 4)
                 {
                     var boundary = Algorithm.RectifyPolygon(baselines);
                     FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);

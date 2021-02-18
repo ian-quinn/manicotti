@@ -1,4 +1,8 @@
 # Manicotti :burrito:
+
+![Revit API](https://img.shields.io/badge/Revit%20API-2020-red.svg)
+![.NET](https://img.shields.io/badge/.NET-4.7-red.svg)
+
 Revit add-in to establish building information model automatically based on DWG drawings. A demo in progress.  
 ```
 manicotti
@@ -53,13 +57,6 @@ To craft your add-in from scratch please use the template by Jeremy Tammik. ZIP 
 as `Revit2020AddinWizard.zip`, and place it here:
 `C:\Users\$username$\Documents\Visual Studio 2017\Templates\ProjectTemplates\`  
 References: Jeremy's blog [1](https://thebuildingcoder.typepad.com/blog/2015/05/autodesk-university-q1-adn-labs-and-wizard-update.html#5) [2](https://thebuildingcoder.typepad.com/blog/2019/04/revit-2020-c-and-vb-visual-studio-add-in-wizards.html)
-
-
-## Resources
-
-**DOCUMENT** | [Revit API 2020](https://www.revitapidocs.com/2020/) | [Dynamo Dictionary **2.x**](https://dictionary.dynamobim.com/2/) | [Dynamo Primer](https://primer.dynamobim.org/en/index.html) | [Design Scripts Guide](https://dynamobim.org/wp-content/links/DesignScriptGuide.pdf)
-
-**TUTORIAL** | [Hello World Demo](http://aectechy.com/stepbystep-guide-to-your-first-revit-plugin/) | [Group Copy Demo](https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/simplecontent/content/lesson-1-the-basic-plug.html) | [Revit API Tutorials](https://www.youtube.com/channel/UCHqe6I5GKoUEH4XlPw2VGGw/videos)
 
 
 ## What's new

@@ -36,14 +36,14 @@ namespace Manicotti
                 // add default path and error handling here
                 if (type == "Door")
                 {
-                    if (!doc.LoadFamily("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Doors\\M_Door-Single-Panel.rfa", out f))
+                    if (!doc.LoadFamily(@"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Doors\M_Door-Single-Panel.rfa", out f))
                     {
                         Debug.Print("Unable to load M_Door-Single-Panel.rfa");
                     }
                 }
                 if (type == "Window")
                 {
-                    if (!doc.LoadFamily("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Doors\\M_Window-Fixed.rfa", out f))
+                    if (!doc.LoadFamily(@"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Doors\M_Window-Fixed.rfa", out f))
                     {
                         Debug.Print("Unable to load M_Window-Fixed.rfa");
                     }
