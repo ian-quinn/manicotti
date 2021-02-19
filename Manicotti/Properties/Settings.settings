@@ -1,0 +1,36 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Manicotti.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="url_window" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Doors\M_Window-Fixed.rfa</Value>
+    </Setting>
+    <Setting Name="url_door" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Windows\M_Door-Single-Panel.rfa</Value>
+    </Setting>
+    <Setting Name="url_column" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Columns\M_Rectangular Column.rfa</Value>
+    </Setting>
+    <Setting Name="url_columnFamily" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft</Value>
+    </Setting>
+    <Setting Name="url_install" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020</Value>
+    </Setting>
+    <Setting Name="floorHeight" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">4000</Value>
+    </Setting>
+    <Setting Name="sillHeight" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1200</Value>
+    </Setting>
+    <Setting Name="wallThickness" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">200</Value>
+    </Setting>
+    <Setting Name="jointRadius" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">50</Value>
+    </Setting>
+    <Setting Name="minLength" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.001</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

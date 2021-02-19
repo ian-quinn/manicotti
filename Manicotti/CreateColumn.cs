@@ -27,7 +27,7 @@ namespace Manicotti
             if (null == f)
             {
                 // add default path and error handling here
-                if (!doc.LoadFamily(@"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Columns\M_Rectangular Column.rfa", out f))
+                if (!doc.LoadFamily(Properties.Settings.Default.url_column, out f))
                 {
                     Debug.Print("Unable to load M_Rectangular Column.rfa");
                 }
@@ -78,7 +78,7 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
             
-            Document familyDoc = app.NewFamilyDocument(@"C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft");
+            Document familyDoc = app.NewFamilyDocument(Properties.Settings.Default.url_columnFamily);
             using (Transaction tx_createFamily = new Transaction(familyDoc))
             {
                 tx_createFamily.Start("Create family");

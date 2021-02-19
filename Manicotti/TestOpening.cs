@@ -36,14 +36,14 @@ namespace Manicotti
                 // add default path and error handling here
                 if (type == "Door")
                 {
-                    if (!doc.LoadFamily(@"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Doors\M_Door-Single-Panel.rfa", out f))
+                    if (!doc.LoadFamily(Properties.Settings.Default.url_door, out f))
                     {
                         Debug.Print("Unable to load M_Door-Single-Panel.rfa");
                     }
                 }
                 if (type == "Window")
                 {
-                    if (!doc.LoadFamily(@"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Doors\M_Window-Fixed.rfa", out f))
+                    if (!doc.LoadFamily(Properties.Settings.Default.url_window, out f))
                     {
                         Debug.Print("Unable to load M_Window-Fixed.rfa");
                     }
@@ -262,7 +262,7 @@ namespace Manicotti
                     double width = Math.Round(Util.FootToMm(doorAxis.Length), 0);
                     double height = 2000;
 
-                    FamilySymbol cs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
+                    FamilySymbol cs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door"); //
                     XYZ insertPt = (doorAxis.GetEndPoint(0) + doorAxis.GetEndPoint(1)).Divide(2);
                     FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, firstLevel, 
                         Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
@@ -281,9 +281,9 @@ namespace Manicotti
                     double width = Math.Round(Util.FootToMm(windowAxis.Length), 0);
                     double height = 2500;
 
-                    FamilySymbol cs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
+                    FamilySymbol cs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window"); //
                     XYZ insertPt = (windowAxis.GetEndPoint(0) + windowAxis.GetEndPoint(1)).Divide(2) + 
-                        XYZ.BasisZ * Util.MmToFoot(1200);
+                        XYZ.BasisZ * Util.MmToFoot(Properties.Settings.Default.sillHeight);
                     // 1200mm is the sill height by default
                     FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, firstLevel, 
                         Autodesk.Revit.DB.Structure.StructuralType.NonStructural);

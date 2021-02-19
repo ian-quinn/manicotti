@@ -86,13 +86,12 @@ namespace Manicotti
             fusion.Image = fusionImg;
 
             IList<RibbonItem> stackedAlgorithm = modelFix.AddStackedItems(region, sketch, fusion);
-
-            PushButton test = modelFix.AddItem(new PushButtonData("test", "Test Button",
-                thisAssemblyPath, "Manicotti.TestIntersect")) as PushButton;
-            test.ToolTip = "Test button. WIP";
-            BitmapImage testImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Winform.ico", UriKind.Absolute));
-            test.LargeImage = testImg;
-
+            
+            PushButton config = modelFix.AddItem(new PushButtonData("config", "Default\nSettings",
+                thisAssemblyPath, "Manicotti.Config")) as PushButton;
+            config.ToolTip = "Default and preferance settings. WIP";
+            BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Winform.ico", UriKind.Absolute));
+            config.LargeImage = configImg;
 
             a.ApplicationClosing += a_ApplicationClosing;
 
