@@ -29,7 +29,7 @@ namespace Manicotti
                 // add default path and error handling here
                 if (!doc.LoadFamily(Properties.Settings.Default.url_column, out f))
                 {
-                    Debug.Print("Unable to load M_Rectangular Column.rfa");
+                    Debug.Print("Unable to load the .rfa file of column");
                 }
             }
 

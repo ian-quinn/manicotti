@@ -22,25 +22,13 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
 
-            // Access current selection
-            Selection sel = uidoc.Selection;
+            double tolerance = commandData.Application.Application.ShortCurveTolerance;
 
-            // Extraction of CurveElements by LineStyle WALL
-            CurveElementFilter filter = new CurveElementFilter(CurveElementType.ModelCurve);
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            ICollection<Element> founds = collector.WherePasses(filter).ToElements();
-            List<CurveElement> importCurves = new List<CurveElement>();
+            // Pick Import Instance
+            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
+            var import = doc.GetElement(r) as ImportInstance;
 
-            foreach (CurveElement ce in founds)
-            {
-                importCurves.Add(ce);
-            }
-            var doubleCurves = importCurves.Where(x => x.LineStyle.Name == "WALL").ToList();
-            List<Line> doubleLines = new List<Line>();
-            foreach (CurveElement ce in doubleCurves)
-            {
-                doubleLines.Add(ce.GeometryCurve as Line);
-            }
+            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
 
 
             // Grab the current building level
@@ -50,12 +38,8 @@ namespace Manicotti
                 .OfClass(typeof(Level));
             Level firstLevel = colLevels.FirstElement() as Level;
 
-            using (Transaction tx = new Transaction(doc))
-            {
-                tx.Start("Generate Walls");
-                CreateWall.Execute(uiapp, doubleLines, firstLevel);
-                tx.Commit();
-            }
+            
+            CreateWall.Execute(uiapp, Util.CrvsToLines(wallCrvs), firstLevel);
 
             return Result.Succeeded;
         }

@@ -84,5 +84,48 @@ namespace Manicotti
             Debug.Print("Geometry collected: " + visible_dwg_geo.Count().ToString());
             return visible_dwg_geo;
         }
+
+
+        /// <summary>
+        /// Shatter geometry objects to curves
+        /// </summary>
+        /// <param name="uidoc"></param>
+        /// <param name="import"></param>
+        /// <param name="layer"></param>
+        /// <param name="tolerance"></param>
+        /// <returns></returns>
+        public static List<Curve> ShatterCADGeometry(UIDocument uidoc, ImportInstance import, string layer, double tolerance)
+        {
+            List<Curve> shatteredCrvs = new List<Curve>();
+            List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import, layer);
+            if (dwg_geos.Count > 0)
+            {
+                foreach (var obj in dwg_geos)
+                {
+                    Curve crv = obj as Curve;
+                    PolyLine poly = obj as PolyLine;
+                    if (null != crv)
+                    {
+                        shatteredCrvs.Add(crv);
+                    }
+                    if (null != poly)
+                    {
+                        var vertices = poly.GetCoordinates();
+                        for (int i = 0; i < vertices.Count() - 1; i++)
+                        {
+                            if ((vertices[i + 1] - vertices[i]).GetLength() >= tolerance)
+                            {
+                                shatteredCrvs.Add(Line.CreateBound(vertices[i], vertices[i + 1]) as Curve);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            return shatteredCrvs;
+        }
     }
 }

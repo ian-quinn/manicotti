@@ -22,9 +22,6 @@ namespace Manicotti
             Document doc = uidoc.Document;
             
 
-            // Modify document within a transaction
-            
-
             // Bundle double lines and generate their axes
             List<Line> axes = new List<Line>();
             double bias = 0.01;
@@ -81,11 +78,18 @@ namespace Manicotti
             }
             Debug.Print("The merged axes number " + axisGroups.Count.ToString());
 
-            // Wall generation
-            foreach (List<Line> axisBundle in axisGroups)
+            using (Transaction tx = new Transaction(doc))
             {
-                Line merged = Algorithm.MergeLine(axisBundle);
-                Wall.Create(doc, merged, level.Id, true);
+                tx.Start("Generate walls");
+
+                // Wall generation
+                foreach (List<Line> axisBundle in axisGroups)
+                {
+                    Line merged = Algorithm.MergeLine(axisBundle);
+                    Wall.Create(doc, merged, level.Id, true);
+                }
+
+                tx.Commit();
             }
         }
     }

@@ -39,19 +39,19 @@ namespace Manicotti
             // Button list
             PushButtonData wall = new PushButtonData("extrude_wall", "Walls", 
                 thisAssemblyPath, "Manicotti.TestWall");
-            wall.ToolTip = "Extrude walls. To test the demo, Link_demo.dwg must be imported and fully exploded. (act on ModelLines with WALL linetype)";
+            wall.ToolTip = "Extrude walls. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG with WALL layer)";
             BitmapImage wallImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Wall.ico", UriKind.Absolute));
             wall.Image = wallImg;
             
             PushButtonData column = new PushButtonData("extrude_column", "Columns", 
                 thisAssemblyPath, "Manicotti.TestColumn");
-            column.ToolTip = "Extrude columns. To test the demo, Link_demo.dwg must be imported and fully exploded. (act on ModelLines with COLUMN linetype)";
+            column.ToolTip = "Extrude columns. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG with COLUMN layer)";
             BitmapImage columnImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Column.ico", UriKind.Absolute));
             column.Image = columnImg;
             
             PushButtonData opening = new PushButtonData("opening", "Openings", thisAssemblyPath,
                 "Manicotti.TestOpening");
-            opening.ToolTip = "Insert openings. To test the demo, Link_demo.dwg must be imported and fully exploded. (need linetype DOOR, WINDOW & WALL)";
+            opening.ToolTip = "Insert openings. To test the demo, Link_demo.dwg must be linked. (need layer DOOR, WINDOW & WALL)";
             BitmapImage openingImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Opening.ico", UriKind.Absolute));
             opening.Image = openingImg;
 

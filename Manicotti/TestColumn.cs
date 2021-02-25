@@ -21,29 +21,15 @@ namespace Manicotti
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
+
+            double tolerance = commandData.Application.Application.ShortCurveTolerance;
+
+            // Pick Import Instance
+            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
+            var import = doc.GetElement(r) as ImportInstance;
+
+            List<Curve> columnCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
             
-            // Access current selection
-            Selection sel = uidoc.Selection;
-
-            // Extraction of CurveElements by LineStyle COLUMN
-            CurveElementFilter filter = new CurveElementFilter(CurveElementType.ModelCurve);
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            ICollection<Element> founds = collector.WherePasses(filter).ToElements();
-            List<CurveElement> importCurves = new List<CurveElement>();
-
-            foreach (CurveElement ce in founds)
-            {
-                importCurves.Add(ce);
-            }
-
-            var columnCurves = importCurves.Where(x => x.LineStyle.Name == "COLUMN").ToList();
-            List<Line> columnLines = new List<Line>();
-            foreach (CurveElement ce in columnCurves)
-            {
-                columnLines.Add(ce.GeometryCurve as Line);
-            }
-
-
             // Grab the current building level
             FilteredElementCollector colLevels = new FilteredElementCollector(doc)
                 .WhereElementIsNotElementType()
@@ -51,7 +37,7 @@ namespace Manicotti
                 .OfClass(typeof(Level));
             Level firstLevel = colLevels.FirstElement() as Level;
             
-            CreateColumn.Execute(uiapp, columnLines, firstLevel);
+            CreateColumn.Execute(uiapp, Util.CrvsToLines(columnCrvs), firstLevel);
 
             return Result.Succeeded;
         }

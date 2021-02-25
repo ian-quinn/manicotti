@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -108,6 +109,22 @@ namespace Manicotti
                                                     model.Layer = mText.Layer;
                                                     listCADModels.Add(model);
                                                     break;
+                                                case "AcDbBlockReference":
+                                                    BlockReference br = (BlockReference)entity;
+                                                    AttributeCollection attcol = br.AttributeCollection;
+                                                    foreach (ObjectId attId in attcol)
+                                                    {
+                                                        AttributeReference attRef = (AttributeReference)trans.GetObject(attId, OpenMode.ForRead);
+                                                        if (IsLabel(attRef.TextString))
+                                                        {
+                                                            model.Text = attRef.TextString;
+                                                            model.Location = ConverCADPointToRevitPoint(br.Position);
+                                                            model.Angel = br.Rotation;
+                                                            model.Layer = br.Layer;
+                                                            listCADModels.Add(model);
+                                                        }
+                                                    }
+                                                    break;
                                             }
                                         }
                                     }
@@ -130,6 +147,48 @@ namespace Manicotti
                 return UnitUtils.ConvertToInternalUnits(value, DisplayUnitType.DUT_MILLIMETERS);
             }
             return new XYZ(MillimetersToUnits(point.X), MillimetersToUnits(point.Y), MillimetersToUnits(point.Z));
+        }
+
+        /// <summary>
+        /// //
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="digits"></param>
+        /// <returns></returns>
+        public static bool IsLabel(string str)
+        {
+            Regex rex = new Regex(@"^[A-Z]+\d{4}$");
+            if (rex.IsMatch(str))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// /////
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="axisLength"></param>
+        /// <param name="defHeight"></param>
+        /// <returns></returns>
+        public static Tuple<double, double> DecodeLabel(string label, double axisLength, double defHeight)
+        {
+            double width = axisLength;
+            double height = defHeight;
+            if (IsLabel(label))
+            {
+                width = Convert.ToInt32(label.Substring(label.Length - 4, 2)) * 100.0;
+                height = Convert.ToInt32(label.Substring(label.Length - 2)) * 100.0;
+            }
+            else
+            {
+                Debug.Print("Processing invalid label for openings. Reset to default value.");
+            }
+            if (width != axisLength) { width = axisLength; height = defHeight; }
+
+            return Tuple.Create(width, height);
         }
     }
 }
