@@ -69,7 +69,7 @@ namespace Manicotti
                         {
                             if (!RegionDetect.PolyInPoly(closedPolys[i], RegionDetect.PolyLineToCurveArray(closedPolys[j], tolerance)))
                             {
-                                Debug.Print("Poly inside poly detected");
+                                //Debug.Print("Poly inside poly detected");
                                 judgement += 1;
                             }
                             counter += 1;
@@ -87,14 +87,13 @@ namespace Manicotti
             }
             Debug.Print("Got closedPolys: " + closedPolys.Count().ToString());
             Debug.Print("Got parentPolys: " + parentPolys.Count().ToString());
-
             string path = UtilGetCADText.GetCADPath(uidoc, import);
             Debug.Print("The path of linked CAD file is: " + path);
             List<UtilGetCADText.CADTextModel> texts = UtilGetCADText.GetCADText(path);
 
             int level;
             int levelCounter = 0;
-            double floorHeight = 13.1233596;  // (in feet) = 4.0 m
+            double floorHeight = Util.MmToFoot(Properties.Settings.Default.floorHeight);
             Dictionary<int, PolyLine> frameDict= new Dictionary<int, PolyLine>(); // cache drawing borders
             Dictionary<int, XYZ> transDict= new Dictionary<int, XYZ>();
             // cache transform vector from the left-bottom corner of the drawing border to the Origin
@@ -172,105 +171,164 @@ namespace Manicotti
             Debug.Print("All levels: " + levelCounter.ToString());
             Debug.Print("frameDict: " + frameDict.Count().ToString());
             Debug.Print("transDict: " + transDict.Count().ToString());
-            Debug.Print("geoDict: " + geoDict.Count().ToString() + " " + geoDict[1].Count().ToString()
-                 + " " + geoDict[2].Count().ToString() + " " + geoDict[3].Count().ToString() + " " + geoDict[4].Count().ToString());
+            for (int i = 1; i <= levelCounter; i++)
+            {
+                Debug.Print("geoDict-{0}: {1}", i, geoDict[i].Count().ToString());
+            }
             Debug.Print("textDict: " + textDict.Count().ToString() + " " + textDict[1].Count().ToString());
 
-            
+
             // MAIN TRANSACTIONS
 
-            // Transactions to add stuffs to the document
-            using (var t = new Transaction(doc))
+            // Prepare a family for ViewPlan creation
+            // It may be a coincidence that the 1st ViewFamilyType is for the FloorPlan
+            // Uplift needed here (doomed if it happends to be a CeilingPlan)
+            ViewFamilyType floorType = new FilteredElementCollector(doc)
+                .OfClass(typeof(ViewFamilyType)).First() as ViewFamilyType;
+
+            // Prepare a family and configurations for TextNote (Put it inside transactions)
+            /*
+            TextNoteType tnt = new FilteredElementCollector(doc)
+                .OfClass(typeof(TextNoteType)).First() as TextNoteType;
+            TextNoteOptions options = new TextNoteOptions();
+            options.HorizontalAlignment = HorizontalTextAlignment.Center;
+            options.TypeId = doc.GetDefaultElementTypeId(ElementTypeGroup.TextNoteType);
+            BuiltInParameter paraIndex = BuiltInParameter.TEXT_SIZE;
+            Parameter textSize = tnt.get_Parameter(paraIndex);
+            textSize.Set(0.3); // in feet
+
+            XYZ centPt = RegionDetect.PolyCentPt(frameDict[i]);
+            TextNoteOptions opts = new TextNoteOptions(tnt.Id);
+            
+            // The note may only show in the current view
+            // no matter we still need it anyway
+            TextNote txNote = TextNote.Create(doc, active_view.Id, centPt, floorView.Name, options);
+            txNote.ChangeTypeId(tnt.Id);
+
+            // Draw model lines of frames as notation
+            Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero + transDict[i] + XYZ.BasisZ * (i - 1) * floorHeight);
+            SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
+            CurveArray shatters = RegionDetect.PolyLineToCurveArray(frameDict[i], tolerance);
+            Transform alignModelLine = Transform.CreateTranslation(transDict[i] + XYZ.BasisZ * (i - 1) * floorHeight);
+            foreach (Curve shatter in shatters)
             {
-                t.Start("Allocate information to levels");
-                
-                // Prepare a family and configurations for TextNote
-                TextNoteType tnt = new FilteredElementCollector(doc)
-                    .OfClass(typeof(TextNoteType)).First() as TextNoteType;
-                TextNoteOptions options = new TextNoteOptions();
-                options.HorizontalAlignment = HorizontalTextAlignment.Center;
-                options.TypeId = doc.GetDefaultElementTypeId(ElementTypeGroup.TextNoteType);
-                BuiltInParameter paraIndex = BuiltInParameter.TEXT_SIZE;
-                Parameter textSize = tnt.get_Parameter(paraIndex);
-                textSize.Set(0.3); // in feet
+                Curve alignedCrv = shatter.CreateTransformed(alignModelLine);
+                ModelCurve modelline = doc.Create.NewModelCurve(alignedCrv, sketch) as ModelCurve;
+            }
+            */
+            
 
-                // Prepare a family for ViewPlan creation
-                // It may be a coincidence that the 1st ViewFamilyType is for the FloorPlan
-                // Uplift needed here (doomed if it happends to be a CeilingPlan)
-                ViewFamilyType floorType = new FilteredElementCollector(doc)
-                    .OfClass(typeof(ViewFamilyType)).First() as ViewFamilyType;
+            // Main process
+            for (int i = 1; i <= levelCounter; i++)
+            {
+                Transform alignment = Transform.CreateTranslation(transDict[i]);
 
-                for (int i = 1; i <= levelCounter; i++)
+                // Align the labels to the origin
+                foreach (UtilGetCADText.CADTextModel label in textDict[i])
                 {
-                    XYZ centPt = RegionDetect.PolyCentPt(frameDict[i]);
-                    TextNoteOptions opts = new TextNoteOptions(tnt.Id);
-                    Transform alignment = Transform.CreateTranslation(transDict[i]);
+                    label.Location = label.Location + transDict[i];
+                }
 
-                    // Create additional levels (ignore what's present)
+                // Sort out lines
+                List<Line> doubleLines = new List<Line>();
+                List<Curve> columnLines = new List<Curve>();
+                List<Curve> doorCrvs = new List<Curve>();
+                List<Curve> windowCrvs = new List<Curve>();
+                foreach (GeometryObject go in geoDict[i])
+                {
+                    var gStyle = doc.GetElement(go.GraphicsStyleId) as GraphicsStyle;
+                    if (gStyle.GraphicsStyleCategory.Name == "WALL")
+                    {
+                        if (go.GetType().Name == "Line")
+                        {
+                            Curve wallLine = go as Curve;
+                            doubleLines.Add(wallLine.CreateTransformed(alignment) as Line);
+                        }
+                        if (go.GetType().Name == "PolyLine")
+                        {
+                            CurveArray wallPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
+                            foreach (Curve crv in wallPolyLine_shattered)
+                            {
+                                doubleLines.Add(crv.CreateTransformed(alignment) as Line);
+                            }
+                        }
+                    }
+                    if (gStyle.GraphicsStyleCategory.Name == "COLUMN")
+                    {
+                        if (go.GetType().Name == "Line")
+                        {
+                            Curve columnLine = go as Curve;
+                            columnLines.Add(columnLine.CreateTransformed(alignment));
+                        }
+                        if (go.GetType().Name == "PolyLine")
+                        {
+                            CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
+                            foreach (Curve crv in columnPolyLine_shattered)
+                            {
+                                columnLines.Add(crv.CreateTransformed(alignment));
+                            }
+                        }
+                    }
+                    if (gStyle.GraphicsStyleCategory.Name == "DOOR")
+                    {
+                        Curve doorCrv = go as Curve;
+                        PolyLine poly = go as PolyLine;
+                        if (null != doorCrv)
+                        {
+                            doorCrvs.Add(doorCrv.CreateTransformed(alignment));
+                        }
+                        if (null != poly)
+                        {
+                            CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(poly, tolerance);
+                            foreach (Curve crv in columnPolyLine_shattered)
+                            {
+                                doorCrvs.Add(crv.CreateTransformed(alignment) as Line);
+                            }
+                        }
+                    }
+                    if (gStyle.GraphicsStyleCategory.Name == "WINDOW")
+                    {
+                        Curve windowCrv = go as Curve;
+                        PolyLine poly = go as PolyLine;
+                        if (null != windowCrv)
+                        {
+                            windowCrvs.Add(windowCrv.CreateTransformed(alignment));
+                        }
+                        if (null != poly)
+                        {
+                            CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(poly, tolerance);
+                            foreach (Curve crv in columnPolyLine_shattered)
+                            {
+                                windowCrvs.Add(crv.CreateTransformed(alignment) as Line);
+                            }
+                        }
+                    }
+                }
+
+
+                // Create additional levels (ignore what's present)
+                // Consider to use sub-transaction here
+                using (var t_level = new Transaction(doc))
+                {
+                    t_level.Start("Create levels");
                     Level floor = Level.Create(doc, (i - 1) * floorHeight);
                     ViewPlan floorView = ViewPlan.Create(doc, floorType.Id, floor.Id);
                     floorView.Name = "F-" + i.ToString();
-
-                    // The note may only show in the current view
-                    // no matter we still need it anyway
-                    TextNote txNote = TextNote.Create(doc, active_view.Id, centPt, floorView.Name, options);
-                    txNote.ChangeTypeId(tnt.Id);
-
-                    // Draw model lines of frames as notation
-                    Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero + transDict[i] + XYZ.BasisZ * (i - 1) * floorHeight);
-                    SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
-                    CurveArray shatters = RegionDetect.PolyLineToCurveArray(frameDict[i], tolerance);
-                    Transform alignModelLine = Transform.CreateTranslation(transDict[i] + XYZ.BasisZ * (i - 1) * floorHeight);
-                    foreach (Curve shatter in shatters)
-                    {
-                        Curve alignedCrv = shatter.CreateTransformed(alignModelLine);
-                        ModelCurve modelline = doc.Create.NewModelCurve(alignedCrv, sketch) as ModelCurve;
-                    }
-
-                    // Create walls & columns
-                    List<Line> doubleLines = new List<Line>();
-                    List<Line> columnLines = new List<Line>();
-                    foreach (GeometryObject go in geoDict[i])
-                    {
-                        var gStyle = doc.GetElement(go.GraphicsStyleId) as GraphicsStyle;
-                        if (gStyle.GraphicsStyleCategory.Name == "WALL")
-                        {
-                            if (go.GetType().Name == "Line")
-                            {
-                                Curve wallLine = go as Curve;
-                                doubleLines.Add(wallLine.CreateTransformed(alignment) as Line);
-                            }
-                            if (go.GetType().Name == "PolyLine")
-                            {
-                                CurveArray wallPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
-                                foreach (Curve crv in wallPolyLine_shattered)
-                                {
-                                    doubleLines.Add(crv.CreateTransformed(alignment) as Line);
-                                }
-                            }
-                        }
-                        if (gStyle.GraphicsStyleCategory.Name == "COLUMN")
-                        {
-                            if (go.GetType().Name == "Line")
-                            {
-                                Curve columnLine = go as Curve;
-                                columnLines.Add(columnLine.CreateTransformed(alignment) as Line);
-                            }
-                            if (go.GetType().Name == "PolyLine")
-                            {
-                                CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
-                                foreach (Curve crv in columnPolyLine_shattered)
-                                {
-                                    columnLines.Add(crv.CreateTransformed(alignment) as Line);
-                                }
-                            }
-                        }
-                    }
-                    CreateWall.Execute(uiapp, doubleLines, floor);
-                    CreateColumn.Execute(uiapp, columnLines, floor);
+                    t_level.Commit();
                 }
 
-                t.Commit();
+                // Grab the current building level
+                FilteredElementCollector colLevels = new FilteredElementCollector(doc)
+                    .WhereElementIsNotElementType()
+                    .OfCategory(BuiltInCategory.INVALID)
+                    .OfClass(typeof(Level));
+                Level currentLevel = colLevels.LastOrDefault() as Level;
+
+                // Sub-transactions are packed within these functions.
+                CreateWall.Execute(uiapp, doubleLines, currentLevel);
+                CreateColumn.Execute(uiapp, columnLines, currentLevel);
+                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, doubleLines, textDict[i], currentLevel);
+                
             }
 
             return Result.Succeeded;

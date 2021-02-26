@@ -171,29 +171,16 @@ namespace Manicotti
             View view = doc.ActiveView;
             Selection sel = uidoc.Selection;
 
-            // Extraction of CurveElements by LineStyle WALL
-            CurveElementFilter filter = new CurveElementFilter(CurveElementType.ModelCurve);
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            ICollection<Element> founds = collector.WherePasses(filter).ToElements();
-            List<CurveElement> importCurves = new List<CurveElement>();
+            double tolerance = commandData.Application.Application.ShortCurveTolerance;
 
-            foreach (CurveElement ce in founds)
-            {
-                importCurves.Add(ce);
-            }
-            var columnCurves = importCurves.Where(x => x.LineStyle.Name == "COLUMN").ToList();
-            List<Curve> columnLines = new List<Curve>();  // The door block has one arc at least
-            foreach (CurveElement ce in columnCurves)
-            {
-                columnLines.Add(ce.GeometryCurve as Curve);
-            }
-            var wallCurves = importCurves.Where(x => x.LineStyle.Name == "WALL").ToList();
-            List<Line> wallLines = new List<Line>();  // Algorithm only support walls of line type
-            foreach (CurveElement ce in wallCurves)
-            {
-                wallLines.Add(ce.GeometryCurve as Line);
-            }
-
+            // Pick Import Instance
+            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
+            var import = doc.GetElement(r) as ImportInstance;
+            
+            List<Curve> columnCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
+            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
+            List<Line> columnLines = Util.CrvsToLines(columnCrvs);
+            List<Line> wallLines = Util.CrvsToLines(wallCrvs);
 
             // Merge the overlapped wall boundaries
             // Seal the wall boundary by column block

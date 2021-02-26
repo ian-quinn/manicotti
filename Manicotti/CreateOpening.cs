@@ -56,7 +56,7 @@ namespace Manicotti
 
             if (null != f)
             {
-                Debug.Print("Family name={0}", f.Name);
+                //Debug.Print("Family name={0}", f.Name);
 
                 // Pick any symbol for duplication (for iteration convenient choose the last):
                 FamilySymbol s = null;
@@ -69,16 +69,18 @@ namespace Manicotti
                     }
                 }
 
-                Debug.Assert(null != s, "expected at least one symbol to be defined in family");
+                //Debug.Assert(null != s, "expected at least one symbol to be defined in family");
 
                 // Duplicate the existing symbol:
                 s = s.Duplicate(width.ToString() + " x " + height.ToString() + "mm") as FamilySymbol;
 
                 // Analyse the symbol parameters:
+                /*
                 foreach (Parameter param in s.Parameters)
                 {
                     Debug.Print("Parameter name={0}, value={1}", param.Definition.Name, param.AsValueString());
                 }
+                */
 
                 // Define new dimensions for our new type;
                 // the specified parameter name is case sensitive:
@@ -115,7 +117,7 @@ namespace Manicotti
                     doorBlocks.Add(Algorithm.CreateBoundingBox2D(cluster));
                 }
             }
-            Debug.Print("{0} clustered door blocks in total", doorBlocks.Count);
+            //Debug.Print("{0} clustered door blocks in total", doorBlocks.Count);
 
             List<Curve> doorAxes = new List<Curve> { };
             foreach (List<Curve> doorBlock in doorBlocks)
@@ -152,7 +154,7 @@ namespace Manicotti
                     windowBlocks.Add(Algorithm.CreateBoundingBox2D(cluster));
                 }
             }
-            Debug.Print("{0} clustered window blocks in total", windowBlocks.Count);
+            //Debug.Print("{0} clustered window blocks in total", windowBlocks.Count);
 
             List<Curve> windowAxes = new List<Curve> { };
             foreach (List<Curve> windowBlock in windowBlocks)
@@ -179,11 +181,12 @@ namespace Manicotti
             {
                 tx.Start("Generate sub-surface and its mark");
 
-                
+                /*
                 Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
                 SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
 
                 // Create door & window blocks
+                
                 foreach (List<Curve> doorBlock in doorBlocks)
                 {
                     //Debug.Print("Creating new bounding box");
@@ -200,23 +203,26 @@ namespace Manicotti
                         ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
                     }
                 }
+                */
                 
+
 
                 // Create door axis & instance
                 foreach (Curve doorAxis in doorAxes)
                 {
-                    
+                    /*
                     DetailLine axis = doc.Create.NewDetailCurve(view, doorAxis) as DetailLine;
                     GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
                     gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
                     gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
-                    
+                    */
 
                     Wall hostWall = Wall.Create(doc, doorAxis, level.Id, true);
 
                     double width = Math.Round(Util.FootToMm(doorAxis.Length), 0);
                     double height = 2000;
                     XYZ basePt = (doorAxis.GetEndPoint(0) + doorAxis.GetEndPoint(1)).Divide(2);
+                    XYZ insertPt = basePt + XYZ.BasisZ * level.Elevation; // Absolute height
                     double span = Double.PositiveInfinity;
                     int labelId = -1;
                     foreach (UtilGetCADText.CADTextModel text in labels)
@@ -231,13 +237,13 @@ namespace Manicotti
                     if (labelId > -1)
                     {
                         (width, height) = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height);
-                        Debug.Print("Raw window label: {0}", labels[labelId].Text);
+                        //Debug.Print("Raw window label: {0}", labels[labelId].Text);
                     }
 
                     Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
-                    FamilySymbol cs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door"); //
+                    FamilySymbol cs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door"); 
                     
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, cs, hostWall, level,
+                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, level,
                         Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                 }
 
@@ -256,14 +262,14 @@ namespace Manicotti
                     double width = Math.Round(Util.FootToMm(windowAxis.Length), 0);
                     double height = 2500;
 
-                    XYZ basePt = (windowAxis.GetEndPoint(0) + windowAxis.GetEndPoint(1)).Divide(2);
-                    XYZ insertPt = basePt + XYZ.BasisZ * Util.MmToFoot(Properties.Settings.Default.sillHeight); //
-                    double span = Util.MmToFoot(3000);
+                    XYZ basePt = (windowAxis.GetEndPoint(0) + windowAxis.GetEndPoint(1)).Divide(2); // On world plane
+                    XYZ insertPt = basePt + XYZ.BasisZ * (Util.MmToFoot(Properties.Settings.Default.sillHeight) + level.Elevation); // Absolute height
+                    double span = Util.MmToFoot(2000);
                     int labelId = -1;
                     foreach (UtilGetCADText.CADTextModel text in labels)
                     {
                         double distance = basePt.DistanceTo(text.Location);
-                        Debug.Print("Compare the two pts: " + Util.PrintXYZ(basePt) + " " + Util.PrintXYZ(text.Location));
+                        //Debug.Print("Compare the two pts: " + Util.PrintXYZ(basePt) + " " + Util.PrintXYZ(text.Location));
                         if (distance < span)
                         {
                             span = distance;
@@ -273,8 +279,11 @@ namespace Manicotti
                     if (labelId > -1)
                     {
                         (width, height) = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height);
-                        Debug.Print("Raw window label: {0}", labels[labelId].Text);
+                        if (height + Properties.Settings.Default.sillHeight > Properties.Settings.Default.floorHeight)
+                        { height = Properties.Settings.Default.floorHeight - Properties.Settings.Default.sillHeight; }
+                        //Debug.Print("Raw window label: {0}", labels[labelId].Text);
                     }
+
                     Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
                     FamilySymbol cs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
                     FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, level,

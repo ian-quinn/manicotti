@@ -104,6 +104,13 @@ namespace Manicotti
                 {
                     Curve crv = obj as Curve;
                     PolyLine poly = obj as PolyLine;
+                    if (obj.GetType().ToString() == "Autodesk.Revit.DB.Arc")
+                    {
+                        Debug.Print("An arc detected");
+                        Line flattenCrv = Line.CreateBound(crv.GetEndPoint(0), crv.GetEndPoint(1));
+                        shatteredCrvs.Add(flattenCrv as Curve);
+                        continue;
+                    }
                     if (null != crv)
                     {
                         shatteredCrvs.Add(crv);

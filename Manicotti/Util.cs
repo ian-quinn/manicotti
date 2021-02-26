@@ -164,10 +164,31 @@ namespace Manicotti
         }
         #endregion
 
+
         #region DEBUG
+        /// <summary>
+        /// Return the coorinate of XYZ as a string
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
         public static string PrintXYZ(XYZ pt)
         {
             return string.Format(" ({0}, {1}, {2}) ", pt.X, pt.Y, pt.Z);
+        }
+
+        /// <summary>
+        /// Return the content of List(int) as a string
+        /// </summary>
+        /// <param name="seq"></param>
+        /// <returns></returns>
+        public static string PrintSeq(List<int> seq)
+        {
+            string result = "";
+            foreach (int e in seq)
+            {
+                result = result + e.ToString() + " ";
+            }
+            return result;
         }
         #endregion
 

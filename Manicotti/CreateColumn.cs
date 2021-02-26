@@ -148,14 +148,15 @@ namespace Manicotti
 
 
         // Main transaction
-        public static void Execute(UIApplication uiapp, List<Line> columnLines, Level level)
+        public static void Execute(UIApplication uiapp, List<Curve> columnLines, Level level)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
 
             // Column basepoint
-            List<List<Line>> columnGroups = new List<List<Line>>();
+            List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnLines);
+            /*
             columnGroups.Add(new List<Line>() { });
             while (columnLines.Count != 0)
             {
@@ -181,6 +182,7 @@ namespace Manicotti
                 }
             a:;
             }
+            */
 
             // Grab the columntype
             FilteredElementCollector colColumns = new FilteredElementCollector(doc)
@@ -201,7 +203,7 @@ namespace Manicotti
             
 
             // Column generation
-            foreach (List<Line> baselines in columnGroups)
+            foreach (List<Curve> baselines in columnGroups)
             {
                 if (baselines.Count <= 1) { continue; }
                 if (baselines.Count == 4) // SHIT CODE. Should check if the polygon is rectangle
@@ -209,10 +211,10 @@ namespace Manicotti
                     using (Transaction tx = new Transaction(doc))
                     {
                         tx.Start("Generate Columns");
-                        var (width, depth, angle) = Algorithm.GetSizeOfRectangle(baselines);
+                        var (width, depth, angle) = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines));
                         FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
-                        XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
+                        XYZ columnCenterPt = Algorithm.GetCenterPt(Util.CrvsToLines(baselines));
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
                         // z pointing down to apply a clockwise rotation
                         FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
@@ -223,7 +225,8 @@ namespace Manicotti
                 }
                 if (baselines.Count > 4)
                 {
-                    var boundary = Algorithm.RectifyPolygon(baselines);
+                    continue; // debugging
+                    var boundary = Algorithm.RectifyPolygon(Util.CrvsToLines(baselines));
                     FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
                     if (null == fs)
                     {

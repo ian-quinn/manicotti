@@ -37,7 +37,7 @@ namespace Manicotti
                 .OfClass(typeof(Level));
             Level firstLevel = colLevels.FirstElement() as Level;
             
-            CreateColumn.Execute(uiapp, Util.CrvsToLines(columnCrvs), firstLevel);
+            CreateColumn.Execute(uiapp, columnCrvs, firstLevel);
 
             return Result.Succeeded;
         }

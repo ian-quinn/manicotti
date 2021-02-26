@@ -42,7 +42,7 @@ namespace Manicotti
             List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
             List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WINDOW", tolerance);
             List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
-
+            
 
             // Convert texts info into TextNote by Teigha
             // Revit does not expose any API to parse text info
@@ -85,6 +85,7 @@ namespace Manicotti
             {
                 doorCrvs.Add(ce.GeometryCurve as Curve);
             }
+            
             var wallCurves = importCurves.Where(x => x.LineStyle.Name == "WALL").ToList();
             List<Line> wallLines = new List<Line>();  // Algorithm only support walls of line type
             foreach (CurveElement ce in wallCurves)
@@ -98,6 +99,7 @@ namespace Manicotti
                 windowCrvs.Add(ce.GeometryCurve as Curve);
             }
             */
+            
 
             CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, Util.CrvsToLines(wallCrvs), labels, firstLevel);
 

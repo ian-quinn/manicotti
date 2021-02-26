@@ -13,6 +13,17 @@ namespace Manicotti
     {
         #region XYZ method
         /// <summary>
+        /// Return the same point with coarser coordinates
+        /// </summary>
+        /// <param name="pt"></param>
+        /// <returns></returns>
+        public static XYZ RoundXYZ (XYZ pt)
+        {
+            return new XYZ(Math.Round(pt.X, 4), Math.Round(pt.Y, 4), Math.Round(pt.Z, 4));
+        }
+
+
+        /// <summary>
         /// Calculate the clockwise angle from vec1 to vec2
         /// </summary>
         /// <param name="vec1"></param>
@@ -51,14 +62,60 @@ namespace Manicotti
             XYZ ptEnd = line.GetEndPoint(1);
             XYZ vec1 = (ptStart - pt).Normalize();
             XYZ vec2 = (ptEnd - pt).Normalize();
-            if (vec1.IsAlmostEqualTo(vec2)) { return false; }
-            else { return true; }
+            if (!vec1.IsAlmostEqualTo(vec2) || pt.IsAlmostEqualTo(ptStart) || pt.IsAlmostEqualTo(ptEnd)) { return true; }
+            else { return false; }
         }
         #endregion
-        
-        
+
+
 
         #region Curve method
+        /// <summary>
+        /// Check if two line segments are intersected. May not save that much of computation time.
+        /// </summary>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns></returns>
+        public static bool IsLineLineIntersected(Curve c1, Curve c2)
+        {
+            XYZ p1 = c1.GetEndPoint(0);
+            XYZ q1 = c1.GetEndPoint(1);
+            XYZ p2 = c2.GetEndPoint(0);
+            XYZ q2 = c2.GetEndPoint(1);
+            XYZ v1 = q1 - p1;
+            XYZ v2 = q2 - p2;
+            if (v1.Normalize().IsAlmostEqualTo(v2.Normalize()) || v1.Normalize().IsAlmostEqualTo(-v2.Normalize()))
+            {
+                return false;
+            }
+            else
+            {
+                XYZ w = p2 - p1;
+                XYZ p5 = null;
+
+                double c = (v2.X * w.Y - v2.Y * w.X)
+                  / (v2.X * v1.Y - v2.Y * v1.X);
+
+                if (!double.IsInfinity(c))
+                {
+                    double x = p1.X + c * v1.X;
+                    double y = p1.Y + c * v1.Y;
+
+                    p5 = new XYZ(x, y, 0);
+                }
+
+                if (IsPtOnLine(p5, c1 as Line) && IsPtOnLine(p5, c2 as Line))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+
         // Check the parallel lines
         public static bool IsParallel(Line line1, Line line2)
         {
@@ -114,7 +171,17 @@ namespace Manicotti
             { return true; }
             else { return false; }
         }
-        
+
+        public static bool IsIntersectedLiberal(Curve crv1, Curve crv2)
+        {
+            // Can be safely apply to lines
+            // Line segment can only have 4 comparison results: Disjoint, subset, overlap, equal
+            SetComparisonResult result = crv1.Intersect(crv2, out IntersectionResultArray results);
+            if (result != SetComparisonResult.Disjoint)
+            { return true; }
+            else { return false; }
+        }
+
         /// <summary>
         /// Check if two lines are almost joined.
         /// </summary>
@@ -137,6 +204,7 @@ namespace Manicotti
             else { return false; }
         }
 
+        /*
         // Check a line is overlapping with a group of lines
         public static bool IsLineIntersectLines(Line line, List<Line> list)
         {
@@ -151,6 +219,7 @@ namespace Manicotti
             if (judgement == 0) { return false; }
             else { return true; }
         }
+        */
         
         // Check a line is overlapping with a group of lines
         public static bool IsLineOverlapLines(Line line, List<Line> list)
@@ -249,70 +318,104 @@ namespace Manicotti
             return Line.CreateBound(new XYZ(Xmin, Ymin, Z), new XYZ(Xmax, Ymax, Z));
         }
         
+        
         /// <summary>
-        /// Cluster curves if they are almost intersected
+        /// Offset the curve a little bit to check if it contacts with others.
         /// </summary>
-        /// <param name="crvs"></param>
+        /// <param name="crv"></param>
+        /// <param name="target"></param>
         /// <returns></returns>
-        public static List<List<Curve>> ClusterByIntersect(List<Curve> crvs)
+        public static bool IsVagueIntersected(Curve crv, Curve target)
         {
-            // Check whether a line is intersected with a bunch of lines
-            bool IsCrvIntersectCrvs(Curve crv, List<Curve> list)
-            {
-                int judgement = 0;
-                // shit here
-                if (list.Count == 0) { return true; }
-                else
-                {
-                    foreach (Curve element in list)
-                    {
-                        if (IsIntersected(crv, element))
-                        {
-                            judgement += 1;
-                        }
-                    }
-                }
-                if (judgement == 0) { return false; }
-                else { return true; }
-            }
-
             double tolerance = 0.01;
             Transform up = Transform.CreateTranslation(tolerance * XYZ.BasisY);
             Transform down = Transform.CreateTranslation(-tolerance * XYZ.BasisY);
             Transform left = Transform.CreateTranslation(-tolerance * XYZ.BasisX);
             Transform right = Transform.CreateTranslation(tolerance * XYZ.BasisX);
-            List<List<Curve>> clusters = new List<List<Curve>> { };
-            clusters.Add(new List<Curve> { });
+            // Curves are basically not joined. It is better to round the coordinates to get a better intersection recognition
+            //Curve crv0 = Line.CreateBound(RoundXYZ(crv.GetEndPoint(0)), RoundXYZ(crv.GetEndPoint(1))) as Curve;
+            Curve crv0 = crv.Clone();
+            crv0 = RegionDetect.ExtendCrv(crv0, 0.01);
+            Curve crv1 = crv0.CreateTransformed(up);
+            Curve crv2 = crv0.CreateTransformed(down);
+            Curve crv3 = crv0.CreateTransformed(left);
+            Curve crv4 = crv0.CreateTransformed(right);
+            if (IsIntersected(crv0, target) ||
+                IsIntersected(crv1, target) ||
+                IsIntersected(crv2, target) ||
+                IsIntersected(crv3, target) ||
+                IsIntersected(crv4, target))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Cluster curves by their intersection. The judgement function can be replaced by vague ones.
+        /// </summary>
+        /// <param name="crvs"></param>
+        /// <returns></returns>
+        public static List<List<Curve>> ClusterByIntersect(List<Curve> crvs)
+        {
+            /*
             for (int i = 0; i < crvs.Count; i++)
             {
-                if (null == crvs[i]) { continue; }
-                Curve crv0 = crvs[i].Clone();
-                crv0 = RegionDetect.ExtendCrv(crv0, 0.1);
-                Curve crv1 = crv0.CreateTransformed(up);
-                Curve crv2 = crv0.CreateTransformed(down);
-                Curve crv3 = crv0.CreateTransformed(left);
-                Curve crv4 = crv0.CreateTransformed(right);
-                int iterCount = -1;
-                for (int j = 0; j < clusters.Count; j++)
+                Debug.Print("Line{0} " + Util.PrintXYZ(crvs[i].GetEndPoint(0)) + " " + Util.PrintXYZ(crvs[i].GetEndPoint(1)), i);
+            }
+            */
+
+            List<int> ids = Enumerable.Range(0, crvs.Count).ToList();
+            List<List<Curve>> clusters = new List<List<Curve>>();
+            while (ids.Count != 0)
+            {
+                List<Curve> cluster = new List<Curve>();
+                List<int> idCluster = new List<int>() { ids[0] };
+                List<int> idTemp = new List<int>() { ids[0] };
+                ids.Remove(ids[0]);
+                while(idTemp.Count != 0)
                 {
-                    iterCount = j;
-                    if (IsCrvIntersectCrvs(crv0, clusters[j]) ||
-                        IsCrvIntersectCrvs(crv1, clusters[j]) ||
-                        IsCrvIntersectCrvs(crv2, clusters[j]) ||
-                        IsCrvIntersectCrvs(crv3, clusters[j]) ||
-                        IsCrvIntersectCrvs(crv4, clusters[j]))
+                    List<int> idNextTemp = new List<int>();
+                    for (int i = 0; i < idTemp.Count; i++)
                     {
-                        clusters[iterCount].Add(crvs[i]);
-                        goto a;
+                        int intersectionCount = 0;
+                        List<int> idDel = new List<int>();
+                        for (int j = 0; j < ids.Count; j++)
+                        {
+                            if (!idTemp.Contains(ids[j]))
+                            {
+                                if (IsVagueIntersected(crvs[idTemp[i]], crvs[ids[j]]))
+                                {
+                                    //Debug.Print("Intersected Line{0} and Line{1}", idTemp[i], ids[j]);
+                                    idCluster.Add(ids[j]);
+                                    idNextTemp.Add(ids[j]);
+                                    idDel.Add(ids[j]);
+                                    intersectionCount += 1;
+                                }
+                            }
+                        }
+                        if (intersectionCount == 0) { continue; }
+                        foreach (int element in idDel)
+                        {
+                            ids.Remove(element);
+                        }
                     }
+                    idTemp = idNextTemp;
                 }
-                clusters.Add(new List<Curve> { crvs[i] });
-            a:
-                continue;
+                foreach (int id in idCluster)
+                {
+                    cluster.Add(crvs[id]);
+                }
+                clusters.Add(cluster);
+                //Debug.Print("Cluster has " + Util.PrintSeq(idCluster));
             }
             return clusters;
         }
         
+        /*
         /// <summary>
         /// Cluster lines if they are almost joined at end point.
         /// </summary>
@@ -339,6 +442,7 @@ namespace Manicotti
             }
             return clusters;
         }
+        */
         
         /// <summary>
         /// Get points of curves
@@ -365,7 +469,7 @@ namespace Manicotti
                     }
                 }
             }
-            Debug.Print("Vertices in all: " + pts.Count.ToString());
+            //Debug.Print("Vertices in all: " + pts.Count.ToString());
             return pts;
         }
         
@@ -393,7 +497,7 @@ namespace Manicotti
             XYZ midPt_proj = targetline.Project(midPt).XYZPoint;
             XYZ vec = (midPt_proj - midPt) / 2;
             double offset = vec.GetLength() / 2.0;
-            Debug.Print(offset.ToString());
+            //Debug.Print(offset.ToString());
             if (offset != 0)
             {
                 Line axis = Line.CreateBound(baseline.GetEndPoint(0) + vec, baseline.GetEndPoint(1) + vec);
@@ -567,11 +671,13 @@ namespace Manicotti
                     continue;
                 }
             }
+            /*
             Debug.Print("number of vertices: " + vertices.Count());
             foreach (XYZ pt in vertices)
             {
                 Debug.Print(Util.PrintXYZ(pt));
             }
+            */
             for (int i = 0; i < lines.Count; i++)
             {
                 boundary.Append(Line.CreateBound(vertices[i], vertices[i + 1]));
