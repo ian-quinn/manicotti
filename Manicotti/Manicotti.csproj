@@ -110,6 +110,7 @@
     <Resource Include="ico\Sketch.ico" />
     <Resource Include="ico\Fusion.ico" />
     <Resource Include="ico\Winform.ico" />
+    <Resource Include="ico\Error.ico" />
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>

@@ -126,6 +126,7 @@ namespace Manicotti
                 for (int i = 0; i < doorBlock.Count; i++)
                 {
                     int sectCount = 0;
+                    List<Line> fenses = new List<Line>();
                     foreach (Line line in wallLines)
                     {
                         Curve testCrv = doorBlock[i].Clone();
@@ -134,9 +135,22 @@ namespace Manicotti
                         if (result == SetComparisonResult.Overlap)
                         {
                             sectCount += 1;
+                            fenses.Add(line);
                         }
                     }
-                    if (sectCount == 2) { doorAxes.Add(doorBlock[i]); }
+                    if (sectCount == 2)
+                    {
+                        XYZ projecting = fenses[0].Evaluate(0.5, true);
+                        XYZ projected = fenses[1].Project(projecting).XYZPoint;
+                        if (fenses[0].Length > fenses[1].Length)
+                        {
+                            projecting = fenses[1].Evaluate(0.5, true);
+                            projected = fenses[0].Project(projecting).XYZPoint;
+                        }
+                        Line doorAxis = Line.CreateBound(projecting, projected);
+                        doorAxes.Add(doorAxis);
+                        //doorAxes.Add(doorBlock[i]);
+                    }
                 }
                 //Debug.Print("Curves adjoning the box: " + doorFrame.Count.ToString());
             }

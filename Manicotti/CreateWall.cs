@@ -24,7 +24,7 @@ namespace Manicotti
 
             // Bundle double lines and generate their axes
             List<Line> axes = new List<Line>();
-            double bias = 0.01;
+            double bias = Util.MmToFoot(20);
 
             for (int i = 0; i < doubleLines.Count; i++)
             {
@@ -34,8 +34,8 @@ namespace Manicotti
                         && !Algorithm.IsIntersected(doubleLines[i], doubleLines[i + j]))
                     {
                         // Imperical Units within Revit API
-                        if (Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) < 0.65617 + bias
-                        && Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) > 0.65617 - bias
+                        if (Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) < Util.MmToFoot(200) + bias
+                        && Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) > Util.MmToFoot(200) - bias
                         && Algorithm.IsShadowing(doubleLines[i], doubleLines[i + j]))
                         {
                             if (Algorithm.GenerateAxis(doubleLines[i], doubleLines[i + j]) != null)

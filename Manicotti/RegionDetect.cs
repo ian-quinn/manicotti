@@ -327,8 +327,8 @@ namespace Manicotti
                 {
                     if (CStart != CCut)
                     {
-                        SetComparisonResult result = C[CStart].Intersect(ExtendCrv(C[CCut], 0.01), 
-                            out IntersectionResultArray results);
+                        // ExtendCrv(C[CCut], 0.005)
+                        SetComparisonResult result = C[CStart].Intersect(C[CCut], out IntersectionResultArray results);
                         if (result != SetComparisonResult.Disjoint)
                         {
                             double breakParam = results.get_Item(0).UVPoint.U;
@@ -533,6 +533,7 @@ namespace Manicotti
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
+            View view = doc.ActiveView;
 
             Autodesk.Revit.Creation.Application appCreation = app.Create;
             Autodesk.Revit.Creation.Document docCreation = doc.Create;
@@ -584,8 +585,29 @@ namespace Manicotti
                 tx.Start("Generate Walls");
 
                 List<CurveArray> curveGroup = RegionCluster(strayLines);
-                var (mesh, perimeter) = FlattenLines(curveGroup);
+                //var (mesh, perimeter) = FlattenLines(curveGroup);
 
+                Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
+                SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
+
+                foreach (CurveArray group in curveGroup)
+                {
+                    foreach (Curve edge in group)
+                    {
+                        DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;
+                        GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
+                        gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
+                        gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
+                    }
+                }
+                
+                
+                /*
+                 * Region detect and boolean union all have bugs to fix
+                 * DO NOT TEST THIS ONE
+                 * 
+                 * 
+                 * 
                 // Wall generation
                 foreach (Curve wallAxis in mesh)
                 {
@@ -615,9 +637,10 @@ namespace Manicotti
                     System.Windows.Forms.MessageBox.Show("You can not create spaces in this plan view");
                 }
                 */
-
+                /*
                 Floor newFloor = doc.Create.NewFloor(AlignCrv(perimeter), floorType, firstLevel, false, XYZ.BasisZ);
                 newFloor.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM).Set(0);
+                */
 
                 tx.Commit();
             }

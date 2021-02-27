@@ -133,26 +133,33 @@ namespace Manicotti
         }
         
         // Check the shadowing lines
-        public static bool IsShadowing(Line line1, Line line2)
+        public static bool IsShadowing(Curve line1, Curve line2)
         {
-            Line shorter = line1.Clone() as Line;
-            Line longer = line2.Clone() as Line;
-            if (shorter.Length > longer.Length)
-            {
-                (shorter, longer) = (longer, shorter);
-            }
-            XYZ start = shorter.GetEndPoint(0);
-            XYZ end = shorter.GetEndPoint(1);
-            Line target = longer.Clone() as Line;
-            target.MakeUnbound();
-            XYZ start_s = target.Project(start).XYZPoint;
-            XYZ end_s = target.Project(end).XYZPoint;
-            Line start_line = Line.CreateUnbound(start, start_s - start);
-            Line end_line = Line.CreateUnbound(end, end_s - end);
-            if (IsIntersected(start_line, longer) || IsIntersected(end_line, longer)) { return true; }
+            XYZ ptStart1 = line1.GetEndPoint(0);
+            XYZ ptEnd1 = line1.GetEndPoint(1);
+            XYZ ptStart2 = line2.GetEndPoint(0);
+            XYZ ptEnd2 = line2.GetEndPoint(1);
+            Line baseline = line2.Clone() as Line;
+            baseline.MakeUnbound();
+            XYZ _ptStart = baseline.Project(ptStart1).XYZPoint;
+            XYZ _ptEnd = baseline.Project(ptEnd1).XYZPoint;
+            Line checkline = Line.CreateBound(_ptStart, _ptEnd);
+            SetComparisonResult result = checkline.Intersect(line2, out IntersectionResultArray results);
+            if (result == SetComparisonResult.Equal){ return true; }
+            // Equal is a cunning way here if they intersected by a line segment
             else { return false; }
         }
         
+        //
+        public static bool IsOverlapped(Curve crv1, Curve crv2)
+        {
+            SetComparisonResult result = crv1.Intersect(crv2, out IntersectionResultArray results);
+            if (result == SetComparisonResult.Subset
+                || result == SetComparisonResult.Equal)
+            { return true; }
+            else { return false; }
+        }
+
         /// <summary>
         /// Check if two curves are strictly intersected
         /// </summary>
@@ -171,16 +178,7 @@ namespace Manicotti
             { return true; }
             else { return false; }
         }
-
-        public static bool IsIntersectedLiberal(Curve crv1, Curve crv2)
-        {
-            // Can be safely apply to lines
-            // Line segment can only have 4 comparison results: Disjoint, subset, overlap, equal
-            SetComparisonResult result = crv1.Intersect(crv2, out IntersectionResultArray results);
-            if (result != SetComparisonResult.Disjoint)
-            { return true; }
-            else { return false; }
-        }
+        
 
         /// <summary>
         /// Check if two lines are almost joined.
@@ -204,7 +202,7 @@ namespace Manicotti
             else { return false; }
         }
 
-        /*
+        
         // Check a line is overlapping with a group of lines
         public static bool IsLineIntersectLines(Line line, List<Line> list)
         {
@@ -219,7 +217,7 @@ namespace Manicotti
             if (judgement == 0) { return false; }
             else { return true; }
         }
-        */
+        
         
         // Check a line is overlapping with a group of lines
         public static bool IsLineOverlapLines(Line line, List<Line> list)
@@ -414,7 +412,61 @@ namespace Manicotti
             }
             return clusters;
         }
-        
+
+        /// <summary>
+        /// Cluster line segments if they were all piled upon a single line.
+        /// </summary>
+        /// <param name="crvs"></param>
+        /// <returns></returns>
+        public static List<List<Curve>> ClusterByOverlap(List<Curve> crvs)
+        {
+            List<int> ids = Enumerable.Range(0, crvs.Count).ToList();
+            List<List<Curve>> clusters = new List<List<Curve>>();
+            while (ids.Count != 0)
+            {
+                List<Curve> cluster = new List<Curve>();
+                List<int> idCluster = new List<int>() { ids[0] };
+                List<int> idTemp = new List<int>() { ids[0] };
+                ids.Remove(ids[0]);
+                while (idTemp.Count != 0)
+                {
+                    List<int> idNextTemp = new List<int>();
+                    for (int i = 0; i < idTemp.Count; i++)
+                    {
+                        int intersectionCount = 0;
+                        List<int> idDel = new List<int>();
+                        for (int j = 0; j < ids.Count; j++)
+                        {
+                            if (!idTemp.Contains(ids[j]))
+                            {
+                                // Use this only to line segments
+                                if (IsIntersected(crvs[idTemp[i]], crvs[ids[j]])
+                                    && IsParallel(crvs[idTemp[i]] as Line, crvs[ids[j]] as Line))
+                                {
+                                    idCluster.Add(ids[j]);
+                                    idNextTemp.Add(ids[j]);
+                                    idDel.Add(ids[j]);
+                                    intersectionCount += 1;
+                                }
+                            }
+                        }
+                        if (intersectionCount == 0) { continue; }
+                        foreach (int element in idDel)
+                        {
+                            ids.Remove(element);
+                        }
+                    }
+                    idTemp = idNextTemp;
+                }
+                foreach (int id in idCluster)
+                {
+                    cluster.Add(crvs[id]);
+                }
+                clusters.Add(cluster);
+            }
+            return clusters;
+        }
+
         /*
         /// <summary>
         /// Cluster lines if they are almost joined at end point.
@@ -443,7 +495,7 @@ namespace Manicotti
             return clusters;
         }
         */
-        
+
         /// <summary>
         /// Get points of curves
         /// </summary>
@@ -510,7 +562,22 @@ namespace Manicotti
             //Line axis = baseline.CreateOffset(offset, vec.Normalize()) as Line;
         }
 
-        
+        /// <summary>
+        /// Extend a line segment with certain extension(mm) on both ends.
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="extension"></param>
+        /// <returns></returns>
+        public static Line ExtendLine(Line line, double extension)
+        {
+            XYZ ptStart = line.GetEndPoint(0);
+            XYZ ptEnd = line.GetEndPoint(1);
+            XYZ vec = line.Direction.Normalize();
+            return Line.CreateBound(ptStart - vec * Util.MmToFoot(extension), 
+                ptEnd + vec * Util.MmToFoot(extension));
+        }
+
+
         #endregion
 
 
@@ -684,6 +751,20 @@ namespace Manicotti
             }
             return boundary;
         }
+
+
+        public static List<Line> CenterLinesOfBox(List<Line> box)
+        {
+            XYZ centPt = GetCenterPt(box);
+            List<Line> centerLines = new List<Line>();
+            foreach (Line edge in box)
+            {
+                centerLines.Add(Line.CreateBound(centPt, edge.Evaluate(0.5, true)));
+            }
+            return centerLines;
+        }
+
+
 
         // 
         public static Tuple<double, double, double> GetSizeOfFootprint(List<Line> lines)

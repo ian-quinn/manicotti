@@ -70,6 +70,8 @@ namespace Manicotti
             Debug.Assert(result != SetComparisonResult.Subset, "Subset");
             Debug.Assert(result != SetComparisonResult.Superset, "Superset");
 
+            
+
             double radius = Util.MmToFoot(50);
             XYZ ptStart = wallLines[0].GetEndPoint(0);
             XYZ ptEnd = wallLines[0].GetEndPoint(1);
@@ -88,6 +90,31 @@ namespace Manicotti
             else
             { Debug.Print("DISJOINT!"); }
 
+
+            XYZ ptStart1 = wallLines[0].GetEndPoint(0);
+            XYZ ptEnd1 = wallLines[0].GetEndPoint(1);
+            XYZ ptStart2 = wallLines[1].GetEndPoint(0);
+            XYZ ptEnd2 = wallLines[1].GetEndPoint(1);
+            Line baseline = wallLines[1].Clone() as Line;
+            baseline.MakeUnbound();
+            XYZ _ptStart = baseline.Project(ptStart1).XYZPoint;
+            XYZ _ptEnd = baseline.Project(ptEnd1).XYZPoint;
+            Debug.Print("_start: " + Util.PrintXYZ(_ptStart));
+            Debug.Print("_end: " + Util.PrintXYZ(_ptEnd));
+            Line checkline = Line.CreateBound(_ptStart, _ptEnd);
+            SetComparisonResult projection = checkline.Intersect(wallLines[1] as Line, out IntersectionResultArray projections);
+            Debug.Print("Shadowing?" + projection.ToString());
+            if (projection == SetComparisonResult.Equal)
+            {
+                Debug.Print("Shadowing");
+            }
+            {
+                Debug.Print("Departed");
+            }
+            Curve proj1 = Arc.Create(_ptStart, radius, 0, 2 * Math.PI, xAxis, yAxis);
+            Curve proj2 = Arc.Create(_ptEnd, radius, 0, 2 * Math.PI, xAxis, yAxis);
+
+
             using (Transaction tx = new Transaction(doc))
             {
                 tx.Start("Generate sub-surface and its mark");
@@ -95,8 +122,8 @@ namespace Manicotti
                 Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
                 SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
 
-                ModelCurve modelline1 = doc.Create.NewModelCurve(knob1, sketch) as ModelCurve;
-                ModelCurve modelline2 = doc.Create.NewModelCurve(knob2, sketch) as ModelCurve;
+                ModelCurve modelline1 = doc.Create.NewModelCurve(proj1, sketch) as ModelCurve;
+                ModelCurve modelline2 = doc.Create.NewModelCurve(proj2, sketch) as ModelCurve;
 
                 tx.Commit();
             }

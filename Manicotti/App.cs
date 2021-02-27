@@ -63,7 +63,7 @@ namespace Manicotti
             
             PushButton mesh = modelFix.AddItem(new PushButtonData("mesh", "Patch\nAxis Grid", thisAssemblyPath,
                 "Manicotti.MeshPatch")) as PushButton;
-            mesh.ToolTip = "Create and fix the axis grid of walls. WIP";
+            mesh.ToolTip = "WIP. Create the axis grid of walls. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG) ";
             BitmapImage meshImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Anchor.ico", UriKind.Absolute));
             mesh.LargeImage = meshImg;
 
@@ -92,6 +92,12 @@ namespace Manicotti
             config.ToolTip = "Default and preferance settings. WIP";
             BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Winform.ico", UriKind.Absolute));
             config.LargeImage = configImg;
+
+            PushButton test = modelFix.AddItem(new PushButtonData("test", "Test\nButton",
+                thisAssemblyPath, "Manicotti.TestIntersect")) as PushButton;
+            test.ToolTip = "Default and preferance settings. WIP";
+            BitmapImage testImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Error.ico", UriKind.Absolute));
+            test.LargeImage = testImg;
 
             a.ApplicationClosing += a_ApplicationClosing;
 

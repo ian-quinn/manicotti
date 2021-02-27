@@ -64,6 +64,22 @@ namespace Manicotti
             }
         }
 
+        public static Line ExtendLineToBox(Line line, List<Line> box)
+        {
+            Line result = null;
+            foreach (Line edge in box)
+            {
+                var test = ExtendLine(line, edge);
+                if (null == test) { continue; }
+                if (test.Length > line.Length)
+                {
+                    return result;
+                }
+            }
+            Debug.Print("Failure at line extension to box");
+            return result;
+        }
+
         /// <summary>
         /// Fuse two collinear segments if they are joined or almost joined.
         /// </summary>
@@ -179,13 +195,14 @@ namespace Manicotti
             
             List<Curve> columnCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
             List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
+            List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
+            List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WINDOW", tolerance);
             List<Line> columnLines = Util.CrvsToLines(columnCrvs);
             List<Line> wallLines = Util.CrvsToLines(wallCrvs);
 
             // Merge the overlapped wall boundaries
             // Seal the wall boundary by column block
-            // INPUT wallLines, columnLines
-            // OUTPUT wallLines
+            // INPUT List<Line> wallLines, List<Line> columnLines
             #region PATCH wallLines
             List<Line> patchLines = new List<Line>();
             List<XYZ> sectPts = new List<XYZ>();
@@ -245,17 +262,16 @@ namespace Manicotti
             List<Line> fixedLines = CloseGapAtCorner(mergeLines);
 
             #endregion
+            // OUTPUT List<Line> fixedLines
 
-            // INPUT wallLines
-            // OUTPUT wallClusters TREE data?
-            // The clustering process encountered with fatal problem. PAUSED
+
+            // INPUT List<Line> fixedLines
             #region Cluster the wallLines by hierarchy
 
-            // This fails everytime and I have no clue as to why
             var wallClusters = Algorithm.ClusterByIntersect(Util.LinesToCrvs(fixedLines));
             Debug.Print("{0} clustered wall blocks in total", wallClusters.Count);
 
-
+            // Generate boundingbox marker for the wall cluster
             List<List<Curve>> wallBlocks = new List<List<Curve>> { };
             foreach (List<Curve> cluster in wallClusters)
             {
@@ -268,25 +284,230 @@ namespace Manicotti
             Debug.Print("{0} clustered wall bounding boxes in total", wallBlocks.Count);
 
             #endregion
+            // INPUT List<List< Curve >> wallClusters
+            Debug.Print("WALL LINES PATCH & CLUSTERING COMPLETE!");
 
 
+            // INPUT List<List<Curve>> wallClusters
             #region Iterate the generaion of axis
+
+            // Wall axes
+            List<Line> axes = new List<Line>();
+            double bias = Util.MmToFoot(20);
+            foreach (List<Curve> wallCluster in wallClusters)
+            {
+                List<Line> lines = Util.CrvsToLines(wallCluster);
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    for (int j = 0; j < lines.Count - i; j++)
+                    {
+                        if (Algorithm.IsParallel(lines[i], lines[i + j])
+                            && !Algorithm.IsIntersected(lines[i], lines[i + j]))
+                        {
+                            if (Algorithm.LineSpacing(lines[i], lines[i + j]) < Util.MmToFoot(200) + bias
+                            && Algorithm.LineSpacing(lines[i], lines[i + j]) > Util.MmToFoot(200) - bias
+                            && Algorithm.IsShadowing(lines[i], lines[i + j]))
+                            {
+                                if (Algorithm.GenerateAxis(lines[i], lines[i + j]) != null)
+                                {
+                                    axes.Add(Algorithm.GenerateAxis(lines[i], lines[i + j]));
+                                    Debug.Print("got it!");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             #endregion
+            // OUTPUT List<Line> axes
+            Debug.Print("WALL AXIS ITERATION COMPLETE!");
 
 
-            // INPUT doorAxis, windowAxis
+            // INPUT List<Curve> doorCrvs
+            // INPUT List<Curve> windowCrvs
+            // INPUT List<Line> axes
             #region Merge axis joined/overlapped
+
+            // Door axes
+            var doorClusters = Algorithm.ClusterByIntersect(doorCrvs);
+            List<List<Curve>> doorBlocks = new List<List<Curve>> { };
+            foreach (List<Curve> cluster in doorClusters)
+            {
+                if (null != Algorithm.CreateBoundingBox2D(cluster))
+                {
+                    doorBlocks.Add(Algorithm.CreateBoundingBox2D(cluster));
+                }
+            }
+            List<Curve> doorAxes = new List<Curve> { };
+            foreach (List<Curve> doorBlock in doorBlocks)
+            {
+                List<Curve> doorFrame = new List<Curve> { };
+                for (int i = 0; i < doorBlock.Count; i++)
+                {
+                    int sectCount = 0;
+                    List<Line> fenses = new List<Line>();
+                    foreach (Line line in fixedLines)
+                    {
+                        Curve testCrv = doorBlock[i].Clone();
+                        SetComparisonResult result = RegionDetect.ExtendCrv(testCrv, 0.01).Intersect(line,
+                                                   out IntersectionResultArray results);
+                        if (result == SetComparisonResult.Overlap)
+                        {
+                            sectCount += 1;
+                            fenses.Add(line);
+                        }
+                    }
+                    if (sectCount == 2)
+                    {
+                        XYZ projecting = fenses[0].Evaluate(0.5, true);
+                        XYZ projected = fenses[1].Project(projecting).XYZPoint;
+                        if (fenses[0].Length > fenses[1].Length)
+                        {
+                            projecting = fenses[1].Evaluate(0.5, true);
+                            projected = fenses[0].Project(projecting).XYZPoint;
+                        }
+                        Line doorAxis = Line.CreateBound(projecting, projected);
+                        doorAxes.Add(doorAxis);
+                        //doorAxes.Add(doorBlock[i]);
+                    }
+                }
+            }
+
+            // Window axes
+            var windowClusters = Algorithm.ClusterByIntersect(windowCrvs);
+
+            List<List<Curve>> windowBlocks = new List<List<Curve>> { };
+            foreach (List<Curve> cluster in windowClusters)
+            {
+                if (null != Algorithm.CreateBoundingBox2D(cluster))
+                {
+                    windowBlocks.Add(Algorithm.CreateBoundingBox2D(cluster));
+                }
+            }
+            List<Curve> windowAxes = new List<Curve> { };
+            foreach (List<Curve> windowBlock in windowBlocks)
+            {
+                Line axis1 = Line.CreateBound((windowBlock[0].GetEndPoint(0) + windowBlock[0].GetEndPoint(1)).Divide(2),
+                    (windowBlock[2].GetEndPoint(0) + windowBlock[2].GetEndPoint(1)).Divide(2));
+                Line axis2 = Line.CreateBound((windowBlock[1].GetEndPoint(0) + windowBlock[1].GetEndPoint(1)).Divide(2),
+                    (windowBlock[3].GetEndPoint(0) + windowBlock[3].GetEndPoint(1)).Divide(2));
+                if (axis1.Length > axis2.Length)
+                {
+                    windowAxes.Add(axis1);
+                }
+                else
+                {
+                    windowAxes.Add(axis2);
+                }
+            }
+            
+
+            axes.AddRange(Util.CrvsToLines(windowAxes));
+            axes.AddRange(Util.CrvsToLines(doorAxes));
+            Debug.Print("Checklist for axes: Door-{0}, Window-{1}, All-{2}", doorAxes.Count, windowAxes.Count,
+                axes.Count);
+            List<Line> axesExtended = new List<Line>();
+            foreach (Line axis in axes)
+            {
+                axesExtended.Add(Algorithm.ExtendLine(axis, 200));
+            }
+            // Axis merge 
+            List<List<Curve>> axisGroups = Algorithm.ClusterByOverlap(Util.LinesToCrvs(axesExtended));
+            List<Line> centerLines = new List<Line>();
+            foreach (List<Curve> axisGroup in axisGroups)
+            {
+                Line merged = Algorithm.MergeLine(Util.CrvsToLines(axisGroup));
+                centerLines.Add(merged);
+            }
+
             #endregion
+            // OUTPUT List<Line> centerLines
+            Debug.Print("WINDOW / DOOR LINES JOINED!");
 
 
-            // INPUT columnLines
+            // INPUT List<Curve> columnCrvs
+            // INPUT List<Line> centerLines
             #region Extend and trim the axis (include column corner)
+
+            List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnCrvs);
+            foreach (List<Curve> columnGroup in columnGroups)
+            {
+                List<Line> columnGrouplines = Util.CrvsToLines(columnGroup);
+                List<Line> nestLines = new List<Line>();
+                for (int i = 0; i < columnGrouplines.Count; i++)
+                {
+                    foreach (Line centerLine in centerLines)
+                    {
+                        SetComparisonResult result = columnGrouplines[i].Intersect(centerLine, out IntersectionResultArray results);
+                        if (result == SetComparisonResult.Overlap)
+                        {
+                            for (int j = 0; j < columnGrouplines.Count; j++)
+                            {
+                                if (j != i)
+                                {
+                                    if (null != ExtendLine(centerLine, columnGrouplines[j]))
+                                    {
+                                        nestLines.Add(ExtendLine(centerLine, columnGrouplines[j]));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Debug.Print("Got nested lines: " + nestLines.Count.ToString());
+                if (nestLines.Count < 2) { continue; }
+                else
+                {
+                    centerLines.AddRange(nestLines);
+                    int count = 0;
+                    for (int i = 1; i < nestLines.Count; i++)
+                    {
+                        if (!Algorithm.IsParallel(nestLines[0], nestLines[i]))
+                        { count += 1; }
+                    }
+                    if (count == 0)
+                    {
+                        var patches = Algorithm.CenterLinesOfBox(columnGrouplines);
+                        foreach (Line patch in patches)
+                        {
+                            if (Algorithm.IsLineIntersectLines(patch, nestLines)) { centerLines.Add(patch); }
+                        }
+                    }
+                }
+            }
+
             #endregion
+            // OUTPUT List<Line> centerLines
+            Debug.Print("AXES JOINED AT COLUMN");
 
 
-
+            // INPUT List<Line> centerLines
+            //#The region detect function has fatal bug during boolean union operation
             #region Call region detection
+            // Axis merge 
+            List<List<Curve>> tempStrays = Algorithm.ClusterByOverlap(Util.LinesToCrvs(centerLines));
+            List<Line> strays = new List<Line>();
+            foreach (List<Curve> tempStray in tempStrays)
+            {
+                Line merged = Algorithm.MergeLine(Util.CrvsToLines(tempStray));
+                strays.Add(merged);
+            }
+
+            var strayClusters = Algorithm.ClusterByIntersect(Util.LinesToCrvs(strays));
+            Debug.Print("Cluster of strays: " + strayClusters.Count.ToString());
+            Debug.Print("Cluster of strays[0]: " + strayClusters[0].Count.ToString());
+            Debug.Print("Cluster of strays[1]: " + strayClusters[1].Count.ToString());
+            // The RegionCluster method should be applied to each cluster of the strays
+            // It only works on a bunch of intersected line segments
+            List<CurveArray> loops = RegionDetect.RegionCluster(strayClusters[0]);
+            // The boolean union method of the loops needs to fix
+            //var (mesh, perimeter) = RegionDetect.FlattenLines(loops);
+
             #endregion
+            // OUTPUT List<CurveArray> loops
+            Debug.Print("REGION COMPLETE!");
+
+            
 
 
             // Get the linestyle of "long-dashed"
@@ -299,7 +520,8 @@ namespace Manicotti
             {
                 tx.Start("Generate Walls");
 
-                // Mark the patch lines
+                // Draw wall patch lines
+                /*
                 foreach (Curve patchLine in patchLines)
                 {
                     DetailLine axis = doc.Create.NewDetailCurve(view, patchLine) as DetailLine;
@@ -307,11 +529,13 @@ namespace Manicotti
                     gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
                     gs.GraphicsStyleCategory.SetLineWeight(3, gs.GraphicsStyleType);
                 }
+                */
 
                 Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
                 SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
 
-                // Mark the bounding box
+                /*
+                // Draw bounding boxes
                 foreach (List<Curve> wallBlock in wallBlocks)
                 {
                     foreach (Curve edge in wallBlock)
@@ -323,12 +547,29 @@ namespace Manicotti
                         gs.GraphicsStyleCategory.SetLinePatternId(linePatternElem.Id, gs.GraphicsStyleType);
                     }
                 }
+                */
                 
-                // Mark the fixed lines of walls
-                foreach (Line line in mergeLines)
+                /*
+                // Draw Axes
+                Debug.Print("Axes all together: " + strays.Count.ToString());
+                foreach (Line centerLine in strays)
                 {
-                    ModelCurve modelline = doc.Create.NewModelCurve(line, sketch) as ModelCurve;
+                    ModelCurve modelline = doc.Create.NewModelCurve(centerLine, sketch) as ModelCurve;
                 }
+                */
+
+                // Draw Regions
+                foreach (CurveArray loop in loops)
+                {
+                    foreach (Curve edge in loop)
+                    {
+                        DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;
+                        GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
+                        gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
+                        gs.GraphicsStyleCategory.SetLineWeight(3, gs.GraphicsStyleType);
+                    }
+                }
+
                 
                 tx.Commit();
             }
