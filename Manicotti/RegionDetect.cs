@@ -186,28 +186,79 @@ namespace Manicotti
             return Tuple.Create(curveMesh, curveBoundary);
         }
 
-        // Create CurveArray from List<Curve>. not a universal method. only after regionCluster()
-        // Note that the curves must follow the same order (counter-clockwise)
-        public static CurveArray AlignCrv(List<Curve> polylines)
+        public static List<Curve> GetBoundary(List<CurveArray> polys)
         {
-            CurveArray polygon = new CurveArray();
-            polygon.Append(polylines[0]);
-            int polygonCounter = 1;
-            do
+            bool IsSame(Curve crv1, Curve crv2)
             {
-                //Debug.Print("Elements in polygon: " + polygon.Size.ToString() + " at iteration: " + polygonCounter.ToString());
-                XYZ endPt = polygon.get_Item(polygon.Size - 1).GetEndPoint(1);
-                for (int i = 0; i < polylines.Count(); i++)
+                XYZ start1 = crv1.GetEndPoint(0);
+                XYZ start2 = crv2.GetEndPoint(0);
+                XYZ end1 = crv1.GetEndPoint(1);
+                XYZ end2 = crv2.GetEndPoint(1);
+                if (start1.IsAlmostEqualTo(start2) && end1.IsAlmostEqualTo(end2) || 
+                    start1.IsAlmostEqualTo(end2) && start2.IsAlmostEqualTo(end1))
                 {
-                    XYZ startPt = polylines[i].GetEndPoint(0);
-                    if (startPt.IsAlmostEqualTo(endPt) == true)
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            List<Curve> shatters = new List<Curve>();
+            List<Curve> boundary = new List<Curve>();
+            foreach (CurveArray poly in polys)
+            {
+                for (int i = 0; i < poly.Size; i++)
+                {
+                    shatters.Add(poly.get_Item(i));
+                }
+            }
+            Debug.Print("Shatters in all: " + shatters.Count.ToString());
+            for (int i = 0; i < shatters.Count; i++)
+            {
+                for (int j = 0; j < shatters.Count; j++)
+                {
+                    if (j != i)
                     {
-                        polygon.Append(polylines[i]);
+                        if (IsSame(shatters[i], shatters[j]))
+                        {
+                            goto a;
+                        }
                     }
                 }
-                polygonCounter = polygonCounter + 1;
-                if (polygonCounter > 30) { break; }
-            } while (polygon.Size != polylines.Count());
+                boundary.Add(shatters[i]);
+            a:;
+            }
+            Debug.Print("Boundry size: " + boundary.Count.ToString());
+            return boundary;
+        }
+
+        // Create CurveArray from List<Curve>. not a universal method. only after regionCluster()
+        public static CurveArray AlignCrv(List<Curve> polylines)
+        {
+            int lineNum = polylines.Count;
+            CurveArray polygon = new CurveArray();
+            polygon.Append(polylines[0]);
+            polylines.RemoveAt(0);
+            while (polygon.Size < lineNum)
+            {
+                XYZ endPt = polygon.get_Item(polygon.Size - 1).GetEndPoint(1);
+                for (int i = 0; i < polylines.Count; i++)
+                {
+                    if (polylines[i].GetEndPoint(0).IsAlmostEqualTo(endPt))
+                    {
+                        polygon.Append(polylines[i]);
+                        polylines.Remove(polylines[i]);
+                        break;
+                    }
+                    if (polylines[i].GetEndPoint(1).IsAlmostEqualTo(endPt))
+                    {
+                        polygon.Append(polylines[i].CreateReversed());
+                        polylines.Remove(polylines[i]);
+                        break;
+                    }
+                }
+            }
             return polygon;
         }
 

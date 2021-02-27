@@ -68,6 +68,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="CreateOpening.cs" />
     <Compile Include="Fusion.cs" />
+    <Compile Include="CreateRegion.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

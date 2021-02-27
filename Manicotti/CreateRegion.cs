@@ -13,7 +13,7 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public class MeshPatch : IExternalCommand
+    public static class CreateRegion
     {
         /// <summary>
         /// Extend the line to a boundary line. If the line has already surpassed it, trim the line instead.
@@ -178,27 +178,16 @@ namespace Manicotti
 
         
         // Main thread
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        public static CurveArray Execute(UIApplication uiapp, List<Line> wallLines, List<Curve> columnCrvs, List<Curve> windowCrvs,
+            List<Curve> doorCrvs)
         {
-            UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
             View view = doc.ActiveView;
-            Selection sel = uidoc.Selection;
-
-            double tolerance = commandData.Application.Application.ShortCurveTolerance;
-
-            // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
-            var import = doc.GetElement(r) as ImportInstance;
             
-            List<Curve> columnCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
-            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
-            List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
-            List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WINDOW", tolerance);
+            
             List<Line> columnLines = Util.CrvsToLines(columnCrvs);
-            List<Line> wallLines = Util.CrvsToLines(wallCrvs);
 
             // Merge the overlapped wall boundaries
             // Seal the wall boundary by column block
@@ -492,104 +481,21 @@ namespace Manicotti
                 Line merged = Algorithm.MergeLine(Util.CrvsToLines(tempStray));
                 strays.Add(merged);
             }
-
-            //var strayClusters = Algorithm.ClusterByIntersect(Util.LinesToCrvs(strays));
-            //Debug.Print("Cluster of strays: " + strayClusters.Count.ToString());
-            //Debug.Print("Cluster of strays[0]: " + strayClusters[0].Count.ToString());
-            //Debug.Print("Cluster of strays[1]: " + strayClusters[1].Count.ToString());
+            
             // The RegionCluster method should be applied to each cluster of the strays
             // It only works on a bunch of intersected line segments
             List<CurveArray> loops = RegionDetect.RegionCluster(Util.LinesToCrvs(strays));
             // The boolean union method of the loops needs to fix
             var perimeter = RegionDetect.GetBoundary(loops);
-            var recPerimeter = CloseGapAtBreakpoint(Util.CrvsToLines(perimeter));
-            var arrayPerimeter = RegionDetect.AlignCrv(Util.LinesToCrvs(recPerimeter));
-            for (int i = 0; i < arrayPerimeter.Size; i++)
-            {
-                Debug.Print("Line-{0} {1} {2}", i, Util.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(0)),
-                    Util.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(1)));
-            }
+
+            var recPerimeter = MeshPatch.CloseGapAtBreakpoint(Util.CrvsToLines(perimeter));
+
             #endregion
             // OUTPUT List<CurveArray> loops
             Debug.Print("REGION COMPLETE!");
-
             
 
-
-            // Get the linestyle of "long-dashed"
-            FilteredElementCollector fec = new FilteredElementCollector(doc)
-                .OfClass(typeof(LinePatternElement));
-            LinePatternElement linePatternElem = fec.FirstElement() as LinePatternElement;
-
-            // Main visualization process
-            using (Transaction tx = new Transaction(doc))
-            {
-                tx.Start("Generate Floor");
-
-                // Draw wall patch lines
-                /*
-                foreach (Curve patchLine in patchLines)
-                {
-                    DetailLine axis = doc.Create.NewDetailCurve(view, patchLine) as DetailLine;
-                    GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
-                    gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
-                    gs.GraphicsStyleCategory.SetLineWeight(3, gs.GraphicsStyleType);
-                }
-                */
-
-                Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
-                SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
-
-                /*
-                // Draw bounding boxes
-                foreach (List<Curve> wallBlock in wallBlocks)
-                {
-                    foreach (Curve edge in wallBlock)
-                    {
-                        DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;
-                        GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
-                        gs.GraphicsStyleCategory.LineColor = new Color(210, 208, 185);
-                        gs.GraphicsStyleCategory.SetLineWeight(1, gs.GraphicsStyleType);
-                        gs.GraphicsStyleCategory.SetLinePatternId(linePatternElem.Id, gs.GraphicsStyleType);
-                    }
-                }
-                */
-                
-                /*
-                // Draw Axes
-                Debug.Print("Axes all together: " + strays.Count.ToString());
-                foreach (Line centerLine in strays)
-                {
-                    ModelCurve modelline = doc.Create.NewModelCurve(centerLine, sketch) as ModelCurve;
-                }
-                */
-
-                // Draw Regions
-                /*
-                foreach (CurveArray loop in loops)
-                {
-                    foreach (Curve edge in loop)
-                    {
-                        DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;
-                        GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
-                        gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
-                        gs.GraphicsStyleCategory.SetLineWeight(3, gs.GraphicsStyleType);
-                    }
-                }
-                */
-                foreach (Curve edge in recPerimeter)
-                {
-                    DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;
-                    GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
-                    gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
-                    gs.GraphicsStyleCategory.SetLineWeight(8, gs.GraphicsStyleType);
-                }
-
-
-                tx.Commit();
-            }
-
-            return Result.Succeeded;
+            return RegionDetect.AlignCrv(Util.LinesToCrvs(recPerimeter));
         }
     }
 }

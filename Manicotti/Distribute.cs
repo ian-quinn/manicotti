@@ -183,8 +183,15 @@ namespace Manicotti
             // Prepare a family for ViewPlan creation
             // It may be a coincidence that the 1st ViewFamilyType is for the FloorPlan
             // Uplift needed here (doomed if it happends to be a CeilingPlan)
-            ViewFamilyType floorType = new FilteredElementCollector(doc)
+            ViewFamilyType viewType = new FilteredElementCollector(doc)
                 .OfClass(typeof(ViewFamilyType)).First() as ViewFamilyType;
+
+            RoofType roofType = new FilteredElementCollector(doc)
+                .OfClass(typeof(RoofType)).FirstOrDefault<Element>() as RoofType;
+            
+            FloorType floorType = new FilteredElementCollector(doc)
+                .OfClass(typeof(FloorType))
+                .First<Element>(e => e.Name.Equals("Generic 150mm")) as FloorType;
 
             // Prepare a family and configurations for TextNote (Put it inside transactions)
             /*
@@ -216,7 +223,7 @@ namespace Manicotti
                 ModelCurve modelline = doc.Create.NewModelCurve(alignedCrv, sketch) as ModelCurve;
             }
             */
-            
+
 
             // Main process
             for (int i = 1; i <= levelCounter; i++)
@@ -312,7 +319,7 @@ namespace Manicotti
                 {
                     t_level.Start("Create levels");
                     Level floor = Level.Create(doc, (i - 1) * floorHeight);
-                    ViewPlan floorView = ViewPlan.Create(doc, floorType.Id, floor.Id);
+                    ViewPlan floorView = ViewPlan.Create(doc, viewType.Id, floor.Id);
                     floorView.Name = "F-" + i.ToString();
                     t_level.Commit();
                 }
@@ -328,7 +335,68 @@ namespace Manicotti
                 CreateWall.Execute(uiapp, doubleLines, currentLevel);
                 CreateColumn.Execute(uiapp, columnLines, currentLevel);
                 CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, doubleLines, textDict[i], currentLevel);
-                
+
+                var footprint = CreateRegion.Execute(uiapp, doubleLines, columnLines, windowCrvs, doorCrvs);
+
+                // Create floor
+                using (Transaction t_floor = new Transaction(doc))
+                {
+                    t_floor.Start("Generate Floor");
+
+                    Floor newFloor = doc.Create.NewFloor(footprint, floorType, currentLevel, false, XYZ.BasisZ);
+                    newFloor.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM).Set(0);
+
+                    t_floor.Commit();
+                }
+
+                // Generate rooms after the topology is established
+                using (var t_space = new Transaction(doc))
+                {
+                    t_space.Start("Create spaces");
+
+                    doc.Regenerate();
+
+                    PlanTopology planTopology = doc.get_PlanTopology(currentLevel);
+                    if (doc.ActiveView.ViewType == ViewType.FloorPlan)
+                    {
+                        foreach (PlanCircuit circuit in planTopology.Circuits)
+                        {
+                            if (null != circuit && !circuit.IsRoomLocated)
+                            {
+                                var room = doc.Create.NewRoom(null, circuit);
+                            }
+                        }
+                    }
+                    t_space.Commit();
+                }
+
+                // Create roof when iterating to the last level
+                if (i == levelCounter)
+                {
+                    using (var t_roof = new Transaction(doc))
+                    {
+                        t_roof.Start("Create roof");
+                        Level roofLevel = Level.Create(doc, i * floorHeight);
+                        ViewPlan floorView = ViewPlan.Create(doc, viewType.Id, roofLevel.Id);
+                        floorView.Name = "Roof";
+
+                        ModelCurveArray footPrintToModelCurveMapping = new ModelCurveArray();
+                        FootPrintRoof footprintRoof = doc.Create.NewFootPrintRoof(footprint, roofLevel, roofType,
+                            out footPrintToModelCurveMapping);
+
+                        //ModelCurveArrayIterator iterator = footPrintToModelCurveMapping.ForwardIterator();
+                        /*
+                        iterator.Reset();
+                        while (iterator.MoveNext())
+                        {
+                            ModelCurve modelCurve = iterator.Current as ModelCurve;
+                            footprintRoof.set_DefinesSlope(modelCurve, true);
+                            footprintRoof.set_SlopeAngle(modelCurve, 0.5);
+                        }
+                        */
+                        t_roof.Commit();
+                    }
+                }
             }
 
             return Result.Succeeded;
