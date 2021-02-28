@@ -144,5 +144,77 @@ namespace Manicotti.Properties {
                 this["minLength"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("WALL")]
+        public string wallLayer {
+            get {
+                return ((string)(this["wallLayer"]));
+            }
+            set {
+                this["wallLayer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("COLUMN")]
+        public string columnLayer {
+            get {
+                return ((string)(this["columnLayer"]));
+            }
+            set {
+                this["columnLayer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("DOOR")]
+        public string doorLayer {
+            get {
+                return ((string)(this["doorLayer"]));
+            }
+            set {
+                this["doorLayer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("WINDOW")]
+        public string windowLayer {
+            get {
+                return ((string)(this["windowLayer"]));
+            }
+            set {
+                this["windowLayer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SPACE")]
+        public string spaceLayer {
+            get {
+                return ((string)(this["spaceLayer"]));
+            }
+            set {
+                this["spaceLayer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("FRAME")]
+        public string frameLayer {
+            get {
+                return ((string)(this["frameLayer"]));
+            }
+            set {
+                this["frameLayer"] = value;
+            }
+        }
     }
 }

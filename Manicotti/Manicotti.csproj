@@ -112,6 +112,7 @@
     <Resource Include="ico\Fusion.ico" />
     <Resource Include="ico\Winform.ico" />
     <Resource Include="ico\Error.ico" />
+    <Resource Include="ico\Boundary.ico" />
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>

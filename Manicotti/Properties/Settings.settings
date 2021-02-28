@@ -32,5 +32,23 @@
     <Setting Name="minLength" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.001</Value>
     </Setting>
+    <Setting Name="wallLayer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">WALL</Value>
+    </Setting>
+    <Setting Name="columnLayer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">COLUMN</Value>
+    </Setting>
+    <Setting Name="doorLayer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DOOR</Value>
+    </Setting>
+    <Setting Name="windowLayer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">WINDOW</Value>
+    </Setting>
+    <Setting Name="spaceLayer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">SPACE</Value>
+    </Setting>
+    <Setting Name="frameLayer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">FRAME</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

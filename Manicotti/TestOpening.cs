@@ -39,9 +39,9 @@ namespace Manicotti
             Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
 
-            List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
-            List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WINDOW", tolerance);
-            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
+            List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.doorLayer, tolerance);
+            List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.windowLayer, tolerance);
+            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.wallLayer, tolerance);
             
 
             // Convert texts info into TextNote by Teigha

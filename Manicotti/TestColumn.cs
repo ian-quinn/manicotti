@@ -28,7 +28,7 @@ namespace Manicotti
             Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
 
-            List<Curve> columnCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
+            List<Curve> columnCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.columnLayer, tolerance);
             
             // Grab the current building level
             FilteredElementCollector colLevels = new FilteredElementCollector(doc)

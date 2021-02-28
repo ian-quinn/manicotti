@@ -28,7 +28,7 @@ namespace Manicotti
             Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
 
-            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
+            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.wallLayer, tolerance);
 
 
             // Grab the current building level

@@ -3,7 +3,7 @@
 ![Revit API](https://img.shields.io/badge/Revit%20API-2020-red.svg)
 ![.NET](https://img.shields.io/badge/.NET-4.7-red.svg)
 
-Revit add-in to establish building information model automatically based on DWG drawings. A demo in progress.  
+Revit add-in to build up model automatically based on DWG drawings. A demo in progress.  
 ```
 manicotti
 ├ /Demo
@@ -29,11 +29,11 @@ The default Revit Add-in folder is `C:\ProgramData\Autodesk\Revit\Addins\2020\` 
 - Copy `Manicotti.addin` and `Manicotti.dll` to the Revit Add-in folder
 - Insert -> Link CAD -> `Link_floor.dwg`
 - Manicotti -> Build up model on all Levels
-- Manual select the linked DWG in the view (process takes almost 7s)
+- Manual select the linked DWG in the floorplan view (process takes almost 1min)
 
 
 ## Test the Dynamo workflow
-The Dynamo workflow has been abandoned due to its limitations.
+The Dynamo workflow is only a hint to the wall extrusion problem. Due to the limitation of speed it has been aborted.
 - File -> New Project -> Select Template: `C:\ProgramData\Autodesk\RVT 2020\Templates\US Metric\DefaultMetric.rte`
 - Insert -> Import CAD -> `Demo.dwg`
 - Insert -> Load Family -> `Column_demo.rfa`
@@ -73,5 +73,6 @@ Demos
 </table>
 </div>
 
-Currently working on axis generation for sub-surface. Take the DOOR blocks for example, one of the bounding box edges (green polygon) will be selected as the axis (scarlet line). The axes of sub-surfaces will be merged into wall axes to create continuous walls.  
-<img src="/Demo/DoorAxis.jpg?raw=true">
+A comprehensive demo is online to build up the building model from CAD drawings. The creation of all necessary components are covered (wall column window door room floor roof). For the time being, the project still needs more cunning & robust algorithms to sort out layers/components and reshape the geometry, which will be the main theme in the next-phase coding.  
+
+<img src="/Demo/Screenshot.jpg?raw=true">

@@ -8,14 +8,14 @@
              mc:Ignorable="d"
              WindowStartupLocation="CenterScreen"
              Background="White"
-             Height="580" Width="400">
+             Height="625" Width="400">
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Close"
                         Executed="CloseCommandHandler"/>
     </Window.CommandBindings>
     <Border Padding="10">
         <StackPanel>
-            <GroupBox Header="Default URL" Padding="3">
+            <GroupBox Header="Default URL" Padding="3 0 3 3">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" FontSize="12" Foreground="LightGray" />
@@ -44,7 +44,7 @@
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Header="Modeling parameters" Margin="0 10 0 0" Padding="3">
+            <GroupBox Header="Layer hints" Margin="0 10 0 0" Padding="3">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" FontSize="12" Foreground="LightGray" />
@@ -54,30 +54,81 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="0 0 5 0">
-                        <TextBlock Text="Floor height (mm)" Margin="0 6 0 2"/>
+                        <TextBlock Text="Wall layer" Margin="0 5 0 5"/>
+                        <TextBlock Text="Column layer" Margin="0 5 0 5"/>
+                        <TextBlock Text="Frame layer" Margin="0 5 0 5"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="5 0 5 0">
+                        <TextBox Name="wallLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=wallLayer, Mode=TwoWay}" Margin="0 2 0 2"/>
+                        <TextBox Name="columnLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=columnLayer, Mode=TwoWay}" Margin="0 2 0 2"/>
+                        <TextBox Name="frameLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=frameLayer, Mode=TwoWay}" Margin="0 2 0 2"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="5 0 5 0">
+                        <TextBlock Text="Window layer" Margin="0 5 0 5"/>
+                        <TextBlock Text="Door layer" Margin="0 5 0 5"/>
+                        <TextBlock Text="-" Margin="0 5 0 5"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Margin="0 0 0 0">
+                        <TextBox Name="windowLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=windowLayer, Mode=TwoWay}" Margin="0 2 0 2"/>
+                        <TextBox Name="doorLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=doorLayer, Mode=TwoWay}" Margin="0 2 0 2"/>
+                        <TextBox Padding="2" IsReadOnly="True" Background="#eee" Margin="0 2 0 2"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Modeling parameters (mm)" Margin="0 10 0 0" Padding="3">
+                <GroupBox.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="12" Foreground="LightGray" />
+                    </DataTemplate>
+                </GroupBox.HeaderTemplate>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0 0 5 0">
+                        <TextBlock Text="Floor height" Margin="0 5 0 5"/>
+                        <TextBlock Text="Sill height" Margin="0 5 0 5"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="5 0 5 0">
                         <TextBox Name="floorHeight" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=floorHeight, Mode=TwoWay}"/>
-
-                        <TextBlock Text="Sill height (mm)" Margin="0 6 0 2"/>
+           Path=floorHeight, Mode=TwoWay}" Margin="0 2 0 2"/>
                         <TextBox Name="sillHeight" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=sillHeight, Mode=TwoWay}"/>
+           Path=sillHeight, Mode=TwoWay}" Margin="0 2 0 2"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="1" Margin="5 0 0 0">
-                        <TextBlock Text="Wall thickness (mm)" Margin="0 6 0 2"/>
-                        <TextBox Name="wallThickness" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=wallThickness, Mode=TwoWay}"/>
+                    <StackPanel Grid.Column="2" Margin="5 0 5 0">
+                        <TextBlock Text="Wall thickness" Margin="0 5 0 5"/>
+                        <TextBlock Text="-" Margin="0 5 0 5"/>
+                    </StackPanel>
 
-                        <TextBlock Text="-" Margin="0 6 0 2"/>
-                        <TextBox Padding="2" IsReadOnly="True" Background="#eee"/>
+                    <StackPanel Grid.Column="3" Margin="5 0 0 0">
+                        <TextBox Name="wallThickness" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=wallThickness, Mode=TwoWay}" Margin="0 2 0 2"/>
+                        <TextBox Padding="2" IsReadOnly="True" Background="#eee" Margin="0 2 0 2"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
 
-            <GroupBox Header="Tolerance" Margin="0 10 0 0" Padding="3">
+            <GroupBox Header="Tolerance (mm)" Margin="0 10 0 0" Padding="3">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" FontSize="12" Foreground="LightGray" />
@@ -87,22 +138,31 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="0 0 5 0">
-                        <TextBlock Text="Joint radius (mm)" Margin="0 6 0 2"/>
-                        <TextBox Name="jointRadius" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=jointRadius, Mode=TwoWay}"/>
+                        <TextBlock Text="Joint radius" Margin="0 5 0 5"/>
                     </StackPanel>
+
                     <StackPanel Grid.Column="1" Margin="0 0 5 0">
-                        <TextBlock Text="Minimum length (mm)" Margin="0 6 0 2"/>
+                        <TextBox Name="jointRadius" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=jointRadius, Mode=TwoWay}" Margin="0 2 0 2"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2" Margin="5 0 5 0">
+                        <TextBlock Text="Min length" Margin="0 5 0 5"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Margin="5 0 0 0">
                         <TextBox Name="minLength" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=minLength, Mode=TwoWay}"/>
+           Path=minLength, Mode=TwoWay}" Margin="0 2 0 2"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
 
-            <Grid Margin="0 20 0 20">
+            <Grid Margin="0 15 0 20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>

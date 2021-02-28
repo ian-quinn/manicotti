@@ -82,7 +82,7 @@ namespace Manicotti
             PushButtonData fusion = new PushButtonData("fusion", "Regen Axis", thisAssemblyPath,
                 "Manicotti.Fusion");
             fusion.ToolTip = "Space mesh regeneration. (act on Walls & Curtains). WIP";
-            BitmapImage fusionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Fusion.ico", UriKind.Absolute));
+            BitmapImage fusionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/ico/Boundary.ico", UriKind.Absolute));
             fusion.Image = fusionImg;
 
             IList<RibbonItem> stackedAlgorithm = modelFix.AddStackedItems(region, sketch, fusion);

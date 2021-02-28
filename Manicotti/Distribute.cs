@@ -7,6 +7,7 @@ using System.Linq;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 #endregion
@@ -32,7 +33,8 @@ namespace Manicotti
             // Prepare frames and levels
             // Cluster all geometry elements and texts into datatrees
             // Two procedures are intertwined
-            List<GeometryObject> dwg_frames = UtilGetCADGeometry.ExtractElement(uidoc, import, "FRAME", "PolyLine");
+            List<GeometryObject> dwg_frames = UtilGetCADGeometry.ExtractElement(uidoc, import, 
+                Properties.Settings.Default.frameLayer, "PolyLine");
             List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import);
             // Terminate if no geometry has been found
             if (dwg_geos == null)
@@ -87,9 +89,12 @@ namespace Manicotti
             }
             Debug.Print("Got closedPolys: " + closedPolys.Count().ToString());
             Debug.Print("Got parentPolys: " + parentPolys.Count().ToString());
+
+
             string path = UtilGetCADText.GetCADPath(uidoc, import);
             Debug.Print("The path of linked CAD file is: " + path);
             List<UtilGetCADText.CADTextModel> texts = UtilGetCADText.GetCADText(path);
+
 
             int level;
             int levelCounter = 0;
@@ -244,7 +249,7 @@ namespace Manicotti
                 foreach (GeometryObject go in geoDict[i])
                 {
                     var gStyle = doc.GetElement(go.GraphicsStyleId) as GraphicsStyle;
-                    if (gStyle.GraphicsStyleCategory.Name == "WALL")
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.wallLayer)
                     {
                         if (go.GetType().Name == "Line")
                         {
@@ -260,7 +265,7 @@ namespace Manicotti
                             }
                         }
                     }
-                    if (gStyle.GraphicsStyleCategory.Name == "COLUMN")
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.columnLayer)
                     {
                         if (go.GetType().Name == "Line")
                         {
@@ -276,7 +281,7 @@ namespace Manicotti
                             }
                         }
                     }
-                    if (gStyle.GraphicsStyleCategory.Name == "DOOR")
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.doorLayer)
                     {
                         Curve doorCrv = go as Curve;
                         PolyLine poly = go as PolyLine;
@@ -293,7 +298,7 @@ namespace Manicotti
                             }
                         }
                     }
-                    if (gStyle.GraphicsStyleCategory.Name == "WINDOW")
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.windowLayer)
                     {
                         Curve windowCrv = go as Curve;
                         PolyLine poly = go as PolyLine;
@@ -352,7 +357,7 @@ namespace Manicotti
                 // Generate rooms after the topology is established
                 using (var t_space = new Transaction(doc))
                 {
-                    t_space.Start("Create spaces");
+                    t_space.Start("Create rooms");
 
                     doc.Regenerate();
 
@@ -363,7 +368,19 @@ namespace Manicotti
                         {
                             if (null != circuit && !circuit.IsRoomLocated)
                             {
-                                var room = doc.Create.NewRoom(null, circuit);
+                                Room room = doc.Create.NewRoom(null, circuit);
+                                string roomName = "";
+                                foreach (UtilGetCADText.CADTextModel label in textDict[i])
+                                {
+                                    if (label.Layer == Properties.Settings.Default.spaceLayer)
+                                    {
+                                        if (room.IsPointInRoom(label.Location + XYZ.BasisZ * (i - 1) * floorHeight))
+                                        {
+                                            roomName += label.Text;
+                                        }
+                                    }
+                                }
+                                if (roomName != "") { room.Name = roomName; }
                             }
                         }
                     }
