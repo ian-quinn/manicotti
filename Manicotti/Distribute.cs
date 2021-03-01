@@ -369,6 +369,8 @@ namespace Manicotti
                             if (null != circuit && !circuit.IsRoomLocated)
                             {
                                 Room room = doc.Create.NewRoom(null, circuit);
+                                room.LimitOffset = floorHeight;
+                                room.BaseOffset = 0;
                                 string roomName = "";
                                 foreach (UtilGetCADText.CADTextModel label in textDict[i])
                                 {

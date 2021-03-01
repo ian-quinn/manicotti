@@ -554,7 +554,7 @@ namespace Manicotti
                     }
                 }
                 */
-                
+
                 /*
                 // Draw Axes
                 Debug.Print("Axes all together: " + strays.Count.ToString());
@@ -565,18 +565,15 @@ namespace Manicotti
                 */
 
                 // Draw Regions
-                /*
+                
                 foreach (CurveArray loop in loops)
                 {
                     foreach (Curve edge in loop)
                     {
-                        DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;
-                        GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
-                        gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
-                        gs.GraphicsStyleCategory.SetLineWeight(3, gs.GraphicsStyleType);
+                        ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
                     }
                 }
-                */
+                
                 foreach (Curve edge in recPerimeter)
                 {
                     DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;

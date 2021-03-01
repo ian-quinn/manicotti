@@ -73,6 +73,6 @@ Demos
 </table>
 </div>
 
-A comprehensive demo is online to build up the building model from CAD drawings. The creation of all necessary components are covered (wall column window door room floor roof). For the time being, the project still needs more cunning & robust algorithms to sort out layers/components and reshape the geometry, which will be the main theme in the next-phase coding.  
+A comprehensive demo is online to build up the building model from CAD drawings. All necessary components are covered (wall column window door room floor roof). For now the project still needs more cunning & robust algorithms to sort out layers/components and reshape the geometry, which will be the main theme in the next-phase coding.  
 
 <img src="/Demo/Screenshot.jpg?raw=true">
