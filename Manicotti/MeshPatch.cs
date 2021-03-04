@@ -21,7 +21,7 @@ namespace Manicotti
         /// <param name="line"></param>
         /// <param name="terminal"></param>
         /// <returns></returns>
-        public static Line ExtendLine(Line line, Line terminal)
+        public static Curve ExtendLine(Curve line, Curve terminal)
         {
             Line line_unbound = line.Clone() as Line;
             Line terminal_unbound = terminal.Clone() as Line;
@@ -32,7 +32,7 @@ namespace Manicotti
             {
                 XYZ sectPt = results.get_Item(0).XYZPoint;
                 XYZ extensionVec = (sectPt - line.GetEndPoint(0)).Normalize();
-                if (Algorithm.IsPtOnLine(sectPt, line))
+                if (Algorithm.IsPtOnLine(sectPt, line as Line))
                 {
                     double distance1 = sectPt.DistanceTo(line.GetEndPoint(0));
                     double distance2 = sectPt.DistanceTo(line.GetEndPoint(1));
@@ -47,7 +47,7 @@ namespace Manicotti
                 }
                 else
                 {
-                    if (extensionVec.IsAlmostEqualTo(line.Direction))
+                    if (extensionVec.IsAlmostEqualTo(line_unbound.Direction))
                     {
                         return Line.CreateBound(line.GetEndPoint(0), sectPt);
                     }
@@ -64,10 +64,11 @@ namespace Manicotti
             }
         }
 
-        public static Line ExtendLineToBox(Line line, List<Line> box)
+        /* abandoned for now
+        public static Curve ExtendLineToBox(Curve line, List<Curve> box)
         {
             Line result = null;
-            foreach (Line edge in box)
+            foreach (Curve edge in box)
             {
                 var test = ExtendLine(line, edge);
                 if (null == test) { continue; }
@@ -79,16 +80,17 @@ namespace Manicotti
             Debug.Print("Failure at line extension to box");
             return result;
         }
+        */
 
         /// <summary>
         /// Fuse two collinear segments if they are joined or almost joined.
         /// </summary>
         /// <param name="lines"></param>
         /// <returns></returns>
-        public static List<Line> CloseGapAtBreakpoint(List<Line> lines)
+        public static List<Curve> CloseGapAtBreakpoint(List<Curve> lines)
         {
-            List<List<Line>> mergeGroups = new List<List<Line>>();
-            mergeGroups.Add(new List<Line>() { lines[0]});
+            List<List<Curve>> mergeGroups = new List<List<Curve>>();
+            mergeGroups.Add(new List<Curve>() { lines[0] });
             lines.RemoveAt(0);
 
             while (lines.Count != 0)
@@ -96,7 +98,7 @@ namespace Manicotti
                 foreach (Line element in lines)
                 {
                     int iterCounter = 0;
-                    foreach (List<Line> sublist in mergeGroups)
+                    foreach (List<Curve> sublist in mergeGroups)
                     {
                         iterCounter += 1;
                         if (Algorithm.IsLineAlmostSubsetLines(element, sublist))
@@ -107,7 +109,7 @@ namespace Manicotti
                         }
                         if (iterCounter == mergeGroups.Count)
                         {
-                            mergeGroups.Add(new List<Line>() { element });
+                            mergeGroups.Add(new List<Curve>() { element });
                             lines.Remove(element);
                             goto a;
                         }
@@ -117,8 +119,8 @@ namespace Manicotti
             }
             Debug.Print("The resulting lines should be " + mergeGroups.Count.ToString());
 
-            List<Line> mergeLines = new List<Line>();
-            foreach (List<Line> mergeGroup in mergeGroups)
+            List<Curve> mergeLines = new List<Curve>();
+            foreach (List<Curve> mergeGroup in mergeGroups)
             {
                 if (mergeGroup.Count > 1)
                 {
@@ -128,14 +130,14 @@ namespace Manicotti
                         Debug.Print("Line{0} ({1}, {2}) -> ({3}, {4})", mergeGroup.IndexOf(line), line.GetEndPoint(0).X,
                             line.GetEndPoint(0).Y, line.GetEndPoint(1).X, line.GetEndPoint(1).Y);
                     }
-                    Line merged = Algorithm.FuseLines(mergeGroup);
+                    var merged = Algorithm.FuseLines(mergeGroup);
                     mergeLines.Add(merged);
                 }
                 else
                 {
                     mergeLines.Add(mergeGroup[0]);
                 }
-                
+
             }
             return mergeLines;
         }
@@ -145,9 +147,9 @@ namespace Manicotti
         /// </summary>
         /// <param name="lines"></param>
         /// <returns></returns>
-        public static List<Line> CloseGapAtCorner(List<Line> lines)
+        public static List<Curve> CloseGapAtCorner(List<Curve> lines)
         {
-            List<Line> linePatches = new List<Line>();
+            List<Curve> linePatches = new List<Curve>();
             List<int> removeIds = new List<int>();
             for (int i = 0; i < lines.Count; i++)
             {
@@ -176,7 +178,6 @@ namespace Manicotti
 
 
 
-        
         // Main thread
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -197,8 +198,8 @@ namespace Manicotti
             List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
             List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
             List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WINDOW", tolerance);
-            List<Line> columnLines = Util.CrvsToLines(columnCrvs);
-            List<Line> wallLines = Util.CrvsToLines(wallCrvs);
+            //List<Line> columnLines = Util.CrvsToLines(columnCrvs);
+            //List<Line> wallLines = Util.CrvsToLines(wallCrvs);
 
             // Merge the overlapped wall boundaries
             // Seal the wall boundary by column block
@@ -208,14 +209,14 @@ namespace Manicotti
             List<XYZ> sectPts = new List<XYZ>();
 
             // Seal the wall when encountered with column
-            foreach (Line columnLine in columnLines)
+            foreach (Curve columnCrv in columnCrvs)
             {
                 sectPts.Clear();
-                foreach (Line wallLine in wallLines)
+                foreach (Line wallCrv in wallCrvs)
                 {
-                    if (!Algorithm.IsParallel(columnLine, wallLine))
+                    if (!Algorithm.IsParallel(columnCrv, wallCrv))
                     {
-                        SetComparisonResult result = wallLine.Intersect(columnLine, out IntersectionResultArray results);
+                        SetComparisonResult result = wallCrv.Intersect(columnCrv, out IntersectionResultArray results);
                         if (result != SetComparisonResult.Disjoint)
                         {
                             XYZ sectPt = results.get_Item(0).XYZPoint;
@@ -253,13 +254,13 @@ namespace Manicotti
             }
 
             // Patch for the wall lines
-            wallLines.AddRange(patchLines);
+            wallCrvs.AddRange(patchLines);
 
             // Merge lines when they are parallel and almost intersected (knob)
-            List<Line> mergeLines = CloseGapAtBreakpoint(wallLines);
+            List<Curve> mergeLines = CloseGapAtBreakpoint(wallCrvs);
 
             // 
-            List<Line> fixedLines = CloseGapAtCorner(mergeLines);
+            List<Curve> fixedLines = CloseGapAtCorner(mergeLines);
 
             #endregion
             // OUTPUT List<Line> fixedLines
@@ -268,7 +269,7 @@ namespace Manicotti
             // INPUT List<Line> fixedLines
             #region Cluster the wallLines by hierarchy
 
-            var wallClusters = Algorithm.ClusterByIntersect(Util.LinesToCrvs(fixedLines));
+            var wallClusters = Algorithm.ClusterByIntersect(fixedLines);
             Debug.Print("{0} clustered wall blocks in total", wallClusters.Count);
 
             // Generate boundingbox marker for the wall cluster
@@ -292,7 +293,7 @@ namespace Manicotti
             #region Iterate the generaion of axis
 
             // Wall axes
-            List<Line> axes = new List<Line>();
+            List<Curve> axes = new List<Curve>();
             double bias = Util.MmToFoot(20);
             foreach (List<Curve> wallCluster in wallClusters)
             {
@@ -402,21 +403,21 @@ namespace Manicotti
             }
             
 
-            axes.AddRange(Util.CrvsToLines(windowAxes));
-            axes.AddRange(Util.CrvsToLines(doorAxes));
+            axes.AddRange(windowAxes);
+            axes.AddRange(doorAxes);
             Debug.Print("Checklist for axes: Door-{0}, Window-{1}, All-{2}", doorAxes.Count, windowAxes.Count,
                 axes.Count);
-            List<Line> axesExtended = new List<Line>();
-            foreach (Line axis in axes)
+            List<Curve> axesExtended = new List<Curve>();
+            foreach (Curve axis in axes)
             {
                 axesExtended.Add(Algorithm.ExtendLine(axis, 200));
             }
             // Axis merge 
-            List<List<Curve>> axisGroups = Algorithm.ClusterByOverlap(Util.LinesToCrvs(axesExtended));
-            List<Line> centerLines = new List<Line>();
+            List<List<Curve>> axisGroups = Algorithm.ClusterByOverlap(axesExtended);
+            List<Curve> centerLines = new List<Curve>();
             foreach (List<Curve> axisGroup in axisGroups)
             {
-                Line merged = Algorithm.MergeLine(Util.CrvsToLines(axisGroup));
+                var merged = Algorithm.FuseLines(axisGroup);
                 centerLines.Add(merged);
             }
 
@@ -432,22 +433,22 @@ namespace Manicotti
             List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnCrvs);
             foreach (List<Curve> columnGroup in columnGroups)
             {
-                List<Line> columnGrouplines = Util.CrvsToLines(columnGroup);
-                List<Line> nestLines = new List<Line>();
-                for (int i = 0; i < columnGrouplines.Count; i++)
+                //List<Line> columnGrouplines = Util.CrvsToLines(columnGroup);
+                List<Curve> nestLines = new List<Curve>();
+                for (int i = 0; i < columnGroup.Count; i++)
                 {
                     foreach (Line centerLine in centerLines)
                     {
-                        SetComparisonResult result = columnGrouplines[i].Intersect(centerLine, out IntersectionResultArray results);
+                        SetComparisonResult result = columnGroup[i].Intersect(centerLine, out IntersectionResultArray results);
                         if (result == SetComparisonResult.Overlap)
                         {
-                            for (int j = 0; j < columnGrouplines.Count; j++)
+                            for (int j = 0; j < columnGroup.Count; j++)
                             {
                                 if (j != i)
                                 {
-                                    if (null != ExtendLine(centerLine, columnGrouplines[j]))
+                                    if (null != ExtendLine(centerLine, columnGroup[j]))
                                     {
-                                        nestLines.Add(ExtendLine(centerLine, columnGrouplines[j]));
+                                        nestLines.Add(ExtendLine(centerLine, columnGroup[j]));
                                     }
                                 }
                             }
@@ -467,7 +468,7 @@ namespace Manicotti
                     }
                     if (count == 0)
                     {
-                        var patches = Algorithm.CenterLinesOfBox(columnGrouplines);
+                        var patches = Algorithm.CenterLinesOfBox(columnGroup);
                         foreach (Line patch in patches)
                         {
                             if (Algorithm.IsLineIntersectLines(patch, nestLines)) { centerLines.Add(patch); }
@@ -485,11 +486,11 @@ namespace Manicotti
             //#The region detect function has fatal bug during boolean union operation
             #region Call region detection
             // Axis merge 
-            List<List<Curve>> tempStrays = Algorithm.ClusterByOverlap(Util.LinesToCrvs(centerLines));
-            List<Line> strays = new List<Line>();
+            List<List<Curve>> tempStrays = Algorithm.ClusterByOverlap(centerLines);
+            List<Curve> strays = new List<Curve>();
             foreach (List<Curve> tempStray in tempStrays)
             {
-                Line merged = Algorithm.MergeLine(Util.CrvsToLines(tempStray));
+                Curve merged = Algorithm.FuseLines(tempStray);
                 strays.Add(merged);
             }
 
@@ -499,11 +500,11 @@ namespace Manicotti
             //Debug.Print("Cluster of strays[1]: " + strayClusters[1].Count.ToString());
             // The RegionCluster method should be applied to each cluster of the strays
             // It only works on a bunch of intersected line segments
-            List<CurveArray> loops = RegionDetect.RegionCluster(Util.LinesToCrvs(strays));
+            List<CurveArray> loops = RegionDetect.RegionCluster(strays);
             // The boolean union method of the loops needs to fix
             var perimeter = RegionDetect.GetBoundary(loops);
-            var recPerimeter = CloseGapAtBreakpoint(Util.CrvsToLines(perimeter));
-            var arrayPerimeter = RegionDetect.AlignCrv(Util.LinesToCrvs(recPerimeter));
+            var recPerimeter = CloseGapAtBreakpoint(perimeter);
+            var arrayPerimeter = RegionDetect.AlignCrv(recPerimeter);
             for (int i = 0; i < arrayPerimeter.Size; i++)
             {
                 Debug.Print("Line-{0} {1} {2}", i, Util.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(0)),
@@ -574,7 +575,7 @@ namespace Manicotti
                     }
                 }
                 
-                foreach (Curve edge in recPerimeter)
+                foreach (Curve edge in arrayPerimeter)
                 {
                     DetailLine axis = doc.Create.NewDetailCurve(view, edge) as DetailLine;
                     GraphicsStyle gs = axis.LineStyle as GraphicsStyle;

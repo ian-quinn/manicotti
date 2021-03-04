@@ -89,6 +89,7 @@
     <Compile Include="UtilGetCADText.cs" />
     <Compile Include="TestWall.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="UtilGetInstallPath.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="ico\Basics.ico" />

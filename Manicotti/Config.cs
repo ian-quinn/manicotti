@@ -17,9 +17,14 @@ namespace Manicotti
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            Document document = commandData.Application.ActiveUIDocument.Document;
+            UIApplication uiapp = commandData.Application;
+            UIDocument uidoc = uiapp.ActiveUIDocument;
+            Document doc = uidoc.Document;
+            Application app = uiapp.Application;
+            
+            Properties.Settings.Default.url_install = UtilGetInstallPath.Execute(app);
 
-            Configuration configuration = new Configuration(document);
+            Configuration configuration = new Configuration(doc);
             configuration.ShowDialog();
 
             return Result.Succeeded;

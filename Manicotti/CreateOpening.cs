@@ -97,7 +97,7 @@ namespace Manicotti
         
 
         public static void Execute(UIApplication uiapp, List<Curve> doorCrvs, List<Curve> windowCrvs, 
-            List<Line> wallLines, List<UtilGetCADText.CADTextModel> labels, Level level)
+            List<Curve> wallCrvs, List<UtilGetCADText.CADTextModel> labels, Level level)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -126,8 +126,8 @@ namespace Manicotti
                 for (int i = 0; i < doorBlock.Count; i++)
                 {
                     int sectCount = 0;
-                    List<Line> fenses = new List<Line>();
-                    foreach (Line line in wallLines)
+                    List<Curve> fenses = new List<Curve>();
+                    foreach (Curve line in wallCrvs)
                     {
                         Curve testCrv = doorBlock[i].Clone();
                         SetComparisonResult result = RegionDetect.ExtendCrv(testCrv, 0.01).Intersect(line,

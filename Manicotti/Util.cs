@@ -11,10 +11,10 @@ namespace Manicotti
     public static class Util
     {
         #region Text Processing
-        public static int ExtractIndex(String str)
+        public static int ExtractIndex(string str)
         {
             int index = -1;
-            String numStr = "";
+            string numStr = "";
             for (int i = 0; i < str.Length; i++)
             {
                 if (Char.IsNumber(str, i))
@@ -54,7 +54,7 @@ namespace Manicotti
 
 
         #region Selection
-        public static int GetLevel(String label, String key)
+        public static int GetLevel(string label, string key)
         {
             // Consider Regex here, maybe
             int level = -1;

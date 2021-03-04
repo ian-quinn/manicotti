@@ -242,8 +242,8 @@ namespace Manicotti
                 }
 
                 // Sort out lines
-                List<Line> doubleLines = new List<Line>();
-                List<Curve> columnLines = new List<Curve>();
+                List<Curve> wallCrvs = new List<Curve>();
+                List<Curve> columnCrvs = new List<Curve>();
                 List<Curve> doorCrvs = new List<Curve>();
                 List<Curve> windowCrvs = new List<Curve>();
                 foreach (GeometryObject go in geoDict[i])
@@ -254,14 +254,14 @@ namespace Manicotti
                         if (go.GetType().Name == "Line")
                         {
                             Curve wallLine = go as Curve;
-                            doubleLines.Add(wallLine.CreateTransformed(alignment) as Line);
+                            wallCrvs.Add(wallLine.CreateTransformed(alignment) as Line);
                         }
                         if (go.GetType().Name == "PolyLine")
                         {
                             CurveArray wallPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
                             foreach (Curve crv in wallPolyLine_shattered)
                             {
-                                doubleLines.Add(crv.CreateTransformed(alignment) as Line);
+                                wallCrvs.Add(crv.CreateTransformed(alignment) as Line);
                             }
                         }
                     }
@@ -270,14 +270,14 @@ namespace Manicotti
                         if (go.GetType().Name == "Line")
                         {
                             Curve columnLine = go as Curve;
-                            columnLines.Add(columnLine.CreateTransformed(alignment));
+                            columnCrvs.Add(columnLine.CreateTransformed(alignment));
                         }
                         if (go.GetType().Name == "PolyLine")
                         {
                             CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
                             foreach (Curve crv in columnPolyLine_shattered)
                             {
-                                columnLines.Add(crv.CreateTransformed(alignment));
+                                columnCrvs.Add(crv.CreateTransformed(alignment));
                             }
                         }
                     }
@@ -337,11 +337,11 @@ namespace Manicotti
                 Level currentLevel = colLevels.LastOrDefault() as Level;
 
                 // Sub-transactions are packed within these functions.
-                CreateWall.Execute(uiapp, doubleLines, currentLevel);
-                CreateColumn.Execute(uiapp, columnLines, currentLevel);
-                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, doubleLines, textDict[i], currentLevel);
+                CreateWall.Execute(uiapp, wallCrvs, currentLevel);
+                CreateColumn.Execute(uiapp, columnCrvs, currentLevel);
+                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], currentLevel);
 
-                var footprint = CreateRegion.Execute(uiapp, doubleLines, columnLines, windowCrvs, doorCrvs);
+                var footprint = CreateRegion.Execute(uiapp, wallCrvs, columnCrvs, windowCrvs, doorCrvs);
 
                 // Create floor
                 using (Transaction t_floor = new Transaction(doc))

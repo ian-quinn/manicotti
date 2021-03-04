@@ -17,11 +17,12 @@ namespace Manicotti
     {
         // add new type of a family instance if not exist
         // M_Rectangular Column.rfa loaded by default is used here
-        public static FamilySymbol NewRectColumnType(UIApplication uiapp, String familyName, double width, double depth)
+        public static FamilySymbol NewRectColumnType(UIApplication uiapp, string familyName, double width, double depth)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
+            
 
             Family f = Util.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
@@ -156,33 +157,6 @@ namespace Manicotti
 
             // Column basepoint
             List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnLines);
-            /*
-            columnGroups.Add(new List<Line>() { });
-            while (columnLines.Count != 0)
-            {
-                foreach (Line element in columnLines)
-                {
-                    int iterCounter = 0;
-                    foreach (List<Line> sublist in columnGroups)
-                    {
-                        iterCounter += 1;
-                        if (Algorithm.IsLineIntersectLines(element, sublist))
-                        {
-                            sublist.Add(element);
-                            columnLines.Remove(element);
-                            goto a;
-                        }
-                        if (iterCounter == columnGroups.Count)
-                        {
-                            columnGroups.Add(new List<Line>() { element });
-                            columnLines.Remove(element);
-                            goto a;
-                        }
-                    }
-                }
-            a:;
-            }
-            */
 
             // Grab the columntype
             FilteredElementCollector colColumns = new FilteredElementCollector(doc)
@@ -205,7 +179,7 @@ namespace Manicotti
             // Column generation
             foreach (List<Curve> baselines in columnGroups)
             {
-                if (baselines.Count <= 1) { continue; }
+                if (baselines.Count <= 2) { continue; }
                 if (baselines.Count == 4) // SHIT CODE. Should check if the polygon is rectangle
                 {
                     using (Transaction tx = new Transaction(doc))
@@ -214,7 +188,7 @@ namespace Manicotti
                         var (width, depth, angle) = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines));
                         FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
-                        XYZ columnCenterPt = Algorithm.GetCenterPt(Util.CrvsToLines(baselines));
+                        XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
                         // z pointing down to apply a clockwise rotation
                         FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
@@ -223,7 +197,7 @@ namespace Manicotti
                         tx.Commit();
                     }
                 }
-                if (baselines.Count > 4)
+                else
                 {
                     continue; // debugging
                     var boundary = Algorithm.RectifyPolygon(Util.CrvsToLines(baselines));

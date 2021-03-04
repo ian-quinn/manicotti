@@ -39,7 +39,7 @@ namespace Manicotti
             Level firstLevel = colLevels.FirstElement() as Level;
 
             
-            CreateWall.Execute(uiapp, Util.CrvsToLines(wallCrvs), firstLevel);
+            CreateWall.Execute(uiapp, wallCrvs, firstLevel);
 
             return Result.Succeeded;
         }

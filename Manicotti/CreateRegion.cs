@@ -15,170 +15,8 @@ namespace Manicotti
     [Transaction(TransactionMode.Manual)]
     public static class CreateRegion
     {
-        /// <summary>
-        /// Extend the line to a boundary line. If the line has already surpassed it, trim the line instead.
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="terminal"></param>
-        /// <returns></returns>
-        public static Line ExtendLine(Line line, Line terminal)
-        {
-            Line line_unbound = line.Clone() as Line;
-            Line terminal_unbound = terminal.Clone() as Line;
-            line_unbound.MakeUnbound();
-            terminal_unbound.MakeUnbound();
-            SetComparisonResult result = line_unbound.Intersect(terminal_unbound, out IntersectionResultArray results);
-            if (result == SetComparisonResult.Overlap)
-            {
-                XYZ sectPt = results.get_Item(0).XYZPoint;
-                XYZ extensionVec = (sectPt - line.GetEndPoint(0)).Normalize();
-                if (Algorithm.IsPtOnLine(sectPt, line))
-                {
-                    double distance1 = sectPt.DistanceTo(line.GetEndPoint(0));
-                    double distance2 = sectPt.DistanceTo(line.GetEndPoint(1));
-                    if (distance1 > distance2)
-                    {
-                        return Line.CreateBound(line.GetEndPoint(0), sectPt);
-                    }
-                    else
-                    {
-                        return Line.CreateBound(line.GetEndPoint(1), sectPt);
-                    }
-                }
-                else
-                {
-                    if (extensionVec.IsAlmostEqualTo(line.Direction))
-                    {
-                        return Line.CreateBound(line.GetEndPoint(0), sectPt);
-                    }
-                    else
-                    {
-                        return Line.CreateBound(sectPt, line.GetEndPoint(1));
-                    }
-                }
-            }
-            else
-            {
-                Debug.Print("Cannot locate the intersection point.");
-                return null;
-            }
-        }
-
-        public static Line ExtendLineToBox(Line line, List<Line> box)
-        {
-            Line result = null;
-            foreach (Line edge in box)
-            {
-                var test = ExtendLine(line, edge);
-                if (null == test) { continue; }
-                if (test.Length > line.Length)
-                {
-                    return result;
-                }
-            }
-            Debug.Print("Failure at line extension to box");
-            return result;
-        }
-
-        /// <summary>
-        /// Fuse two collinear segments if they are joined or almost joined.
-        /// </summary>
-        /// <param name="lines"></param>
-        /// <returns></returns>
-        public static List<Line> CloseGapAtBreakpoint(List<Line> lines)
-        {
-            List<List<Line>> mergeGroups = new List<List<Line>>();
-            mergeGroups.Add(new List<Line>() { lines[0]});
-            lines.RemoveAt(0);
-
-            while (lines.Count != 0)
-            {
-                foreach (Line element in lines)
-                {
-                    int iterCounter = 0;
-                    foreach (List<Line> sublist in mergeGroups)
-                    {
-                        iterCounter += 1;
-                        if (Algorithm.IsLineAlmostSubsetLines(element, sublist))
-                        {
-                            sublist.Add(element);
-                            lines.Remove(element);
-                            goto a;
-                        }
-                        if (iterCounter == mergeGroups.Count)
-                        {
-                            mergeGroups.Add(new List<Line>() { element });
-                            lines.Remove(element);
-                            goto a;
-                        }
-                    }
-                }
-            a:;
-            }
-            Debug.Print("The resulting lines should be " + mergeGroups.Count.ToString());
-
-            List<Line> mergeLines = new List<Line>();
-            foreach (List<Line> mergeGroup in mergeGroups)
-            {
-                if (mergeGroup.Count > 1)
-                {
-                    Debug.Print("Got lines to be merged " + mergeGroup.Count.ToString());
-                    foreach (Line line in mergeGroup)
-                    {
-                        Debug.Print("Line{0} ({1}, {2}) -> ({3}, {4})", mergeGroup.IndexOf(line), line.GetEndPoint(0).X,
-                            line.GetEndPoint(0).Y, line.GetEndPoint(1).X, line.GetEndPoint(1).Y);
-                    }
-                    Line merged = Algorithm.FuseLines(mergeGroup);
-                    mergeLines.Add(merged);
-                }
-                else
-                {
-                    mergeLines.Add(mergeGroup[0]);
-                }
-                
-            }
-            return mergeLines;
-        }
-
-        /// <summary>
-        /// Fix the gap when two lines are not met at the corner.
-        /// </summary>
-        /// <param name="lines"></param>
-        /// <returns></returns>
-        public static List<Line> CloseGapAtCorner(List<Line> lines)
-        {
-            List<Line> linePatches = new List<Line>();
-            List<int> removeIds = new List<int>();
-            for (int i = 0; i < lines.Count; i++)
-            {
-                for (int j = i + 1; j < lines.Count; j++)
-                {
-
-                    if (!Algorithm.IsIntersected(lines[i], lines[j]) &&
-                        Algorithm.IsAlmostJoined(lines[i], lines[j]))
-                    {
-                        removeIds.Add(i);
-                        removeIds.Add(j);
-                        linePatches.Add(ExtendLine(lines[i], lines[j]));
-                        linePatches.Add(ExtendLine(lines[j], lines[i]));
-                    }
-                }
-            }
-            removeIds.Sort();
-            for (int k = removeIds.Count - 1; k >= 0; k--)
-            {
-                lines.RemoveAt(removeIds[k]);
-            }
-            lines.AddRange(linePatches);
-            return lines;
-        }
-
-
-
-
-        
         // Main thread
-        public static CurveArray Execute(UIApplication uiapp, List<Line> wallLines, List<Curve> columnCrvs, List<Curve> windowCrvs,
+        public static CurveArray Execute(UIApplication uiapp, List<Curve> wallCrvs, List<Curve> columnCrvs, List<Curve> windowCrvs,
             List<Curve> doorCrvs)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
@@ -197,14 +35,14 @@ namespace Manicotti
             List<XYZ> sectPts = new List<XYZ>();
 
             // Seal the wall when encountered with column
-            foreach (Line columnLine in columnLines)
+            foreach (Curve columnCrv in columnCrvs)
             {
                 sectPts.Clear();
-                foreach (Line wallLine in wallLines)
+                foreach (Line wallCrv in wallCrvs)
                 {
-                    if (!Algorithm.IsParallel(columnLine, wallLine))
+                    if (!Algorithm.IsParallel(columnCrv, wallCrv))
                     {
-                        SetComparisonResult result = wallLine.Intersect(columnLine, out IntersectionResultArray results);
+                        SetComparisonResult result = wallCrv.Intersect(columnCrv, out IntersectionResultArray results);
                         if (result != SetComparisonResult.Disjoint)
                         {
                             XYZ sectPt = results.get_Item(0).XYZPoint;
@@ -242,13 +80,13 @@ namespace Manicotti
             }
 
             // Patch for the wall lines
-            wallLines.AddRange(patchLines);
+            wallCrvs.AddRange(patchLines);
 
             // Merge lines when they are parallel and almost intersected (knob)
-            List<Line> mergeLines = CloseGapAtBreakpoint(wallLines);
+            List<Curve> mergeLines = MeshPatch.CloseGapAtBreakpoint(wallCrvs);
 
             // 
-            List<Line> fixedLines = CloseGapAtCorner(mergeLines);
+            List<Curve> fixedLines = MeshPatch.CloseGapAtCorner(mergeLines);
 
             #endregion
             // OUTPUT List<Line> fixedLines
@@ -257,7 +95,7 @@ namespace Manicotti
             // INPUT List<Line> fixedLines
             #region Cluster the wallLines by hierarchy
 
-            var wallClusters = Algorithm.ClusterByIntersect(Util.LinesToCrvs(fixedLines));
+            var wallClusters = Algorithm.ClusterByIntersect(fixedLines);
             Debug.Print("{0} clustered wall blocks in total", wallClusters.Count);
 
             // Generate boundingbox marker for the wall cluster
@@ -281,7 +119,7 @@ namespace Manicotti
             #region Iterate the generaion of axis
 
             // Wall axes
-            List<Line> axes = new List<Line>();
+            List<Curve> axes = new List<Curve>();
             double bias = Util.MmToFoot(20);
             foreach (List<Curve> wallCluster in wallClusters)
             {
@@ -391,21 +229,21 @@ namespace Manicotti
             }
             
 
-            axes.AddRange(Util.CrvsToLines(windowAxes));
-            axes.AddRange(Util.CrvsToLines(doorAxes));
+            axes.AddRange(windowAxes);
+            axes.AddRange(doorAxes);
             Debug.Print("Checklist for axes: Door-{0}, Window-{1}, All-{2}", doorAxes.Count, windowAxes.Count,
                 axes.Count);
-            List<Line> axesExtended = new List<Line>();
-            foreach (Line axis in axes)
+            List<Curve> axesExtended = new List<Curve>();
+            foreach (Curve axis in axes)
             {
                 axesExtended.Add(Algorithm.ExtendLine(axis, 200));
             }
             // Axis merge 
-            List<List<Curve>> axisGroups = Algorithm.ClusterByOverlap(Util.LinesToCrvs(axesExtended));
-            List<Line> centerLines = new List<Line>();
+            List<List<Curve>> axisGroups = Algorithm.ClusterByOverlap(axesExtended);
+            List<Curve> centerLines = new List<Curve>();
             foreach (List<Curve> axisGroup in axisGroups)
             {
-                Line merged = Algorithm.MergeLine(Util.CrvsToLines(axisGroup));
+                var merged = Algorithm.FuseLines(axisGroup);
                 centerLines.Add(merged);
             }
 
@@ -421,22 +259,21 @@ namespace Manicotti
             List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnCrvs);
             foreach (List<Curve> columnGroup in columnGroups)
             {
-                List<Line> columnGrouplines = Util.CrvsToLines(columnGroup);
-                List<Line> nestLines = new List<Line>();
-                for (int i = 0; i < columnGrouplines.Count; i++)
+                List<Curve> nestLines = new List<Curve>();
+                for (int i = 0; i < columnGroup.Count; i++)
                 {
                     foreach (Line centerLine in centerLines)
                     {
-                        SetComparisonResult result = columnGrouplines[i].Intersect(centerLine, out IntersectionResultArray results);
+                        SetComparisonResult result = columnGroup[i].Intersect(centerLine, out IntersectionResultArray results);
                         if (result == SetComparisonResult.Overlap)
                         {
-                            for (int j = 0; j < columnGrouplines.Count; j++)
+                            for (int j = 0; j < columnGroup.Count; j++)
                             {
                                 if (j != i)
                                 {
-                                    if (null != ExtendLine(centerLine, columnGrouplines[j]))
+                                    if (null != MeshPatch.ExtendLine(centerLine, columnGroup[j]))
                                     {
-                                        nestLines.Add(ExtendLine(centerLine, columnGrouplines[j]));
+                                        nestLines.Add(MeshPatch.ExtendLine(centerLine, columnGroup[j]));
                                     }
                                 }
                             }
@@ -456,7 +293,7 @@ namespace Manicotti
                     }
                     if (count == 0)
                     {
-                        var patches = Algorithm.CenterLinesOfBox(columnGrouplines);
+                        var patches = Algorithm.CenterLinesOfBox(columnGroup);
                         foreach (Line patch in patches)
                         {
                             if (Algorithm.IsLineIntersectLines(patch, nestLines)) { centerLines.Add(patch); }
@@ -474,28 +311,28 @@ namespace Manicotti
             //#The region detect function has fatal bug during boolean union operation
             #region Call region detection
             // Axis merge 
-            List<List<Curve>> tempStrays = Algorithm.ClusterByOverlap(Util.LinesToCrvs(centerLines));
-            List<Line> strays = new List<Line>();
+            List<List<Curve>> tempStrays = Algorithm.ClusterByOverlap(centerLines);
+            List<Curve> strays = new List<Curve>();
             foreach (List<Curve> tempStray in tempStrays)
             {
-                Line merged = Algorithm.MergeLine(Util.CrvsToLines(tempStray));
+                var merged = Algorithm.FuseLines(tempStray);
                 strays.Add(merged);
             }
             
             // The RegionCluster method should be applied to each cluster of the strays
             // It only works on a bunch of intersected line segments
-            List<CurveArray> loops = RegionDetect.RegionCluster(Util.LinesToCrvs(strays));
+            List<CurveArray> loops = RegionDetect.RegionCluster(strays);
             // The boolean union method of the loops needs to fix
             var perimeter = RegionDetect.GetBoundary(loops);
 
-            var recPerimeter = MeshPatch.CloseGapAtBreakpoint(Util.CrvsToLines(perimeter));
+            var recPerimeter = MeshPatch.CloseGapAtBreakpoint(perimeter);
 
             #endregion
             // OUTPUT List<CurveArray> loops
             Debug.Print("REGION COMPLETE!");
             
 
-            return RegionDetect.AlignCrv(Util.LinesToCrvs(recPerimeter));
+            return RegionDetect.AlignCrv(recPerimeter);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Manicotti
     [Transaction(TransactionMode.Manual)]
     public static class CreateWall
     {
-        public static void Execute(UIApplication uiapp, List<Line> doubleLines, Level level)
+        public static void Execute(UIApplication uiapp, List<Curve> wallCrvs, Level level)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -23,9 +23,10 @@ namespace Manicotti
             
 
             // Bundle double lines and generate their axes
-            List<Line> axes = new List<Line>();
+            List<Curve> axes = new List<Curve>();
             double bias = Util.MmToFoot(20);
 
+            var doubleLines = Util.CrvsToLines(wallCrvs);
             for (int i = 0; i < doubleLines.Count; i++)
             {
                 for (int j = 0; j < doubleLines.Count - i; j++)
@@ -49,44 +50,17 @@ namespace Manicotti
             }
 
             // Axis merge / 
-            List<List<Line>> axisGroups = new List<List<Line>>();
-            axisGroups.Add(new List<Line>() { axes[0] });
-
-            while (axes.Count != 0)
-            {
-                foreach (Line element in axes)
-                {
-                    int iterCounter = 0;
-                    foreach (List<Line> sublist in axisGroups)
-                    {
-                        iterCounter += 1;
-                        if (Algorithm.IsLineOverlapLines(element, sublist))
-                        {
-                            sublist.Add(element);
-                            axes.Remove(element);
-                            goto a;
-                        }
-                        if (iterCounter == axisGroups.Count)
-                        {
-                            axisGroups.Add(new List<Line>() { element });
-                            axes.Remove(element);
-                            goto a;
-                        }
-                    }
-                }
-            a:;
-            }
-            Debug.Print("The merged axes number " + axisGroups.Count.ToString());
+            List<Curve> mergedAxes = Algorithm.MergeAxes(axes);
+            Debug.Print("The merged axes number " + mergedAxes.Count.ToString());
 
             using (Transaction tx = new Transaction(doc))
             {
                 tx.Start("Generate walls");
 
                 // Wall generation
-                foreach (List<Line> axisBundle in axisGroups)
+                foreach (Curve axis in mergedAxes)
                 {
-                    Line merged = Algorithm.MergeLine(axisBundle);
-                    Wall.Create(doc, merged, level.Id, true);
+                    Wall.Create(doc, axis, level.Id, true);
                 }
 
                 tx.Commit();

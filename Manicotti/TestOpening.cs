@@ -101,7 +101,7 @@ namespace Manicotti
             */
             
 
-            CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, Util.CrvsToLines(wallCrvs), labels, firstLevel);
+            CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels, firstLevel);
 
             return Result.Succeeded;
         }

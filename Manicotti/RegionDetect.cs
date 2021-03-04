@@ -15,9 +15,9 @@ namespace Manicotti
     public class RegionDetect : IExternalCommand
     {
         // Print list for debug
-        public static String printo(List<int> list)
+        public static string printo(List<int> list)
         {
-            String fusion = "";
+            string fusion = "";
             for (int index = 0; index < list.Count(); index++)
             {
                 fusion = fusion + list[index].ToString() + " ";
@@ -25,9 +25,9 @@ namespace Manicotti
             return fusion;
         }
 
-        public static String printb(List<bool> list)
+        public static string printb(List<bool> list)
         {
-            String fusion = "";
+            string fusion = "";
             for (int index = 0; index < list.Count(); index++)
             {
                 fusion = fusion + list[index].ToString() + " ";
@@ -35,9 +35,9 @@ namespace Manicotti
             return fusion;
         }
 
-        public static String printd(Dictionary<int, List<Curve>> dictionary)
+        public static string printd(Dictionary<int, List<Curve>> dictionary)
         {
-            String fusion = "";
+            string fusion = "";
             foreach (KeyValuePair<int, List<Curve>> kvp in dictionary)
             {
                 fusion = fusion + kvp.Key.ToString() + "-" + kvp.Value.Count().ToString() + " ";

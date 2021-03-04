@@ -117,10 +117,10 @@ namespace Manicotti
 
 
         // Check the parallel lines
-        public static bool IsParallel(Line line1, Line line2)
+        public static bool IsParallel(Curve line1, Curve line2)
         {
-            XYZ line1_Direction = line1.Direction.Normalize();
-            XYZ line2_Direction = line2.Direction.Normalize();
+            XYZ line1_Direction = (line1.GetEndPoint(1) - line1.GetEndPoint(0)).Normalize();
+            XYZ line2_Direction = (line2.GetEndPoint(1) - line2.GetEndPoint(0)).Normalize();
             if (line1_Direction.IsAlmostEqualTo(line2_Direction) ||
                 line1_Direction.Negate().IsAlmostEqualTo(line2_Direction))
             {
@@ -186,9 +186,9 @@ namespace Manicotti
         /// <param name="crv1"></param>
         /// <param name="crv2"></param>
         /// <returns></returns>
-        public static bool IsAlmostJoined(Line line1, Line line2)
+        public static bool IsAlmostJoined(Curve line1, Curve line2)
         {
-            double radius = Util.MmToFoot(50);
+            double radius = Util.MmToFoot(Properties.Settings.Default.jointRadius);
             XYZ ptStart = line1.GetEndPoint(0);
             XYZ ptEnd = line1.GetEndPoint(1);
             XYZ xAxis = new XYZ(1, 0, 0);   // The x axis to define the arc plane. Must be normalized
@@ -204,10 +204,10 @@ namespace Manicotti
 
         
         // Check a line is overlapping with a group of lines
-        public static bool IsLineIntersectLines(Line line, List<Line> list)
+        public static bool IsLineIntersectLines(Curve line, List<Curve> list)
         {
             int judgement = 0;
-            foreach (Line element in list)
+            foreach (Curve element in list)
             {
                 if (IsIntersected(line, element))
                 {
@@ -220,10 +220,10 @@ namespace Manicotti
         
         
         // Check a line is overlapping with a group of lines
-        public static bool IsLineOverlapLines(Line line, List<Line> list)
+        public static bool IsLineOverlapLines(Curve line, List<Curve> list)
         {
             int judgement = 0;
-            foreach (Line element in list)
+            foreach (Curve element in list)
             {
                 if (IsParallel(line, element) && IsIntersected(line, element))
                 {
@@ -235,10 +235,10 @@ namespace Manicotti
         }
         
         // Check a line is parallel with a group of lines
-        public static bool IsLineParallelLines(Line line, List<Line> list)
+        public static bool IsLineParallelLines(Curve line, List<Curve> list)
         {
             int judgement = 0;
-            foreach (Line element in list)
+            foreach (Curve element in list)
             {
                 if (IsParallel(line, element))
                 {
@@ -250,13 +250,13 @@ namespace Manicotti
         }
         
         // Check a line is almost joined to a group of lines
-        public static bool IsLineAlmostJoinedLines(Line line, List<Line> list)
+        public static bool IsLineAlmostJoinedLines(Curve line, List<Curve> list)
         {
             int judgement = 0;
             if (list.Count == 0) { return true; }
             else
             {
-                foreach (Line element in list)
+                foreach (Curve element in list)
                 {
                     if (IsAlmostJoined(line, element))
                     {
@@ -269,7 +269,7 @@ namespace Manicotti
         }
 
         // Check a line is almost subset to a group of lines
-        public static bool IsLineAlmostSubsetLines(Line line, List<Line> list)
+        public static bool IsLineAlmostSubsetLines(Curve line, List<Curve> list)
         {
             int judgement = 0;
             if (list.Count == 0) { return true; }
@@ -293,11 +293,11 @@ namespace Manicotti
         /// </summary>
         /// <param name="lines"></param>
         /// <returns></returns>
-        public static Line FuseLines(List<Line> lines)
+        public static Curve FuseLines(List<Curve> lines)
         {
             double Z = lines[0].GetEndPoint(0).Z;
             List<XYZ> pts = new List<XYZ>();
-            foreach (Line line in lines)
+            foreach (Curve line in lines)
             {
                 pts.Add(line.GetEndPoint(0));
                 pts.Add(line.GetEndPoint(1));
@@ -314,6 +314,50 @@ namespace Manicotti
                 if (pt.Y > Ymax) { Ymax = pt.Y; }
             }
             return Line.CreateBound(new XYZ(Xmin, Ymin, Z), new XYZ(Xmax, Ymax, Z));
+        }
+
+
+        /// <summary>
+        /// Cluster and merge the overlapping lines from a bunch of strays (on top of FuseLines)
+        /// </summary>
+        /// <param name="axes"></param>
+        /// <returns></returns>
+        public static List<Curve> MergeAxes(List<Curve> axes)
+        {
+            List<List<Curve>> axisGroups = new List<List<Curve>>();
+            axisGroups.Add(new List<Curve>() { axes[0] });
+
+            while (axes.Count != 0)
+            {
+                foreach (Line element in axes)
+                {
+                    int iterCounter = 0;
+                    foreach (List<Curve> sublist in axisGroups)
+                    {
+                        iterCounter += 1;
+                        if (Algorithm.IsLineOverlapLines(element, sublist))
+                        {
+                            sublist.Add(element);
+                            axes.Remove(element);
+                            goto a;
+                        }
+                        if (iterCounter == axisGroups.Count)
+                        {
+                            axisGroups.Add(new List<Curve>() { element });
+                            axes.Remove(element);
+                            goto a;
+                        }
+                    }
+                }
+            a:;
+            }
+
+            List<Curve> mergedLines = new List<Curve>();
+            foreach (List<Curve> axisGroup in axisGroups)
+            {
+                mergedLines.Add(FuseLines(axisGroup));
+            }
+            return mergedLines;
         }
         
         
@@ -524,8 +568,13 @@ namespace Manicotti
             //Debug.Print("Vertices in all: " + pts.Count.ToString());
             return pts;
         }
-        
-        // Calculate the distance of bound lines
+
+        /// <summary>
+        /// Calculate the distance of double lines
+        /// </summary>
+        /// <param name="line1"></param>
+        /// <param name="line2"></param>
+        /// <returns></returns>
         public static double LineSpacing(Line line1, Line line2)
         {
             XYZ midPt = line1.Evaluate(0.5, true);
@@ -534,8 +583,13 @@ namespace Manicotti
             double spacing = target.Distance(midPt);
             return spacing;
         }
-        
-        // Generate axis / offset version
+
+        /// <summary>
+        /// Generate axis by offset wall boundary
+        /// </summary>
+        /// <param name="line1"></param>
+        /// <param name="line2"></param>
+        /// <returns></returns>
         public static Line GenerateAxis(Line line1, Line line2)
         {
             Curve baseline = line1.Clone();
@@ -568,11 +622,11 @@ namespace Manicotti
         /// <param name="line"></param>
         /// <param name="extension"></param>
         /// <returns></returns>
-        public static Line ExtendLine(Line line, double extension)
+        public static Curve ExtendLine(Curve line, double extension)
         {
             XYZ ptStart = line.GetEndPoint(0);
             XYZ ptEnd = line.GetEndPoint(1);
-            XYZ vec = line.Direction.Normalize();
+            XYZ vec = (ptEnd - ptStart).Normalize();
             return Line.CreateBound(ptStart - vec * Util.MmToFoot(extension), 
                 ptEnd + vec * Util.MmToFoot(extension));
         }
@@ -676,7 +730,7 @@ namespace Manicotti
 
         // Center point of list of lines
         // Need upgrade to polygon center point method
-        public static XYZ GetCenterPt(List<Line> lines)
+        public static XYZ GetCenterPt(List<Curve> lines)
         {
             double ptSum_X = 0;
             double ptSum_Y = 0;
@@ -753,10 +807,10 @@ namespace Manicotti
         }
 
 
-        public static List<Line> CenterLinesOfBox(List<Line> box)
+        public static List<Curve> CenterLinesOfBox(List<Curve> box)
         {
             XYZ centPt = GetCenterPt(box);
-            List<Line> centerLines = new List<Line>();
+            List<Curve> centerLines = new List<Curve>();
             foreach (Line edge in box)
             {
                 centerLines.Add(Line.CreateBound(centPt, edge.Evaluate(0.5, true)));
@@ -778,7 +832,7 @@ namespace Manicotti
         // Here collects obsolete methods
         #region Trashbin
         /// <summary>
-        /// Bubble sort algorithm. Need upgrade. Cannot apply to vertical/horizontal points mushed up
+        /// Bubble sort algorithm. BUG FIXATION NEEDED!
         /// </summary>
         /// <param name="pts"></param>
         /// <returns></returns>
@@ -806,20 +860,6 @@ namespace Manicotti
                 }
             }
             return pts;
-        }
-        
-        // Merge axis
-        public static Line MergeLine(List<Line> lines)
-        {
-            List<XYZ> pts = new List<XYZ>();
-            foreach (Line line in lines)
-            {
-                pts.Add(line.GetEndPoint(0));
-                pts.Add(line.GetEndPoint(1));
-            }
-            List<XYZ> ptsSorted = BubbleSort(pts);
-            Line mergedLine = Line.CreateBound(ptsSorted.First(), ptsSorted.Last());
-            return mergedLine;
         }
         #endregion
     }
