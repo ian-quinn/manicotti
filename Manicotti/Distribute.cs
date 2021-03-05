@@ -34,7 +34,7 @@ namespace Manicotti
             // Cluster all geometry elements and texts into datatrees
             // Two procedures are intertwined
             List<GeometryObject> dwg_frames = UtilGetCADGeometry.ExtractElement(uidoc, import, 
-                Properties.Settings.Default.frameLayer, "PolyLine");
+                Properties.Settings.Default.layerFrame, "PolyLine");
             List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import);
             // Terminate if no geometry has been found
             if (dwg_geos == null)
@@ -249,7 +249,7 @@ namespace Manicotti
                 foreach (GeometryObject go in geoDict[i])
                 {
                     var gStyle = doc.GetElement(go.GraphicsStyleId) as GraphicsStyle;
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.wallLayer)
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerWall)
                     {
                         if (go.GetType().Name == "Line")
                         {
@@ -265,7 +265,7 @@ namespace Manicotti
                             }
                         }
                     }
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.columnLayer)
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerColumn)
                     {
                         if (go.GetType().Name == "Line")
                         {
@@ -281,7 +281,7 @@ namespace Manicotti
                             }
                         }
                     }
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.doorLayer)
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerDoor)
                     {
                         Curve doorCrv = go as Curve;
                         PolyLine poly = go as PolyLine;
@@ -298,7 +298,7 @@ namespace Manicotti
                             }
                         }
                     }
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.windowLayer)
+                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerWindow)
                     {
                         Curve windowCrv = go as Curve;
                         PolyLine poly = go as PolyLine;
@@ -374,7 +374,7 @@ namespace Manicotti
                                 string roomName = "";
                                 foreach (UtilGetCADText.CADTextModel label in textDict[i])
                                 {
-                                    if (label.Layer == Properties.Settings.Default.spaceLayer)
+                                    if (label.Layer == Properties.Settings.Default.layerSpace)
                                     {
                                         if (room.IsPointInRoom(label.Location + XYZ.BasisZ * (i - 1) * floorHeight))
                                         {

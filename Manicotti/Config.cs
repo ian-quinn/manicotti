@@ -23,6 +23,7 @@ namespace Manicotti
             Application app = uiapp.Application;
             
             Properties.Settings.Default.url_install = UtilGetInstallPath.Execute(app);
+            Debug.Print(app.FamilyTemplatePath);
 
             Configuration configuration = new Configuration(doc);
             configuration.ShowDialog();

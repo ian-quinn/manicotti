@@ -148,72 +148,72 @@ namespace Manicotti.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("WALL")]
-        public string wallLayer {
+        public string layerWall {
             get {
-                return ((string)(this["wallLayer"]));
+                return ((string)(this["layerWall"]));
             }
             set {
-                this["wallLayer"] = value;
+                this["layerWall"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("COLUMN")]
-        public string columnLayer {
+        public string layerColumn {
             get {
-                return ((string)(this["columnLayer"]));
+                return ((string)(this["layerColumn"]));
             }
             set {
-                this["columnLayer"] = value;
+                this["layerColumn"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("DOOR")]
-        public string doorLayer {
+        public string layerDoor {
             get {
-                return ((string)(this["doorLayer"]));
+                return ((string)(this["layerDoor"]));
             }
             set {
-                this["doorLayer"] = value;
+                this["layerDoor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("WINDOW")]
-        public string windowLayer {
+        public string layerWindow {
             get {
-                return ((string)(this["windowLayer"]));
+                return ((string)(this["layerWindow"]));
             }
             set {
-                this["windowLayer"] = value;
+                this["layerWindow"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("SPACE")]
-        public string spaceLayer {
+        public string layerSpace {
             get {
-                return ((string)(this["spaceLayer"]));
+                return ((string)(this["layerSpace"]));
             }
             set {
-                this["spaceLayer"] = value;
+                this["layerSpace"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("FRAME")]
-        public string frameLayer {
+        public string layerFrame {
             get {
-                return ((string)(this["frameLayer"]));
+                return ((string)(this["layerFrame"]));
             }
             set {
-                this["frameLayer"] = value;
+                this["layerFrame"] = value;
             }
         }
     }

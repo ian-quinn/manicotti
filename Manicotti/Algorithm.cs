@@ -71,6 +71,27 @@ namespace Manicotti
 
         #region Curve method
         /// <summary>
+        /// Check if two lines are perpendicular to each other.
+        /// </summary>
+        /// <param name="line1"></param>
+        /// <param name="line2"></param>
+        /// <returns></returns>
+        public static bool IsPerpendicular(Curve line1, Curve line2)
+        {
+            XYZ vec1 = line1.GetEndPoint(1) - line1.GetEndPoint(0);
+            XYZ vec2 = line2.GetEndPoint(1) - line2.GetEndPoint(0);
+            if (vec1.DotProduct(vec2) == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
         /// Check if two line segments are intersected. May not save that much of computation time.
         /// </summary>
         /// <param name="c1"></param>
@@ -541,7 +562,7 @@ namespace Manicotti
         */
 
         /// <summary>
-        /// Get points of curves
+        /// Get non-duplicated points of a bunch of curves.
         /// </summary>
         /// <param name="crvs"></param>
         /// <returns></returns>
@@ -637,6 +658,29 @@ namespace Manicotti
 
 
         #region Region method
+
+        /// <summary>
+        /// Check if a bunch of lines enclose a rectangle.
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <returns></returns>
+        public static bool IsRectangle(List<Curve> lines)
+        {
+            if (lines.Count() == 4)
+            {
+                if (GetPtsOfCrvs(lines).Count() == lines.Count())
+                {
+                    CurveArray edges = RegionDetect.AlignCrv(lines);
+                    if (IsPerpendicular(edges.get_Item(0), edges.get_Item(1)) &&
+                        IsPerpendicular(edges.get_Item(1), edges.get_Item(2)))
+                    { return true; }
+                    else { return false; }
+                }
+                else { return false; }
+            }
+            else { return false; }
+        }
+
         /// <summary>
         /// Return the bounding box of curves. 
         /// The box has the minimum area with axis in align with the curve direction.

@@ -52,6 +52,11 @@ namespace Manicotti
             Properties.Settings.Default.wallThickness = 200;
             Properties.Settings.Default.minLength = 0.001;
             Properties.Settings.Default.jointRadius = 50;
+            Properties.Settings.Default.layerColumn = "COLUMN";
+            Properties.Settings.Default.layerWall = "WALL";
+            Properties.Settings.Default.layerWindow = "WINDOW";
+            Properties.Settings.Default.layerSpace = "SPACE";
+            Properties.Settings.Default.layerFrame = "FRAME";
             Properties.Settings.Default.Save();
         }
     }

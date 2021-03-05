@@ -155,8 +155,26 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
 
-            // Column basepoint
+            // Sort out column boundary
             List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnLines);
+            List<List<Curve>> columnRect = new List<List<Curve>>();
+            List<List<Curve>> columnSpecialShaped = new List<List<Curve>>();
+            foreach (List<Curve> columnGroup in columnGroups)
+            {
+                if (Algorithm.GetPtsOfCrvs(columnGroup).Count() == columnGroup.Count())
+                {
+                    if (Algorithm.IsRectangle(columnGroup))
+                    {
+                        columnRect.Add(columnGroup);
+                    }
+                    else
+                    {
+                        columnSpecialShaped.Add(columnGroup);
+                    }
+                }
+            }
+            Debug.Print("Got rectangle {0}, and unique shape {1}", columnRect.Count(), columnSpecialShaped.Count());
+
 
             // Grab the columntype
             FilteredElementCollector colColumns = new FilteredElementCollector(doc)
@@ -174,49 +192,48 @@ namespace Manicotti
                     break;
                 }
             }
+
             
 
             // Column generation
-            foreach (List<Curve> baselines in columnGroups)
+            using (Transaction tx = new Transaction(doc))
             {
-                if (baselines.Count <= 2) { continue; }
-                if (baselines.Count == 4) // SHIT CODE. Should check if the polygon is rectangle
+                tx.Start("Generate rectangular columns");
+                foreach (List<Curve> baselines in columnRect)
                 {
-                    using (Transaction tx = new Transaction(doc))
-                    {
-                        tx.Start("Generate Columns");
-                        var (width, depth, angle) = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines));
-                        FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
-                        if (!fs.IsActive) { fs.Activate(); }
-                        XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
-                        Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
-                        // z pointing down to apply a clockwise rotation
-                        FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
-                        ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
-                        //Autodesk.Revit.DB.Structure.StructuralType.Column
-                        tx.Commit();
-                    }
+                    var (width, depth, angle) = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines));
+                    FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
+                    if (!fs.IsActive) { fs.Activate(); }
+                    XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
+                    Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
+                    // z pointing down to apply a clockwise rotation
+                    FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                    ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
+                    //Autodesk.Revit.DB.Structure.StructuralType.Column
                 }
-                else
+                tx.Commit();
+            }
+
+            // To generate the special shaped column you have to do it transaction by transaction
+            // due to the family document reload operation must be out of one.
+            foreach (List<Curve> baselines in columnSpecialShaped)
+            {
+                var boundary = Algorithm.RectifyPolygon(Util.CrvsToLines(baselines));
+                FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
+                if (null == fs)
                 {
-                    continue; // debugging
-                    var boundary = Algorithm.RectifyPolygon(Util.CrvsToLines(baselines));
-                    FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
-                    if (null == fs)
-                    {
-                        Debug.Print("Generic Model Family returns no symbol");
-                        continue;
-                    }
-                    using (Transaction tx = new Transaction(doc))
-                    {
-                        tx.Start("Generate Columns");
-                        if (!fs.IsActive) { fs.Activate(); }
-                        XYZ basePt = XYZ.Zero;
-                        Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
-                        FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
-                        // DANGEROUS! the coordination transformation should be added here
-                        tx.Commit();
-                    }
+                    Debug.Print("Generic Model Family returns no symbol");
+                    continue;
+                }
+                using (Transaction tx = new Transaction(doc))
+                {
+                    tx.Start("Generate a special shaped column");
+                    if (!fs.IsActive) { fs.Activate(); }
+                    XYZ basePt = XYZ.Zero;
+                    Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
+                    FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                    // DANGEROUS! the coordination transformation should be added here
+                    tx.Commit();
                 }
             }
         }

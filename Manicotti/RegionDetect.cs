@@ -236,25 +236,26 @@ namespace Manicotti
         // Create CurveArray from List<Curve>. not a universal method. only after regionCluster()
         public static CurveArray AlignCrv(List<Curve> polylines)
         {
-            int lineNum = polylines.Count;
+            List<Curve> imagelines = polylines.ToList();
+            int lineNum = imagelines.Count;
             CurveArray polygon = new CurveArray();
-            polygon.Append(polylines[0]);
-            polylines.RemoveAt(0);
+            polygon.Append(imagelines[0]);
+            imagelines.RemoveAt(0);
             while (polygon.Size < lineNum)
             {
                 XYZ endPt = polygon.get_Item(polygon.Size - 1).GetEndPoint(1);
-                for (int i = 0; i < polylines.Count; i++)
+                for (int i = 0; i < imagelines.Count; i++)
                 {
-                    if (polylines[i].GetEndPoint(0).IsAlmostEqualTo(endPt))
+                    if (imagelines[i].GetEndPoint(0).IsAlmostEqualTo(endPt))
                     {
-                        polygon.Append(polylines[i]);
-                        polylines.Remove(polylines[i]);
+                        polygon.Append(imagelines[i]);
+                        imagelines.Remove(imagelines[i]);
                         break;
                     }
-                    if (polylines[i].GetEndPoint(1).IsAlmostEqualTo(endPt))
+                    if (imagelines[i].GetEndPoint(1).IsAlmostEqualTo(endPt))
                     {
-                        polygon.Append(polylines[i].CreateReversed());
-                        polylines.Remove(polylines[i]);
+                        polygon.Append(imagelines[i].CreateReversed());
+                        imagelines.Remove(imagelines[i]);
                         break;
                     }
                 }
