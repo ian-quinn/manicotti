@@ -1,3 +1,4 @@
+using System.Resources;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -6,11 +7,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Manicotti")]
-[assembly: AssemblyDescription("Revit Add-In Description for Manicotti")]
+[assembly: AssemblyDescription("Add-In for model extrusion based on CAD drawings WIP")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Autodesk Inc.")]
-[assembly: AssemblyProduct("Manicotti Revit C# .NET Add-In")]
-[assembly: AssemblyCopyright("Copyright 2019 (C) Jeremy Tammik, Autodesk Inc.")]
+[assembly: AssemblyCompany("Tongji University")]
+[assembly: AssemblyProduct("Manicotti Revit Add-In")]
+[assembly: AssemblyCopyright("Copyright 2021 (C) Yikun Yang, Tongji University.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,3 +35,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2020.0.0.0")]
 [assembly: AssemblyFileVersion("2020.0.0.0")]
+[assembly: NeutralResourcesLanguage("en-US")]
+

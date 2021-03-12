@@ -1,8 +1,10 @@
 ﻿#region Namespaces
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.Reflection;
+
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -15,10 +17,13 @@ namespace Manicotti
     [Transaction(TransactionMode.Manual)]
     public class TestOpening : IExternalCommand
     {
-        
+
         // Main execution
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.AssemblyResolve += new ResolveEventHandler(Util.LoadFromSameFolder);
+
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;

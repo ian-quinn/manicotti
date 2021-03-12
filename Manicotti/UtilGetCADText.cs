@@ -1,17 +1,15 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-
 using Teigha.Runtime;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
+using System.Reflection;
 
 namespace Manicotti
 {
@@ -62,12 +60,14 @@ namespace Manicotti
             return ModelPathUtils.ConvertModelPathToUserVisiblePath(cadLinkType.GetExternalFileReference().GetAbsolutePath());
         }
 
+
         /// <summary>
         /// Retreive all text data from dwg file and store them in CADModels 
         /// @CreatBridgeForRevit2018
         /// </summary>
         public static List<CADTextModel> GetCADText(string dwgPath)
         {
+
             List<CADTextModel> listCADModels = new List<CADTextModel>();
             using (new Services())
             {

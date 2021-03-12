@@ -40,6 +40,9 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(ProgramW6432)\Autodesk\Revit 2020\Revit.exe</StartProgram>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -55,7 +58,8 @@
     <Reference Include="System.Xaml" />
     <Reference Include="TD_Mgd_3.03_9, Version=3.0.0.8111, Culture=neutral, PublicKeyToken=460a0bef3ba73253, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\TD_Mgd_3.03_9.dll</HintPath>
+      <HintPath>Resource\lib\TD_Mgd_3.03_9.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -92,34 +96,28 @@
     <Compile Include="UtilGetInstallPath.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="ico\Basics.ico" />
-    <Resource Include="ico\Room.ico" />
-    <Resource Include="ico\Wall.ico" />
-    <Resource Include="lib\TD_Alloc_3.03_9.dll" />
-    <Resource Include="lib\TD_DbRoot_3.03_9.dll" />
-    <Resource Include="lib\TD_Db_3.03_9.dll" />
-    <Resource Include="lib\TD_Ge_3.03_9.dll" />
-    <Resource Include="lib\TD_Gi_3.03_9.dll" />
-    <Resource Include="lib\TD_Gs_3.03_9.dll" />
-    <Resource Include="lib\TD_Mgd_3.03_9.dll" />
-    <Resource Include="lib\TD_Root_3.03_9.dll" />
-    <Resource Include="lib\TD_SpatialIndex_3.03_9.dll" />
-    <Resource Include="ico\Column.ico" />
-    <Resource Include="ico\Model.ico" />
-    <Resource Include="ico\Opening.ico" />
-    <Resource Include="ico\Anchor.ico" />
-    <Resource Include="ico\House.ico" />
-    <Resource Include="ico\Sketch.ico" />
-    <Resource Include="ico\Fusion.ico" />
-    <Resource Include="ico\Winform.ico" />
-    <Resource Include="ico\Error.ico" />
-    <Resource Include="ico\Boundary.ico" />
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="lib\TD_DynBlocks_3.03_9.tx" />
+    <Resource Include="Resources\ico\Anchor.ico" />
+    <Resource Include="Resources\ico\Boundary.ico" />
+    <Resource Include="Resources\ico\Column.ico" />
+    <Resource Include="Resources\ico\Error.ico" />
+    <Resource Include="Resources\ico\Model.ico" />
+    <Resource Include="Resources\ico\Opening.ico" />
+    <Resource Include="Resources\ico\Room.ico" />
+    <Resource Include="Resources\ico\Sketch.ico" />
+    <Resource Include="Resources\ico\Wall.ico" />
+    <Resource Include="Resources\ico\Winform.ico" />
+    <Resource Include="Resources\lib\TD_Alloc_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_DbRoot_3.03_9.dll" />
+    <EmbeddedResource Include="Resources\lib\TD_Db_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Ge_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Gi_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Gs_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Mgd_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Root_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_SpatialIndex_3.03_9.dll" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Configuration.xaml">
@@ -133,11 +131,22 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\lib\TD_DynBlocks_3.03_9.tx" />
+    <Resource Include="Resources\rfa\M_Door-Single-Panel.rfa">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\rfa\M_Rectangular Column.rfa">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Include="Resources\rfa\M_Window-Fixed.rfa">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)*.addin" "$(AppData)\Autodesk\REVIT\Addins\2020"
-if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\REVIT\Addins\2020"</PostBuildEvent>
+if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\REVIT\Addins\2020"
+if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)Resources\rfa\*.rfa" "$(AppData)\Autodesk\REVIT\Addins\2020"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

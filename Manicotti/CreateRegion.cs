@@ -3,12 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 
 namespace Manicotti
 {
@@ -16,8 +15,8 @@ namespace Manicotti
     public static class CreateRegion
     {
         // Main thread
-        public static CurveArray Execute(UIApplication uiapp, List<Curve> wallCrvs, List<Curve> columnCrvs, List<Curve> windowCrvs,
-            List<Curve> doorCrvs)
+        public static CurveArray Execute(UIApplication uiapp, List<Curve> wallCrvs, List<Curve> columnCrvs, 
+            List<Curve> windowCrvs, List<Curve> doorCrvs)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;

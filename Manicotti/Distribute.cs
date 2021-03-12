@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
@@ -19,6 +18,9 @@ namespace Manicotti
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.AssemblyResolve += new ResolveEventHandler(Util.LoadFromSameFolder);
+
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Document doc = uidoc.Document;

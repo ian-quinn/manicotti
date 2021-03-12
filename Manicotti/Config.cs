@@ -1,13 +1,12 @@
 ﻿#region Namespaces
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
+
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 #endregion
 
 namespace Manicotti
@@ -21,9 +20,14 @@ namespace Manicotti
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Document doc = uidoc.Document;
             Application app = uiapp.Application;
-            
+
+            string thisAssemblyFolderPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             Properties.Settings.Default.url_install = UtilGetInstallPath.Execute(app);
             Debug.Print(app.FamilyTemplatePath);
+
+            Properties.Settings.Default.url_column = thisAssemblyFolderPath + @"\M_Rectangular Column.rfa";
+            Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\M_Door-Single-Panel.rfa";
+            Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\M_Window-Fixed.rfa";
 
             Configuration configuration = new Configuration(doc);
             configuration.ShowDialog();

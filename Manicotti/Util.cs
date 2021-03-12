@@ -1,15 +1,29 @@
 ﻿using System;
-using System.Text.RegularExpressions;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+using System.Diagnostics;
+
 using Autodesk.Revit.DB;
 
 namespace Manicotti
 {
     public static class Util
     {
+        #region Resource
+        public static Assembly LoadFromSameFolder(object sender, ResolveEventArgs args)
+        {
+            string folderPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string assemblyPath = Path.Combine(folderPath, new AssemblyName(args.Name).Name + ".dll");
+            Debug.Print("########" + assemblyPath);
+            if (!File.Exists(assemblyPath)) return null;
+            Assembly assembly = Assembly.LoadFrom(assemblyPath);
+            return assembly;
+        }
+        #endregion
+
+
         #region Text Processing
         public static int ExtractIndex(string str)
         {

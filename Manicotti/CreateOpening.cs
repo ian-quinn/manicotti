@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 #endregion
 
 namespace Manicotti
@@ -23,8 +22,8 @@ namespace Manicotti
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        private static FamilySymbol NewOpeningType(
-            UIApplication uiapp, String familyName, double width, double height, String type = "")
+        private static FamilySymbol NewOpeningType(UIApplication uiapp, string familyName, 
+            double width, double height, string type = "")
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -255,9 +254,11 @@ namespace Manicotti
                     }
 
                     Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
-                    FamilySymbol cs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door"); 
-                    
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, level,
+                    FamilySymbol fs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
+                    if (null == fs) { continue; }
+                    if (!fs.IsActive) { fs.Activate(); }
+
+                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
                         Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                 }
 
@@ -299,8 +300,11 @@ namespace Manicotti
                     }
 
                     Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
-                    FamilySymbol cs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, cs, hostWall, level,
+                    FamilySymbol fs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
+                    if (null == fs) { continue; }
+                    if (!fs.IsActive) { fs.Activate(); }
+
+                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
                         Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                 }
 
