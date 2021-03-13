@@ -21,10 +21,9 @@ namespace Manicotti
             Document doc = uidoc.Document;
             Application app = uiapp.Application;
 
+            //Properties.Settings.Default.url_install = UtilGetInstallPath.Execute(app);
             string thisAssemblyFolderPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            Properties.Settings.Default.url_install = UtilGetInstallPath.Execute(app);
-            Debug.Print(app.FamilyTemplatePath);
-
+            
             Properties.Settings.Default.url_column = thisAssemblyFolderPath + @"\M_Rectangular Column.rfa";
             Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\M_Door-Single-Panel.rfa";
             Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\M_Window-Fixed.rfa";

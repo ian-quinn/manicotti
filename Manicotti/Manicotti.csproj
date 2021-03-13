@@ -56,10 +56,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xaml" />
-    <Reference Include="TD_Mgd_3.03_9, Version=3.0.0.8111, Culture=neutral, PublicKeyToken=460a0bef3ba73253, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Resource\lib\TD_Mgd_3.03_9.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="TD_Mgd_3.03_9">
+      <HintPath>Resources\lib\TD_Mgd_3.03_9.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>

@@ -14,9 +14,6 @@
     <Setting Name="url_columnFamily" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft</Value>
     </Setting>
-    <Setting Name="url_install" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020</Value>
-    </Setting>
     <Setting Name="floorHeight" Type="System.Double" Scope="User">
       <Value Profile="(Default)">4000</Value>
     </Setting>

@@ -617,7 +617,8 @@ namespace Manicotti
             Curve targetline = line2.Clone();
             if (line1.Length < line2.Length)
             {
-                (baseline, targetline) = (line2.Clone(), line1.Clone());
+                baseline = line2.Clone();
+                targetline = line1.Clone();
             }
             targetline.MakeUnbound();
             XYZ midPt = baseline.Evaluate(0.5, true);
@@ -889,7 +890,9 @@ namespace Manicotti
                 {
                     if (pts[j].X > pts[j + 1].X + threshold)
                     {
-                        (pts[j], pts[j + 1]) = (pts[j + 1], pts[j]);
+                        var ptTemp = pts[j];
+                        pts[j] = pts[j + 1];
+                        pts[j + 1] = ptTemp;
                     }
                 }
             }
@@ -899,7 +902,9 @@ namespace Manicotti
                 {
                     if (pts[j].Y > pts[j + 1].Y + threshold)
                     {
-                        (pts[j], pts[j + 1]) = (pts[j + 1], pts[j]);
+                        var ptTemp = pts[j];
+                        pts[j] = pts[j + 1];
+                        pts[j + 1] = ptTemp;
                     }
                 }
             }

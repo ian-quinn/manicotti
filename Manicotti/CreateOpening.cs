@@ -249,7 +249,8 @@ namespace Manicotti
                     }
                     if (labelId > -1)
                     {
-                        (width, height) = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height);
+                        width = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item1;
+                        height = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item2;
                         //Debug.Print("Raw window label: {0}", labels[labelId].Text);
                     }
 
@@ -293,7 +294,8 @@ namespace Manicotti
                     }
                     if (labelId > -1)
                     {
-                        (width, height) = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height);
+                        width = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item1;
+                        height = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item2;
                         if (height + Properties.Settings.Default.sillHeight > Properties.Settings.Default.floorHeight)
                         { height = Properties.Settings.Default.floorHeight - Properties.Settings.Default.sillHeight; }
                         //Debug.Print("Raw window label: {0}", labels[labelId].Text);

@@ -42,10 +42,6 @@ namespace Manicotti
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.url_install = @"C:\ProgramData\Autodesk\RVT 2020";
-            Properties.Settings.Default.url_door = @"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Doors\M_Door-Single-Panel.rfa";
-            Properties.Settings.Default.url_window = @"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Windows\M_Window-Fixed.rfa";
-            Properties.Settings.Default.url_column = @"C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Columns\M_Rectangular Column.rfa";
             Properties.Settings.Default.url_columnFamily = @"C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft";
             Properties.Settings.Default.floorHeight = 4000;
             Properties.Settings.Default.sillHeight = 1200;

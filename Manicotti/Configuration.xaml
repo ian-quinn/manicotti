@@ -8,7 +8,7 @@
              mc:Ignorable="d"
              WindowStartupLocation="CenterScreen"
              Background="White"
-             Height="625" Width="400">
+             Height="580" Width="400">
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Close"
                         Executed="CloseCommandHandler"/>
@@ -22,10 +22,6 @@
                     </DataTemplate>
                 </GroupBox.HeaderTemplate>
                 <StackPanel>
-                    <TextBlock Text="Revit 2020 installation path" Margin="0 6 0 2"/>
-                    <TextBox Name="url_install" Padding="2" IsReadOnly="True" Background="#eee" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_install, Mode=TwoWay}"/>
-
                     <TextBlock Text="Backup .rfa path for door" Margin="0 6 0 2"/>
                     <TextBox Name="url_door" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=url_door, Mode=TwoWay}"/>

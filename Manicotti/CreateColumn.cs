@@ -201,7 +201,10 @@ namespace Manicotti
                 tx.Start("Generate rectangular columns");
                 foreach (List<Curve> baselines in columnRect)
                 {
-                    var (width, depth, angle) = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines));
+                    double width = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines)).Item1;
+                    double depth = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines)).Item2;
+                    double angle = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines)).Item3;
+
                     FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
                     if (!fs.IsActive) { fs.Activate(); }
                     XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);

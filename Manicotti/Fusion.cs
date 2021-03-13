@@ -146,7 +146,8 @@ namespace Manicotti
                 }
                 */
 
-                var (mesh, perimeter) = RegionDetect.FlattenLines(curveGroup);
+                var mesh = RegionDetect.FlattenLines(curveGroup).Item1;
+                var perimeter = RegionDetect.FlattenLines(curveGroup).Item2;
 
                 Floor newFloor = doc.Create.NewFloor(RegionDetect.AlignCrv(perimeter), floorType, firstLevel, false, XYZ.BasisZ);
                 newFloor.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM).Set(0);

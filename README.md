@@ -7,8 +7,6 @@ Revit add-in to build up model automatically based on DWG drawings. This is a to
 ```
 manicotti
 ├ /Demo
-│ ├ Manicotti.addin  - Manifest file
-│ ├ Manicotti.dll  - Add-in DLL
 │ ├ *.dwg  - DWG file for testing
 │ ├ *.dyn  - Dynamo file for testing
 │ └ *.gif  - Example movie
@@ -17,7 +15,7 @@ manicotti
   ├ /Resources
   │ ├ /ico  - Button icon files
   │ ├ /lib  - Teigha DLL files
-  │ ├ /rfa  - Default Revit family files
+  │ └ /rfa  - Default Revit family files
   ├ Manicotti.csproj  - Project configuration XML
   ├ Manicotti.sln  - VS solution file
   ├ App.cs  - Class library for ribbon button
