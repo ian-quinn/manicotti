@@ -56,7 +56,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xaml" />
-    <Reference Include="TD_Mgd_3.03_9">
+    <Reference Include="TD_Mgd_3.03_9, Version=3.0.0.8111, Culture=neutral, PublicKeyToken=460a0bef3ba73253, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>Resources\lib\TD_Mgd_3.03_9.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
@@ -97,6 +98,15 @@
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
+    <Resource Include="Resources\lib\TD_Mgd_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Alloc_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_DbRoot_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Db_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Ge_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Gi_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Gs_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_Root_3.03_9.dll" />
+    <Resource Include="Resources\lib\TD_SpatialIndex_3.03_9.dll" />
     <Resource Include="Resources\ico\Anchor.ico" />
     <Resource Include="Resources\ico\Boundary.ico" />
     <Resource Include="Resources\ico\Column.ico" />
@@ -107,15 +117,6 @@
     <Resource Include="Resources\ico\Sketch.ico" />
     <Resource Include="Resources\ico\Wall.ico" />
     <Resource Include="Resources\ico\Winform.ico" />
-    <Resource Include="Resources\lib\TD_Alloc_3.03_9.dll" />
-    <Resource Include="Resources\lib\TD_DbRoot_3.03_9.dll" />
-    <EmbeddedResource Include="Resources\lib\TD_Db_3.03_9.dll" />
-    <Resource Include="Resources\lib\TD_Ge_3.03_9.dll" />
-    <Resource Include="Resources\lib\TD_Gi_3.03_9.dll" />
-    <Resource Include="Resources\lib\TD_Gs_3.03_9.dll" />
-    <Resource Include="Resources\lib\TD_Mgd_3.03_9.dll" />
-    <Resource Include="Resources\lib\TD_Root_3.03_9.dll" />
-    <Resource Include="Resources\lib\TD_SpatialIndex_3.03_9.dll" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Configuration.xaml">
@@ -129,17 +130,18 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Resource Include="Resources\lib\TD_DynBlocks_3.03_9.tx" />
     <Resource Include="Resources\rfa\M_Door-Single-Panel.rfa">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\rfa\M_Rectangular Column.rfa">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\lib\TD_DynBlocks_3.03_9.tx" />
     <None Include="Resources\rfa\M_Window-Fixed.rfa">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)*.addin" "$(AppData)\Autodesk\REVIT\Addins\2020"

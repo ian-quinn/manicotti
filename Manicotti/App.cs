@@ -55,9 +55,17 @@ namespace Manicotti
 
             IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, opening);
 
+            PushButton config = modelBuild.AddItem(new PushButtonData("config", "Default\nSettings",
+                thisAssemblyPath, "Manicotti.Config")) as PushButton;
+            config.ToolTip = "Default and preferance settings. WIP";
+            BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Winform.ico", UriKind.Absolute));
+            config.LargeImage = configImg;
+
 
             // 2nd Panel
             RibbonPanel modelFix = ribbonPanel(a, "Manicotti", "Misc.");
+            // Currently we disable this panel that is still under test
+            modelFix.Enabled = false;
             
             PushButton mesh = modelFix.AddItem(new PushButtonData("mesh", "Patch\nAxis Grid", thisAssemblyPath,
                 "Manicotti.MeshPatch")) as PushButton;
@@ -84,15 +92,9 @@ namespace Manicotti
             fusion.Image = fusionImg;
 
             IList<RibbonItem> stackedAlgorithm = modelFix.AddStackedItems(region, sketch, fusion);
-            
-            PushButton config = modelFix.AddItem(new PushButtonData("config", "Default\nSettings",
-                thisAssemblyPath, "Manicotti.Config")) as PushButton;
-            config.ToolTip = "Default and preferance settings. WIP";
-            BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Winform.ico", UriKind.Absolute));
-            config.LargeImage = configImg;
 
-            PushButton test = modelFix.AddItem(new PushButtonData("test", "Test\nButton",
-                thisAssemblyPath, "Manicotti.TestIntersect")) as PushButton;
+            PushButton test = modelFix.AddItem(new PushButtonData(
+                "test", "Test\nButton", thisAssemblyPath, "Manicotti.TestIntersect")) as PushButton;
             test.ToolTip = "Default and preferance settings. WIP";
             BitmapImage testImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Error.ico", UriKind.Absolute));
             test.LargeImage = testImg;
@@ -142,6 +144,5 @@ namespace Manicotti
             return Result.Succeeded;
         }
 
-        
     }
 }

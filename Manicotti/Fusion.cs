@@ -123,9 +123,10 @@ namespace Manicotti
                     //Debug.Print("Model line generated");
                 }
 
+                /*
                 List<CurveArray> curveGroup = RegionDetect.RegionCluster(strayLines);
 
-                /*
+                
                 // Check containment. permanent abandoned
                 var (ptOrphans, crvOrphans) = Orphans(strayLines);
                 List<Curve> drawinglist = new List<Curve>();
@@ -144,14 +145,14 @@ namespace Manicotti
                     ModelLine line = doc.Create.NewModelCurve(axis, sketch) as ModelLine;
                     //Debug.Print("Model line generated");
                 }
-                */
+                
 
                 var mesh = RegionDetect.FlattenLines(curveGroup).Item1;
                 var perimeter = RegionDetect.FlattenLines(curveGroup).Item2;
 
                 Floor newFloor = doc.Create.NewFloor(RegionDetect.AlignCrv(perimeter), floorType, firstLevel, false, XYZ.BasisZ);
                 newFloor.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM).Set(0);
-
+                */
                 tx.Commit();
             }
 
