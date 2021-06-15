@@ -14,12 +14,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Manicotti
+namespace Manicotti.Views
 {
     /// <summary>
     /// Interaction logic for Configuration.xaml
     /// </summary>
-    public partial class Configuration : Window
+    public partial class Configuration : BaseWindow
     {
         // field
         public Document document;

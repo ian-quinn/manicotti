@@ -53,7 +53,11 @@ namespace Manicotti
             List<Curve> mergedAxes = Algorithm.MergeAxes(axes);
             Debug.Print("The merged axes number " + mergedAxes.Count.ToString());
 
-            using (Transaction tx = new Transaction(doc))
+            string task = "Creating Walls...";
+            string caption = "Extrude Walls";
+            int n = mergedAxes.Count;
+
+            /*using (Transaction tx = new Transaction(doc))
             {
                 tx.Start("Generate walls");
 
@@ -64,6 +68,30 @@ namespace Manicotti
                 }
 
                 tx.Commit();
+            }*/
+            Views.ProgressBar pb = new Views.ProgressBar(caption, task, n);
+            TransactionGroup tg = new TransactionGroup(doc, "Create Walls");
+            try
+            {
+                tg.Start();
+                foreach (Curve axis in mergedAxes)
+                {
+                    using (Transaction tx = new Transaction(doc))
+                    {
+                        tx.Start("Generate a wall");
+                        Wall.Create(doc, axis, level.Id, true);
+                        tx.Commit();
+                    }
+                    pb.Increment();
+                    if (pb.ProcessCancelled) { break; }
+                }
+                pb.JobCompleted();
+                tg.Assimilate();
+            }
+            catch
+            {
+                System.Windows.MessageBox.Show("Error creating wall", "Tips");
+                tg.RollBack();
             }
         }
     }

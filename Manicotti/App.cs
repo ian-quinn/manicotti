@@ -28,8 +28,10 @@ namespace Manicotti
             BitmapImage modelImg = new BitmapImage(uriImage);
 
             // Test button for floorplan split
-            PushButton distribute = modelBuild.AddItem(new PushButtonData("distribute", "Build up model\non all levels", thisAssemblyPath,
-                "Manicotti.Distribute")) as PushButton;
+            PushButtonData distributeButtonData = new PushButtonData("distribute", "Build up model\non all levels", thisAssemblyPath,
+                "Manicotti.Distribute");
+            distributeButtonData.AvailabilityClassName = "Manicotti.UtilButtonController";
+            PushButton distribute = modelBuild.AddItem(distributeButtonData) as PushButton;
             distribute.ToolTip = "Split geometries and texts by their floors." +
                 " Try to create walls and columns on all levels. To test this demo, Link_floor.dwg must be linked. (act on Linked DWG)";
             distribute.LargeImage = modelImg;

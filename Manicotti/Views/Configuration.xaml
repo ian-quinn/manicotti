@@ -1,19 +1,23 @@
-﻿<Window x:Class="Manicotti.Configuration"
+﻿<src:BaseWindow x:Class="Manicotti.Views.Configuration"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Manicotti"
+             xmlns:src="clr-namespace:Manicotti.Views"
              xmlns:p="clr-namespace:Manicotti.Properties"
              mc:Ignorable="d"
              WindowStartupLocation="CenterScreen"
              Background="White"
-             Height="580" Width="400">
-    <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Close"
-                        Executed="CloseCommandHandler"/>
-    </Window.CommandBindings>
-    <Border Padding="10">
+             Height="570" Width="400"
+             WindowStyle="None" AllowsTransparency="True">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Background="#fff" Padding="8">
         <StackPanel>
             <GroupBox Header="Default URL" Padding="3 0 3 3">
                 <GroupBox.HeaderTemplate>
@@ -24,19 +28,19 @@
                 <StackPanel>
                     <TextBlock Text="Backup .rfa path for door" Margin="0 6 0 2"/>
                     <TextBox Name="url_door" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_door, Mode=TwoWay}"/>
+               Path=url_door, Mode=TwoWay}"/>
 
                     <TextBlock Text="Backup .rfa path for window" Margin="0 6 0 2"/>
                     <TextBox Name="url_window" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_window, Mode=TwoWay}"/>
+               Path=url_window, Mode=TwoWay}"/>
 
                     <TextBlock Text="Backup .rfa path for column" Margin="0 6 0 2"/>
                     <TextBox Name="url_column" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_column, Mode=TwoWay}"/>
+               Path=url_column, Mode=TwoWay}"/>
 
                     <TextBlock Text="Default .rft path for special shaped column" Margin="0 6 0 2"/>
                     <TextBox Name="url_columnFamily" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_columnFamily, Mode=TwoWay}"/>
+               Path=url_columnFamily, Mode=TwoWay}"/>
                 </StackPanel>
             </GroupBox>
 
@@ -146,7 +150,7 @@
                         <TextBox Name="jointRadius" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=jointRadius, Mode=TwoWay}" Margin="0 2 0 2"/>
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Column="2" Margin="5 0 5 0">
                         <TextBlock Text="Min length" Margin="0 5 0 5"/>
                     </StackPanel>
@@ -167,7 +171,7 @@
                 <Button Content="Apply" Grid.Column="0" Margin="0 0 5 0" Command="ApplicationCommands.Close"/>
                 <Button Content="Reset to default" Grid.Column="1" Margin="5 0 0 0" Click="reset_Click"/>
             </Grid>
-            
+
         </StackPanel>
     </Border>
-</Window>
+</src:BaseWindow>

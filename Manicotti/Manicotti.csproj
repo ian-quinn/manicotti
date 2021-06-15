@@ -55,6 +55,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="TD_Mgd_3.03_9, Version=3.0.0.8111, Culture=neutral, PublicKeyToken=460a0bef3ba73253, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -65,7 +67,8 @@
   <ItemGroup>
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="Configuration.xaml.cs">
+    <Compile Include="Views\BaseWindow.cs" />
+    <Compile Include="Views\Configuration.xaml.cs">
       <DependentUpon>Configuration.xaml</DependentUpon>
     </Compile>
     <Compile Include="Config.cs" />
@@ -79,6 +82,7 @@
     </Compile>
     <Compile Include="TestIntersect.cs" />
     <Compile Include="TestOpening.cs" />
+    <Compile Include="UtilButtonController.cs" />
     <Compile Include="UtilGetCADGeometry.cs" />
     <Compile Include="SketchDWG.cs" />
     <Compile Include="TestColumn.cs" />
@@ -93,11 +97,16 @@
     <Compile Include="TestWall.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="UtilGetInstallPath.cs" />
+    <Compile Include="Views\ProgressBar.xaml.cs">
+      <DependentUpon>ProgressBar.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
+    <Resource Include="Resources\ico\Flask.ico" />
+    <Resource Include="Resources\ico\House.ico" />
     <Resource Include="Resources\lib\TD_Mgd_3.03_9.dll" />
     <Resource Include="Resources\lib\TD_Alloc_3.03_9.dll" />
     <Resource Include="Resources\lib\TD_DbRoot_3.03_9.dll" />
@@ -119,7 +128,15 @@
     <Resource Include="Resources\ico\Winform.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Configuration.xaml">
+    <Page Include="Views\BaseWindowStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Configuration.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ProgressBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -145,8 +162,9 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)*.addin" "$(AppData)\Autodesk\REVIT\Addins\2020"
-if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\REVIT\Addins\2020"
-if exist "$(AppData)\Autodesk\REVIT\Addins\2020" copy "$(ProjectDir)Resources\rfa\*.rfa" "$(AppData)\Autodesk\REVIT\Addins\2020"</PostBuildEvent>
+if exist "$(AppData)\Autodesk\REVIT\Addins\2020" mkdir "$(AppData)\Autodesk\REVIT\Addins\2020\Manicotti"
+copy "$(ProjectDir)$(OutputPath)*.dll" "$(AppData)\Autodesk\REVIT\Addins\2020\Manicotti"
+copy "$(ProjectDir)Resources\rfa\*.rfa" "$(AppData)\Autodesk\REVIT\Addins\2020\Manicotti"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

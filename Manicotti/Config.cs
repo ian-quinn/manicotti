@@ -28,7 +28,7 @@ namespace Manicotti
             Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\M_Door-Single-Panel.rfa";
             Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\M_Window-Fixed.rfa";
 
-            Configuration configuration = new Configuration(doc);
+            Views.Configuration configuration = new Views.Configuration(doc);
             configuration.ShowDialog();
 
             return Result.Succeeded;
