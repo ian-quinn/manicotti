@@ -85,7 +85,7 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <!--App icon-->
                             <Image Source="../Resources/ico/Flask.ico" Width="16" Margin="8 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="txtTitle" Text="Settings" FontFamily="Arial" Margin="4 0 0 0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="txtTitle" FontFamily="Arial" Margin="4 0 0 0" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <!--Caption buttons-->

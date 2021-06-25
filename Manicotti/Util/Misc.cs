@@ -9,7 +9,7 @@ using Autodesk.Revit.DB;
 
 namespace Manicotti
 {
-    public static class Util
+    public static class Misc
     {
         #region Resource
         public static Assembly LoadFromSameFolder(object sender, ResolveEventArgs args)

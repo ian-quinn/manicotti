@@ -24,7 +24,7 @@ namespace Manicotti
             Document doc = uidoc.Document;
             
 
-            Family f = Util.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
+            Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
             {
                 // add default path and error handling here
@@ -62,8 +62,8 @@ namespace Manicotti
 
                 // Define new dimensions for our new type;
                 // the specified parameter name is case sensitive:
-                s.LookupParameter("Width").Set(Util.MmToFoot(width));
-                s.LookupParameter("Depth").Set(Util.MmToFoot(depth));
+                s.LookupParameter("Width").Set(Misc.MmToFoot(width));
+                s.LookupParameter("Depth").Set(Misc.MmToFoot(depth));
 
                 return s;
             }
@@ -90,7 +90,7 @@ namespace Manicotti
                 CurveArrArray curveArrArray = new CurveArrArray();
                 curveArrArray.Append(boundary);
                 // The end has to be 4000mm in metric which is in align with the Metric Column.rft
-                Extrusion extrusion = familyDoc.FamilyCreate.NewExtrusion(true, curveArrArray, sketch, Util.MmToFoot(4000));
+                Extrusion extrusion = familyDoc.FamilyCreate.NewExtrusion(true, curveArrArray, sketch, Misc.MmToFoot(4000));
                 familyDoc.FamilyManager.NewType("Type 0");
                 familyDoc.Regenerate();
 
@@ -145,17 +145,18 @@ namespace Manicotti
             Level lvl = collector.OfClass(typeof(Level)).First(m => m.Name == "Upper Ref Level") as Level;
             return new Reference(lvl);
         }
-        
+
 
 
         // Main transaction
-        public static void Execute(UIApplication uiapp, List<Curve> columnLines, Level level)
+        public static void Execute(UIApplication uiapp, List<Curve> columnLines, Level level, bool IsSilent)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
 
             // Sort out column boundary
+            // Consider using CurveArray to store the data
             List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnLines);
             List<List<Curve>> columnRect = new List<List<Curve>>();
             List<List<Curve>> columnSpecialShaped = new List<List<Curve>>();
@@ -193,52 +194,116 @@ namespace Manicotti
                 }
             }
 
-            
-
+            // I don't know if there's a better way to split this...
             // Column generation
-            using (Transaction tx = new Transaction(doc))
+            if (IsSilent == true)
             {
-                tx.Start("Generate rectangular columns");
-                foreach (List<Curve> baselines in columnRect)
-                {
-                    double width = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines)).Item1;
-                    double depth = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines)).Item2;
-                    double angle = Algorithm.GetSizeOfRectangle(Util.CrvsToLines(baselines)).Item3;
-
-                    FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
-                    if (!fs.IsActive) { fs.Activate(); }
-                    XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
-                    Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
-                    // z pointing down to apply a clockwise rotation
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
-                    ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
-                    //Autodesk.Revit.DB.Structure.StructuralType.Column
-                }
-                tx.Commit();
-            }
-
-            // To generate the special shaped column you have to do it transaction by transaction
-            // due to the family document reload operation must be out of one.
-            foreach (List<Curve> baselines in columnSpecialShaped)
-            {
-                var boundary = Algorithm.RectifyPolygon(Util.CrvsToLines(baselines));
-                FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
-                if (null == fs)
-                {
-                    Debug.Print("Generic Model Family returns no symbol");
-                    continue;
-                }
                 using (Transaction tx = new Transaction(doc))
                 {
-                    tx.Start("Generate a special shaped column");
-                    if (!fs.IsActive) { fs.Activate(); }
-                    XYZ basePt = XYZ.Zero;
-                    Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
-                    // DANGEROUS! the coordination transformation should be added here
+                    tx.Start("Generate rectangular columns");
+                    foreach (List<Curve> baselines in columnRect)
+                    {
+                        double width = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item1;
+                        double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
+                        double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
+
+                        FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
+                        if (!fs.IsActive) { fs.Activate(); }
+                        XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
+                        Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
+                        // z pointing down to apply a clockwise rotation
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
+                        //Autodesk.Revit.DB.Structure.StructuralType.Column
+                    }
                     tx.Commit();
                 }
+
+                // To generate the special shaped column you have to do it transaction by transaction
+                // due to the family document reload operation must be out of one.
+                foreach (List<Curve> baselines in columnSpecialShaped)
+                {
+                    var boundary = Algorithm.RectifyPolygon(Misc.CrvsToLines(baselines));
+                    FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
+                    if (null == fs)
+                    {
+                        Debug.Print("Generic Model Family returns no symbol");
+                        continue;
+                    }
+                    using (Transaction tx = new Transaction(doc))
+                    {
+                        tx.Start("Generate a special shaped column");
+                        if (!fs.IsActive) { fs.Activate(); }
+                        XYZ basePt = XYZ.Zero;
+                        Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        // DANGEROUS! the coordination transformation should be added here
+                        tx.Commit();
+                    }
+                }
             }
+
+            else
+            {
+                string caption = "Extrude columns";
+                string task = "Creating rectangular columns...";
+
+                Views.ProgressBar pb1 = new Views.ProgressBar(caption, task, columnRect.Count);
+
+                foreach (List<Curve> baselines in columnRect)
+                {
+                    using (Transaction tx = new Transaction(doc))
+                    {
+                        tx.Start("Generate a rectangular column");
+                        
+                        double width = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item1;
+                        double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
+                        double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
+
+                        FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
+                        if (!fs.IsActive) { fs.Activate(); }
+                        XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
+                        Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
+                        // z pointing down to apply a clockwise rotation
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(columnCenterPt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        ElementTransformUtils.RotateElement(doc, fi.Id, columnCenterAxis, angle);
+                        //Autodesk.Revit.DB.Structure.StructuralType.Column
+
+                        tx.Commit();
+                    }
+                    pb1.Increment();
+                    if (pb1.ProcessCancelled) { break; }
+                }
+                pb1.Close();
+
+                task = "Creating special shaped columns...";
+                Views.ProgressBar pb2 = new Views.ProgressBar(caption, task, columnSpecialShaped.Count);
+
+                foreach (List<Curve> baselines in columnSpecialShaped)
+                {
+                    var boundary = Algorithm.RectifyPolygon(Misc.CrvsToLines(baselines));
+                    FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
+                    if (null == fs)
+                    {
+                        Debug.Print("Generic Model Family returns no symbol");
+                        continue;
+                    }
+                    using (Transaction tx = new Transaction(doc))
+                    {
+                        tx.Start("Generate a special shaped column");
+                        if (!fs.IsActive) { fs.Activate(); }
+                        XYZ basePt = XYZ.Zero;
+                        Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        // DANGEROUS! the coordination transformation should be added here
+                        tx.Commit();
+                    }
+                    pb2.Increment();
+                    if (pb2.ProcessCancelled) { break; }
+                }
+                pb2.JobCompleted();
+            }
+            
         }
     }
 }

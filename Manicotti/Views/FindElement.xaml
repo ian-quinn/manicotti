@@ -1,0 +1,101 @@
+﻿<src:BaseWindow x:Class="Manicotti.Views.FindElement"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:src="clr-namespace:Manicotti.Views"
+             mc:Ignorable="d"
+             WindowStyle="None" AllowsTransparency="True" 
+             Width="400" Height="800" Loaded="FindElement_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <DataGrid Name="DgFindElement" ItemsSource="{Binding}" Margin="0" IsReadOnly="True" AutoGenerateColumns="False" RowHeaderWidth="0" >
+            <DataGrid.Resources>
+                <Style x:Key="DataGridStyle" TargetType="{x:Type DataGrid}">
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="RowHeight" Value="22"/>
+                    <Setter Property="AlternationCount" Value="1"/>
+                    <Setter Property="CanUserAddRows" Value="False"/>
+                    <Setter Property="SelectionMode" Value="Single"/>
+                    <Setter Property="ColumnHeaderHeight" Value="24"/>
+                    <Setter Property="SelectionUnit" Value="FullRow"/>
+                    <Setter Property="GridLinesVisibility" Value="None"/>
+                    <Setter Property="AutoGenerateColumns" Value="False"/>
+                    <Setter Property="CanUserReorderColumns" Value="False"/>
+                    <Setter Property="VerticalGridLinesBrush" Value="{x:Null}"/>
+                    <Setter Property="HorizontalGridLinesBrush" Value="{x:Null}"/>
+                    <Setter Property="AlternatingRowBackground" Value="{x:Null}"/>
+                    <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                    <Setter Property="HorizontalScrollBarVisibility" Value="Visible"/>
+                    <Setter Property="HeadersVisibility" Value="Column"/>
+                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="BorderBrush" Value="#B5B5B5"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="RowDetailsVisibilityMode" Value="VisibleWhenSelected"/>
+                    <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+                    <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+                    <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGrid}">
+                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                                    <ScrollViewer x:Name="DG_ScrollViewer" Focusable="false"  HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}">
+                                        <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsGrouping" Value="false"/>
+                                <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                        </MultiTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="名称" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label  Content="{Binding Name,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Foreground="{Binding ForeGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="{Binding BackGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="数量" Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Number,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Foreground="{Binding ForeGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="{Binding BackGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="Manufacture" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Manufacturies,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Foreground="{Binding ForeGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="{Binding BackGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</src:BaseWindow>

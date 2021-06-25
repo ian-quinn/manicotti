@@ -72,7 +72,7 @@ namespace Manicotti
 
             
 
-            double radius = Util.MmToFoot(50);
+            double radius = Misc.MmToFoot(50);
             XYZ ptStart = wallLines[0].GetEndPoint(0);
             XYZ ptEnd = wallLines[0].GetEndPoint(1);
             XYZ xAxis = new XYZ(1, 0, 0);   // The x axis to define the arc plane. Must be normalized
@@ -99,8 +99,8 @@ namespace Manicotti
             baseline.MakeUnbound();
             XYZ _ptStart = baseline.Project(ptStart1).XYZPoint;
             XYZ _ptEnd = baseline.Project(ptEnd1).XYZPoint;
-            Debug.Print("_start: " + Util.PrintXYZ(_ptStart));
-            Debug.Print("_end: " + Util.PrintXYZ(_ptEnd));
+            Debug.Print("_start: " + Misc.PrintXYZ(_ptStart));
+            Debug.Print("_end: " + Misc.PrintXYZ(_ptEnd));
             Line checkline = Line.CreateBound(_ptStart, _ptEnd);
             SetComparisonResult projection = checkline.Intersect(wallLines[1] as Line, out IntersectionResultArray projections);
             Debug.Print("Shadowing?" + projection.ToString());

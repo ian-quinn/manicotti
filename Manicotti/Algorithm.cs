@@ -209,7 +209,7 @@ namespace Manicotti
         /// <returns></returns>
         public static bool IsAlmostJoined(Curve line1, Curve line2)
         {
-            double radius = Util.MmToFoot(Properties.Settings.Default.jointRadius);
+            double radius = Misc.MmToFoot(Properties.Settings.Default.jointRadius);
             XYZ ptStart = line1.GetEndPoint(0);
             XYZ ptEnd = line1.GetEndPoint(1);
             XYZ xAxis = new XYZ(1, 0, 0);   // The x axis to define the arc plane. Must be normalized
@@ -649,8 +649,8 @@ namespace Manicotti
             XYZ ptStart = line.GetEndPoint(0);
             XYZ ptEnd = line.GetEndPoint(1);
             XYZ vec = (ptEnd - ptStart).Normalize();
-            return Line.CreateBound(ptStart - vec * Util.MmToFoot(extension), 
-                ptEnd + vec * Util.MmToFoot(extension));
+            return Line.CreateBound(ptStart - vec * Misc.MmToFoot(extension), 
+                ptEnd + vec * Misc.MmToFoot(extension));
         }
 
 
@@ -802,7 +802,7 @@ namespace Manicotti
                 double angle = AngleTo2PI(vec, XYZ.BasisX);
                 //Debug.Print("Iteration angle is " + angle.ToString());
                 rotations.Add(angle);
-                lengths.Add(Util.FootToMm(line.Length));
+                lengths.Add(Misc.FootToMm(line.Length));
             }
             int baseEdgeId = rotations.IndexOf(rotations.Min());
             double width = lengths[baseEdgeId];

@@ -29,7 +29,7 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
 
-            Family f = Util.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
+            Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
             {
                 // add default path and error handling here
@@ -83,8 +83,8 @@ namespace Manicotti
 
                 // Define new dimensions for our new type;
                 // the specified parameter name is case sensitive:
-                s.LookupParameter("Width").Set(Util.MmToFoot(width));
-                s.LookupParameter("Height").Set(Util.MmToFoot(height));
+                s.LookupParameter("Width").Set(Misc.MmToFoot(width));
+                s.LookupParameter("Height").Set(Misc.MmToFoot(height));
 
                 return s;
             }
@@ -96,7 +96,7 @@ namespace Manicotti
         
 
         public static void Execute(UIApplication uiapp, List<Curve> doorCrvs, List<Curve> windowCrvs, 
-            List<Curve> wallCrvs, List<UtilGetCADText.CADTextModel> labels, Level level)
+            List<Curve> wallCrvs, List<Util.TeighaText.CADTextModel> labels, Level level, bool IsSilent)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -188,130 +188,238 @@ namespace Manicotti
             Debug.Print("We got {0} window axes. ", windowAxes.Count);
 
 
-            // Main transaction
-            // Plot axis of doors/windows and create the instance
-            using (Transaction tx = new Transaction(doc))
+            if (IsSilent)
             {
-                tx.Start("Generate sub-surface and its mark");
-
-                /*
-                Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
-                SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
-
-                // Create door & window blocks
-                
-                foreach (List<Curve> doorBlock in doorBlocks)
+                // Main transaction
+                // Plot axis of doors/windows and create the instance
+                using (Transaction tx = new Transaction(doc))
                 {
-                    //Debug.Print("Creating new bounding box");
-                    foreach (Curve edge in doorBlock)
-                    {
-                        ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
-                    }
-                }
-                foreach (List<Curve> windowBlock in windowBlocks)
-                {
-                    //Debug.Print("Creating new bounding box");
-                    foreach (Curve edge in windowBlock)
-                    {
-                        ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
-                    }
-                }
-                */
-                
+                    tx.Start("Generate sub-surface and its mark");
 
-
-                // Create door axis & instance
-                foreach (Curve doorAxis in doorAxes)
-                {
                     /*
-                    DetailLine axis = doc.Create.NewDetailCurve(view, doorAxis) as DetailLine;
-                    GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
-                    gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
-                    gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
-                    */
+                    Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
+                    SketchPlane sketch = SketchPlane.Create(doc, Geomplane);
 
-                    Wall hostWall = Wall.Create(doc, doorAxis, level.Id, true);
+                    // Create door & window blocks
 
-                    double width = Math.Round(Util.FootToMm(doorAxis.Length), 0);
-                    double height = 2000;
-                    XYZ basePt = (doorAxis.GetEndPoint(0) + doorAxis.GetEndPoint(1)).Divide(2);
-                    XYZ insertPt = basePt + XYZ.BasisZ * level.Elevation; // Absolute height
-                    double span = Double.PositiveInfinity;
-                    int labelId = -1;
-                    foreach (UtilGetCADText.CADTextModel text in labels)
+                    foreach (List<Curve> doorBlock in doorBlocks)
                     {
-                        double distance = basePt.DistanceTo(text.Location);
-                        if (distance < span)
+                        //Debug.Print("Creating new bounding box");
+                        foreach (Curve edge in doorBlock)
                         {
-                            span = distance;
-                            labelId = labels.IndexOf(text);
+                            ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
                         }
                     }
-                    if (labelId > -1)
+                    foreach (List<Curve> windowBlock in windowBlocks)
                     {
-                        width = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item1;
-                        height = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item2;
-                        //Debug.Print("Raw window label: {0}", labels[labelId].Text);
+                        //Debug.Print("Creating new bounding box");
+                        foreach (Curve edge in windowBlock)
+                        {
+                            ModelCurve modelline = doc.Create.NewModelCurve(edge, sketch) as ModelCurve;
+                        }
+                    }
+                    */
+
+
+
+                    // Create door axis & instance
+                    foreach (Curve doorAxis in doorAxes)
+                    {
+                        /*
+                        DetailLine axis = doc.Create.NewDetailCurve(view, doorAxis) as DetailLine;
+                        GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
+                        gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
+                        gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
+                        */
+
+                        Wall hostWall = Wall.Create(doc, doorAxis, level.Id, true);
+
+                        double width = Math.Round(Misc.FootToMm(doorAxis.Length), 0);
+                        double height = 2000;
+                        XYZ basePt = (doorAxis.GetEndPoint(0) + doorAxis.GetEndPoint(1)).Divide(2);
+                        XYZ insertPt = basePt + XYZ.BasisZ * level.Elevation; // Absolute height
+                        double span = Double.PositiveInfinity;
+                        int labelId = -1;
+                        foreach (Util.TeighaText.CADTextModel text in labels)
+                        {
+                            double distance = basePt.DistanceTo(text.Location);
+                            if (distance < span)
+                            {
+                                span = distance;
+                                labelId = labels.IndexOf(text);
+                            }
+                        }
+                        if (labelId > -1)
+                        {
+                            width = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item1;
+                            height = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item2;
+                            //Debug.Print("Raw window label: {0}", labels[labelId].Text);
+                        }
+
+                        Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
+                        FamilySymbol fs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
+                        if (null == fs) { continue; }
+                        if (!fs.IsActive) { fs.Activate(); }
+
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
+                            Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                     }
 
-                    Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
-                    FamilySymbol fs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
-                    if (null == fs) { continue; }
-                    if (!fs.IsActive) { fs.Activate(); }
+                    // Create window axis & instance
+                    foreach (Curve windowAxis in windowAxes)
+                    {
+                        /*
+                        DetailLine axis = doc.Create.NewDetailCurve(view, windowAxis) as DetailLine;
+                        GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
+                        gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
+                        gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
+                        */
 
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
-                        Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        Wall hostWall = Wall.Create(doc, windowAxis, level.Id, true);
+
+                        double width = Math.Round(Misc.FootToMm(windowAxis.Length), 0);
+                        double height = 2500;
+
+                        XYZ basePt = (windowAxis.GetEndPoint(0) + windowAxis.GetEndPoint(1)).Divide(2); // On world plane
+                        XYZ insertPt = basePt + XYZ.BasisZ * (Misc.MmToFoot(Properties.Settings.Default.sillHeight) + level.Elevation); // Absolute height
+                        double span = Misc.MmToFoot(2000);
+                        int labelId = -1;
+                        foreach (Util.TeighaText.CADTextModel text in labels)
+                        {
+                            double distance = basePt.DistanceTo(text.Location);
+                            //Debug.Print("Compare the two pts: " + Util.PrintXYZ(basePt) + " " + Util.PrintXYZ(text.Location));
+                            if (distance < span)
+                            {
+                                span = distance;
+                                labelId = labels.IndexOf(text);
+                            }
+                        }
+                        if (labelId > -1)
+                        {
+                            width = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item1;
+                            height = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item2;
+                            if (height + Properties.Settings.Default.sillHeight > Properties.Settings.Default.floorHeight)
+                            { height = Properties.Settings.Default.floorHeight - Properties.Settings.Default.sillHeight; }
+                            //Debug.Print("Raw window label: {0}", labels[labelId].Text);
+                        }
+
+                        Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
+                        FamilySymbol fs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
+                        if (null == fs) { continue; }
+                        if (!fs.IsActive) { fs.Activate(); }
+
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
+                            Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                    }
+
+                    tx.Commit();
                 }
+            }
+
+            else
+            {
+                string caption = "Create openings";
+                string task = "Creating doors...";
+
+                Views.ProgressBar pb1 = new Views.ProgressBar(caption, task, doorAxes.Count);
+
+                foreach (Curve doorAxis in doorAxes)
+                {
+                    using (Transaction tx = new Transaction(doc))
+                    {
+                        tx.Start("Generate doors and their adherences");
+
+                        Wall hostWall = Wall.Create(doc, doorAxis, level.Id, true);
+
+                        double width = Math.Round(Misc.FootToMm(doorAxis.Length), 0);
+                        double height = 2000;
+                        XYZ basePt = (doorAxis.GetEndPoint(0) + doorAxis.GetEndPoint(1)).Divide(2);
+                        XYZ insertPt = basePt + XYZ.BasisZ * level.Elevation; // Absolute height
+                        double span = Double.PositiveInfinity;
+                        int labelId = -1;
+                        foreach (Util.TeighaText.CADTextModel text in labels)
+                        {
+                            double distance = basePt.DistanceTo(text.Location);
+                            if (distance < span)
+                            {
+                                span = distance;
+                                labelId = labels.IndexOf(text);
+                            }
+                        }
+                        if (labelId > -1)
+                        {
+                            width = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item1;
+                            height = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item2;
+                            //Debug.Print("Raw window label: {0}", labels[labelId].Text);
+                        }
+
+                        Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
+                        FamilySymbol fs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
+                        if (null == fs) { continue; }
+                        if (!fs.IsActive) { fs.Activate(); }
+
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
+                            Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        tx.Commit();
+                    }
+                    pb1.Increment();
+                    if (pb1.ProcessCancelled) { break; }
+                }
+                pb1.Close();
+
+                task = "Creating windows...";
+                Views.ProgressBar pb2 = new Views.ProgressBar(caption, task, windowAxes.Count);
 
                 // Create window axis & instance
                 foreach (Curve windowAxis in windowAxes)
                 {
-                    /*
-                    DetailLine axis = doc.Create.NewDetailCurve(view, windowAxis) as DetailLine;
-                    GraphicsStyle gs = axis.LineStyle as GraphicsStyle;
-                    gs.GraphicsStyleCategory.LineColor = new Color(202, 51, 82);
-                    gs.GraphicsStyleCategory.SetLineWeight(7, gs.GraphicsStyleType);
-                    */
-
-                    Wall hostWall = Wall.Create(doc, windowAxis, level.Id, true);
-
-                    double width = Math.Round(Util.FootToMm(windowAxis.Length), 0);
-                    double height = 2500;
-
-                    XYZ basePt = (windowAxis.GetEndPoint(0) + windowAxis.GetEndPoint(1)).Divide(2); // On world plane
-                    XYZ insertPt = basePt + XYZ.BasisZ * (Util.MmToFoot(Properties.Settings.Default.sillHeight) + level.Elevation); // Absolute height
-                    double span = Util.MmToFoot(2000);
-                    int labelId = -1;
-                    foreach (UtilGetCADText.CADTextModel text in labels)
+                    using(Transaction tx = new Transaction(doc))
                     {
-                        double distance = basePt.DistanceTo(text.Location);
-                        //Debug.Print("Compare the two pts: " + Util.PrintXYZ(basePt) + " " + Util.PrintXYZ(text.Location));
-                        if (distance < span)
+                        tx.Start("Generate doors and their adherences");
+                        Wall hostWall = Wall.Create(doc, windowAxis, level.Id, true);
+
+                        double width = Math.Round(Misc.FootToMm(windowAxis.Length), 0);
+                        double height = 2500;
+
+                        XYZ basePt = (windowAxis.GetEndPoint(0) + windowAxis.GetEndPoint(1)).Divide(2); // On world plane
+                        XYZ insertPt = basePt + XYZ.BasisZ * (Misc.MmToFoot(Properties.Settings.Default.sillHeight) + level.Elevation); // Absolute height
+                        double span = Misc.MmToFoot(2000);
+                        int labelId = -1;
+                        foreach (Util.TeighaText.CADTextModel text in labels)
                         {
-                            span = distance;
-                            labelId = labels.IndexOf(text);
+                            double distance = basePt.DistanceTo(text.Location);
+                            //Debug.Print("Compare the two pts: " + Util.PrintXYZ(basePt) + " " + Util.PrintXYZ(text.Location));
+                            if (distance < span)
+                            {
+                                span = distance;
+                                labelId = labels.IndexOf(text);
+                            }
                         }
-                    }
-                    if (labelId > -1)
-                    {
-                        width = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item1;
-                        height = UtilGetCADText.DecodeLabel(labels[labelId].Text, width, height).Item2;
-                        if (height + Properties.Settings.Default.sillHeight > Properties.Settings.Default.floorHeight)
-                        { height = Properties.Settings.Default.floorHeight - Properties.Settings.Default.sillHeight; }
-                        //Debug.Print("Raw window label: {0}", labels[labelId].Text);
-                    }
+                        if (labelId > -1)
+                        {
+                            width = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item1;
+                            height = Util.TeighaText.DecodeLabel(labels[labelId].Text, width, height).Item2;
+                            if (height + Properties.Settings.Default.sillHeight > Properties.Settings.Default.floorHeight)
+                            { height = Properties.Settings.Default.floorHeight - Properties.Settings.Default.sillHeight; }
+                            //Debug.Print("Raw window label: {0}", labels[labelId].Text);
+                        }
 
-                    Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
-                    FamilySymbol fs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
-                    if (null == fs) { continue; }
-                    if (!fs.IsActive) { fs.Activate(); }
+                        Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
+                        FamilySymbol fs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
+                        if (null == fs) { continue; }
+                        if (!fs.IsActive) { fs.Activate(); }
 
-                    FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
-                        Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
+                            Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        tx.Commit();
+                    }
+                    pb2.Increment();
+                    if (pb2.ProcessCancelled) { break; }
                 }
+                pb2.JobCompleted();
 
-                tx.Commit();
             }
+            
         }
     }
 }

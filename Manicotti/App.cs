@@ -28,29 +28,29 @@ namespace Manicotti
             BitmapImage modelImg = new BitmapImage(uriImage);
 
             // Test button for floorplan split
-            PushButtonData distributeButtonData = new PushButtonData("distribute", "Build up model\non all levels", thisAssemblyPath,
-                "Manicotti.Distribute");
-            distributeButtonData.AvailabilityClassName = "Manicotti.UtilButtonController";
-            PushButton distribute = modelBuild.AddItem(distributeButtonData) as PushButton;
-            distribute.ToolTip = "Split geometries and texts by their floors." +
+            PushButtonData createAllButtonData = new PushButtonData("create_all", "Build up model\non all levels", thisAssemblyPath,
+                "Manicotti.CmdCreateAll");
+            createAllButtonData.AvailabilityClassName = "Manicotti.Util.ButtonControl";
+            PushButton createAll = modelBuild.AddItem(createAllButtonData) as PushButton;
+            createAll.ToolTip = "Split geometries and texts by their floors." +
                 " Try to create walls and columns on all levels. To test this demo, Link_floor.dwg must be linked. (act on Linked DWG)";
-            distribute.LargeImage = modelImg;
+            createAll.LargeImage = modelImg;
 
             // Button list
-            PushButtonData wall = new PushButtonData("extrude_wall", "Walls", 
-                thisAssemblyPath, "Manicotti.TestWall");
+            PushButtonData wall = new PushButtonData("create_wall", "Walls", 
+                thisAssemblyPath, "Manicotti.CmdCreateWall");
             wall.ToolTip = "Extrude walls. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG with WALL layer)";
             BitmapImage wallImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Wall.ico", UriKind.Absolute));
             wall.Image = wallImg;
             
-            PushButtonData column = new PushButtonData("extrude_column", "Columns", 
-                thisAssemblyPath, "Manicotti.TestColumn");
+            PushButtonData column = new PushButtonData("create_column", "Columns", 
+                thisAssemblyPath, "Manicotti.CmdCreateColumn");
             column.ToolTip = "Extrude columns. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG with COLUMN layer)";
             BitmapImage columnImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Column.ico", UriKind.Absolute));
             column.Image = columnImg;
             
-            PushButtonData opening = new PushButtonData("opening", "Openings", thisAssemblyPath,
-                "Manicotti.TestOpening");
+            PushButtonData opening = new PushButtonData("create_opening", "Openings", thisAssemblyPath,
+                "Manicotti.CmdCreateOpening");
             opening.ToolTip = "Insert openings. To test the demo, Link_demo.dwg must be linked. (need layer DOOR, WINDOW & WALL)";
             BitmapImage openingImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Opening.ico", UriKind.Absolute));
             opening.Image = openingImg;
@@ -58,7 +58,7 @@ namespace Manicotti
             IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, opening);
 
             PushButton config = modelBuild.AddItem(new PushButtonData("config", "Default\nSettings",
-                thisAssemblyPath, "Manicotti.Config")) as PushButton;
+                thisAssemblyPath, "Manicotti.Views.CmdConfig")) as PushButton;
             config.ToolTip = "Default and preferance settings. WIP";
             BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Winform.ico", UriKind.Absolute));
             config.LargeImage = configImg;

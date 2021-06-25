@@ -2,9 +2,9 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace Manicotti
+namespace Manicotti.Util
 {
-    public class UtilButtonController : IExternalCommandAvailability
+    public class ButtonControl : IExternalCommandAvailability
     {
         public bool IsCommandAvailable(UIApplication uiapp, CategorySet selectedCategories)
         {

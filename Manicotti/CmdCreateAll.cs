@@ -14,30 +14,45 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public class Distribute : IExternalCommand
+    public class CmdCreateAll : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;
-            currentDomain.AssemblyResolve += new ResolveEventHandler(Util.LoadFromSameFolder);
+            currentDomain.AssemblyResolve += new ResolveEventHandler(Misc.LoadFromSameFolder);
 
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Document doc = uidoc.Document;
             View active_view = doc.ActiveView;
 
+
             // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
-            var import = doc.GetElement(r) as ImportInstance;
+            ImportInstance import = null;
+            try
+            {
+                Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
+                import = doc.GetElement(r) as ImportInstance;
+            }
+            catch
+            {
+                return Result.Cancelled;
+            }
+            if (import == null)
+            {
+                System.Windows.MessageBox.Show("CAD not found", "Tips");
+                return Result.Cancelled;
+            }
+
 
             // DATA PREPARATIONS
 
             // Prepare frames and levels
             // Cluster all geometry elements and texts into datatrees
             // Two procedures are intertwined
-            List<GeometryObject> dwg_frames = UtilGetCADGeometry.ExtractElement(uidoc, import, 
+            List<GeometryObject> dwg_frames = Util.TeighaGeometry.ExtractElement(uidoc, import, 
                 Properties.Settings.Default.layerFrame, "PolyLine");
-            List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import);
+            List<GeometryObject> dwg_geos = Util.TeighaGeometry.ExtractElement(uidoc, import);
             // Terminate if no geometry has been found
             if (dwg_geos == null)
                 return Result.Failed;
@@ -93,27 +108,27 @@ namespace Manicotti
             Debug.Print("Got parentPolys: " + parentPolys.Count().ToString());
 
 
-            string path = UtilGetCADText.GetCADPath(uidoc, import);
+            string path = Util.TeighaText.GetCADPath(uidoc, import);
             Debug.Print("The path of linked CAD file is: " + path);
-            List<UtilGetCADText.CADTextModel> texts = UtilGetCADText.GetCADText(path);
+            List<Util.TeighaText.CADTextModel> texts = Util.TeighaText.GetCADText(path);
 
 
             int level;
             int levelCounter = 0;
-            double floorHeight = Util.MmToFoot(Properties.Settings.Default.floorHeight);
+            double floorHeight = Misc.MmToFoot(Properties.Settings.Default.floorHeight);
             Dictionary<int, PolyLine> frameDict= new Dictionary<int, PolyLine>(); // cache drawing borders
             Dictionary<int, XYZ> transDict= new Dictionary<int, XYZ>();
             // cache transform vector from the left-bottom corner of the drawing border to the Origin
             Dictionary<int, List<GeometryObject>> geoDict = new Dictionary<int, List<GeometryObject>>();
             // cache geometries of each floorplan
-            Dictionary<int, List<UtilGetCADText.CADTextModel>> textDict = new Dictionary<int, List<UtilGetCADText.CADTextModel>>();
+            Dictionary<int, List<Util.TeighaText.CADTextModel>> textDict = new Dictionary<int, List<Util.TeighaText.CADTextModel>>();
             // cache text info of each floorplan
 
             if (texts.Count > 0)
             {
                 foreach (var textmodel in texts)
                 {
-                    level = Util.GetLevel(textmodel.Text, "平面图");
+                    level = Misc.GetLevel(textmodel.Text, "平面图");
                     Debug.Print("Got target label " + textmodel.Text);
                     if (level != -1)
                     {
@@ -138,7 +153,7 @@ namespace Manicotti
                 // Too complicated using 2 iterations... uplift needed
                 for (int i = 1; i <= levelCounter; i++)
                 {
-                    textDict.Add(i, new List<UtilGetCADText.CADTextModel>());
+                    textDict.Add(i, new List<Util.TeighaText.CADTextModel>());
                     geoDict.Add(i, new List<GeometryObject>());
                     CurveArray tempPolyArray = RegionDetect.PolyLineToCurveArray(frameDict[i], tolerance);
                     foreach (var textmodel in texts)
@@ -238,7 +253,7 @@ namespace Manicotti
                 Transform alignment = Transform.CreateTranslation(transDict[i]);
 
                 // Align the labels to the origin
-                foreach (UtilGetCADText.CADTextModel label in textDict[i])
+                foreach (Util.TeighaText.CADTextModel label in textDict[i])
                 {
                     label.Location = label.Location + transDict[i];
                 }
@@ -339,9 +354,9 @@ namespace Manicotti
                 Level currentLevel = colLevels.LastOrDefault() as Level;
 
                 // Sub-transactions are packed within these functions.
-                CreateWall.Execute(uiapp, wallCrvs, currentLevel);
-                CreateColumn.Execute(uiapp, columnCrvs, currentLevel);
-                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], currentLevel);
+                CreateWall.Execute(uiapp, wallCrvs, currentLevel, true);
+                CreateColumn.Execute(uiapp, columnCrvs, currentLevel, true);
+                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], currentLevel, true);
 
                 var footprint = CreateRegion.Execute(uiapp, wallCrvs, columnCrvs, windowCrvs, doorCrvs);
 
@@ -374,7 +389,7 @@ namespace Manicotti
                                 room.LimitOffset = floorHeight;
                                 room.BaseOffset = 0;
                                 string roomName = "";
-                                foreach (UtilGetCADText.CADTextModel label in textDict[i])
+                                foreach (Util.TeighaText.CADTextModel label in textDict[i])
                                 {
                                     if (label.Layer == Properties.Settings.Default.layerSpace)
                                     {

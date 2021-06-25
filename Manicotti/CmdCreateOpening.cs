@@ -15,14 +15,14 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public class TestOpening : IExternalCommand
+    public class CmdCreateOpening : IExternalCommand
     {
 
         // Main execution
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;
-            currentDomain.AssemblyResolve += new ResolveEventHandler(Util.LoadFromSameFolder);
+            currentDomain.AssemblyResolve += new ResolveEventHandler(Misc.LoadFromSameFolder);
 
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
@@ -33,26 +33,70 @@ namespace Manicotti
 
             double tolerance = commandData.Application.Application.ShortCurveTolerance;
 
+            
+            // Pick Import Instance
+            ImportInstance import = null;
+            try
+            {
+                Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
+                import = doc.GetElement(r) as ImportInstance;
+            }
+            catch
+            {
+                return Result.Cancelled;
+            }
+            if (import == null)
+            {
+                System.Windows.MessageBox.Show("CAD not found", "Tips");
+                return Result.Cancelled;
+            }
+
+
+            // Fetch baselines
+            List<Curve> doorCrvs, windowCrvs, wallCrvs;
+            try
+            {
+                doorCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerDoor, tolerance);
+                windowCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerWindow, tolerance);
+                wallCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerWall, tolerance);
+            }
+            catch (Exception e)
+            {
+                System.Windows.MessageBox.Show(e.Message, "Tips");
+                return Result.Cancelled;
+            }
+            if (doorCrvs == null || windowCrvs == null || wallCrvs == null || doorCrvs.Count * windowCrvs.Count * wallCrvs.Count == 0)
+            {
+                System.Windows.MessageBox.Show("Baselines not found", "Tips");
+                return Result.Cancelled;
+            }
+
+
             // Grab the current building level
-            FilteredElementCollector colLevels = new FilteredElementCollector(doc)
+            FilteredElementCollector docLevels = new FilteredElementCollector(doc)
                 .WhereElementIsNotElementType()
                 .OfCategory(BuiltInCategory.INVALID)
                 .OfClass(typeof(Level));
-            Level firstLevel = colLevels.FirstElement() as Level;
+            ICollection<Element> levels = docLevels.OfClass(typeof(Level)).ToElements();
+            Level defaultLevel = null;
+            foreach (Level level in levels)
+            {
+                if (level.Id == import.LevelId)
+                {
+                    defaultLevel = level;
+                }
+            }
+            if (defaultLevel == null)
+            {
+                System.Windows.MessageBox.Show("Please make sure there's a base level in current view", "Tips");
+                return Result.Cancelled;
+            }
 
-            // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
-            var import = doc.GetElement(r) as ImportInstance;
-
-            List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerDoor, tolerance);
-            List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerWindow, tolerance);
-            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerWall, tolerance);
-            
 
             // Convert texts info into TextNote by Teigha
             // Revit does not expose any API to parse text info
-            string path = UtilGetCADText.GetCADPath(uidoc, import);
-            List<UtilGetCADText.CADTextModel> labels = UtilGetCADText.GetCADText(path);
+            string path = Util.TeighaText.GetCADPath(uidoc, import);
+            List<Util.TeighaText.CADTextModel> labels = Util.TeighaText.GetCADText(path);
             /*
             List<UtilGetCADText.CADTextModel> labels = new List<UtilGetCADText.CADTextModel>();
             foreach (UtilGetCADText.CADTextModel text in UtilGetCADText.GetCADText(path))
@@ -66,7 +110,7 @@ namespace Manicotti
 
             Debug.Print("The path of linked DWG file is: " + path);
             Debug.Print("Lables in total: " + labels.Count.ToString());
-            foreach (UtilGetCADText.CADTextModel label in labels)
+            foreach (Util.TeighaText.CADTextModel label in labels)
             {
                 Debug.Print(label.Text);
             }
@@ -104,9 +148,20 @@ namespace Manicotti
                 windowCrvs.Add(ce.GeometryCurve as Curve);
             }
             */
-            
 
-            CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels, firstLevel);
+            TransactionGroup tg = new TransactionGroup(doc, "Create openings");
+            tg.Start();
+            try
+            {
+                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels, defaultLevel, false);
+                tg.Assimilate();
+            }
+            catch (Exception e)
+            {
+                System.Windows.MessageBox.Show(e.Message);
+                tg.RollBack();
+                return Result.Cancelled;
+            }
 
             return Result.Succeeded;
         }

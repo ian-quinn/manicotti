@@ -20,10 +20,10 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 #endregion // Namespaces
 
-namespace Manicotti
+namespace Manicotti.Util
 {
     [Transaction(TransactionMode.ReadOnly)]
-    public static class UtilGetInstallPath
+    public static class GetInstallPath
     {
         const string _reg_path_uninstall  = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
 

@@ -24,10 +24,10 @@ namespace Manicotti
             View active_view = doc.ActiveView;
 
             // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
+            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
 
-            List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import);
+            List<GeometryObject> dwg_geos = Util.TeighaGeometry.ExtractElement(uidoc, import);
             //List<GeometryObject> dwg_geos = CADGeoUtil.ExtractElement(uidoc, import, "WALL", "Line");
             //Debug.Print("Number of geos is " + dwg_geos.Count().ToString());
 
@@ -83,8 +83,8 @@ namespace Manicotti
             
             // Convert texts info into TextNote by Teigha
             // Revit does not expose any API to parse text info
-            string path = UtilGetCADText.GetCADPath(uidoc, import);
-            List<UtilGetCADText.CADTextModel> texts = UtilGetCADText.GetCADText(path);
+            string path = Util.TeighaText.GetCADPath(uidoc, import);
+            List<Util.TeighaText.CADTextModel> texts = Util.TeighaText.GetCADText(path);
 
             Debug.Print("The path of linked DWG file is: " + path);
             Debug.Print("Texts.Count: " + texts.Count.ToString());

@@ -15,7 +15,7 @@ namespace Manicotti
     [Transaction(TransactionMode.Manual)]
     public static class CreateWall
     {
-        public static void Execute(UIApplication uiapp, List<Curve> wallCrvs, Level level)
+        public static void Execute(UIApplication uiapp, List<Curve> wallCrvs, Level level, bool IsSilent)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -24,9 +24,9 @@ namespace Manicotti
 
             // Bundle double lines and generate their axes
             List<Curve> axes = new List<Curve>();
-            double bias = Util.MmToFoot(20);
+            double bias = Misc.MmToFoot(20);
 
-            var doubleLines = Util.CrvsToLines(wallCrvs);
+            var doubleLines = Misc.CrvsToLines(wallCrvs);
             for (int i = 0; i < doubleLines.Count; i++)
             {
                 for (int j = 0; j < doubleLines.Count - i; j++)
@@ -35,8 +35,8 @@ namespace Manicotti
                         && !Algorithm.IsIntersected(doubleLines[i], doubleLines[i + j]))
                     {
                         // Imperical Units within Revit API
-                        if (Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) < Util.MmToFoot(200) + bias
-                        && Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) > Util.MmToFoot(200) - bias
+                        if (Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) < Misc.MmToFoot(200) + bias
+                        && Algorithm.LineSpacing(doubleLines[i], doubleLines[i + j]) > Misc.MmToFoot(200) - bias
                         && Algorithm.IsShadowing(doubleLines[i], doubleLines[i + j]))
                         {
                             if (Algorithm.GenerateAxis(doubleLines[i], doubleLines[i + j]) != null)
@@ -69,11 +69,23 @@ namespace Manicotti
 
                 tx.Commit();
             }*/
-            Views.ProgressBar pb = new Views.ProgressBar(caption, task, n);
-            TransactionGroup tg = new TransactionGroup(doc, "Create Walls");
-            try
+
+            if (IsSilent == true)
             {
-                tg.Start();
+                using (Transaction tx = new Transaction(doc))
+                {
+                    tx.Start("Generate a wall");
+                    foreach (Curve axis in mergedAxes)
+                    {
+                        Wall.Create(doc, axis, level.Id, true);
+                    }
+                    tx.Commit();
+                }
+            }
+
+            else
+            {
+                Views.ProgressBar pb = new Views.ProgressBar(caption, task, n);
                 foreach (Curve axis in mergedAxes)
                 {
                     using (Transaction tx = new Transaction(doc))
@@ -86,13 +98,8 @@ namespace Manicotti
                     if (pb.ProcessCancelled) { break; }
                 }
                 pb.JobCompleted();
-                tg.Assimilate();
             }
-            catch
-            {
-                System.Windows.MessageBox.Show("Error creating wall", "Tips");
-                tg.RollBack();
-            }
+            
         }
     }
 }

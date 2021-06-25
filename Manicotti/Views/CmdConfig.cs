@@ -9,10 +9,10 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 #endregion
 
-namespace Manicotti
+namespace Manicotti.Views
 {
     [Transaction(TransactionMode.Manual)]
-    public class Config : IExternalCommand
+    public class CmdConfig : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {

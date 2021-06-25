@@ -9,9 +9,9 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 
-namespace Manicotti
+namespace Manicotti.Util
 {
-    public static class UtilGetCADGeometry
+    public static class TeighaGeometry
     {
         /// <summary>
         /// Pick a DWG import/linked instance (ver.2010 or below), extract all visible elements or 
@@ -97,7 +97,7 @@ namespace Manicotti
         public static List<Curve> ShatterCADGeometry(UIDocument uidoc, ImportInstance import, string layer, double tolerance)
         {
             List<Curve> shatteredCrvs = new List<Curve>();
-            List<GeometryObject> dwg_geos = UtilGetCADGeometry.ExtractElement(uidoc, import, layer);
+            List<GeometryObject> dwg_geos = TeighaGeometry.ExtractElement(uidoc, import, layer);
             if (dwg_geos.Count > 0)
             {
                 foreach (var obj in dwg_geos)

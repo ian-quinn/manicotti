@@ -1,9 +1,9 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI.Selection;
 
-namespace Manicotti
+namespace Manicotti.Util
 {
-    class UtilElementsOfClassSelectionFilter<T> : ISelectionFilter where T : Element
+    class ElementsOfClassSelectionFilter<T> : ISelectionFilter where T : Element
     {
         /// <summary>
         /// Allow selection of elements of type T only.

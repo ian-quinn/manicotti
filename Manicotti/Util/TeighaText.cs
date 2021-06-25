@@ -11,9 +11,9 @@ using Teigha.DatabaseServices;
 using Teigha.Geometry;
 using System.Reflection;
 
-namespace Manicotti
+namespace Manicotti.Util
 {
-    public static class UtilGetCADText
+    public static class TeighaText
     {
         // Just for the time being
         // Mixing models and methods sucks

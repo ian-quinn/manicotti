@@ -191,13 +191,13 @@ namespace Manicotti
             double tolerance = commandData.Application.Application.ShortCurveTolerance;
 
             // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new UtilElementsOfClassSelectionFilter<ImportInstance>());
+            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
             var import = doc.GetElement(r) as ImportInstance;
             
-            List<Curve> columnCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
-            List<Curve> wallCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
-            List<Curve> doorCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
-            List<Curve> windowCrvs = UtilGetCADGeometry.ShatterCADGeometry(uidoc, import, "WINDOW", tolerance);
+            List<Curve> columnCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
+            List<Curve> wallCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
+            List<Curve> doorCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
+            List<Curve> windowCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, "WINDOW", tolerance);
             //List<Line> columnLines = Util.CrvsToLines(columnCrvs);
             //List<Line> wallLines = Util.CrvsToLines(wallCrvs);
 
@@ -294,10 +294,10 @@ namespace Manicotti
 
             // Wall axes
             List<Curve> axes = new List<Curve>();
-            double bias = Util.MmToFoot(20);
+            double bias = Misc.MmToFoot(20);
             foreach (List<Curve> wallCluster in wallClusters)
             {
-                List<Line> lines = Util.CrvsToLines(wallCluster);
+                List<Line> lines = Misc.CrvsToLines(wallCluster);
                 for (int i = 0; i < lines.Count; i++)
                 {
                     for (int j = 0; j < lines.Count - i; j++)
@@ -305,8 +305,8 @@ namespace Manicotti
                         if (Algorithm.IsParallel(lines[i], lines[i + j])
                             && !Algorithm.IsIntersected(lines[i], lines[i + j]))
                         {
-                            if (Algorithm.LineSpacing(lines[i], lines[i + j]) < Util.MmToFoot(200) + bias
-                            && Algorithm.LineSpacing(lines[i], lines[i + j]) > Util.MmToFoot(200) - bias
+                            if (Algorithm.LineSpacing(lines[i], lines[i + j]) < Misc.MmToFoot(200) + bias
+                            && Algorithm.LineSpacing(lines[i], lines[i + j]) > Misc.MmToFoot(200) - bias
                             && Algorithm.IsShadowing(lines[i], lines[i + j]))
                             {
                                 if (Algorithm.GenerateAxis(lines[i], lines[i + j]) != null)
@@ -507,8 +507,8 @@ namespace Manicotti
             var arrayPerimeter = RegionDetect.AlignCrv(recPerimeter);
             for (int i = 0; i < arrayPerimeter.Size; i++)
             {
-                Debug.Print("Line-{0} {1} {2}", i, Util.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(0)),
-                    Util.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(1)));
+                Debug.Print("Line-{0} {1} {2}", i, Misc.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(0)),
+                    Misc.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(1)));
             }
             #endregion
             // OUTPUT List<CurveArray> loops

@@ -24,7 +24,7 @@ namespace Manicotti
             View view = doc.ActiveView;
             
             
-            List<Line> columnLines = Util.CrvsToLines(columnCrvs);
+            List<Line> columnLines = Misc.CrvsToLines(columnCrvs);
 
             // Merge the overlapped wall boundaries
             // Seal the wall boundary by column block
@@ -119,10 +119,10 @@ namespace Manicotti
 
             // Wall axes
             List<Curve> axes = new List<Curve>();
-            double bias = Util.MmToFoot(20);
+            double bias = Misc.MmToFoot(20);
             foreach (List<Curve> wallCluster in wallClusters)
             {
-                List<Line> lines = Util.CrvsToLines(wallCluster);
+                List<Line> lines = Misc.CrvsToLines(wallCluster);
                 for (int i = 0; i < lines.Count; i++)
                 {
                     for (int j = 0; j < lines.Count - i; j++)
@@ -130,8 +130,8 @@ namespace Manicotti
                         if (Algorithm.IsParallel(lines[i], lines[i + j])
                             && !Algorithm.IsIntersected(lines[i], lines[i + j]))
                         {
-                            if (Algorithm.LineSpacing(lines[i], lines[i + j]) < Util.MmToFoot(200) + bias
-                            && Algorithm.LineSpacing(lines[i], lines[i + j]) > Util.MmToFoot(200) - bias
+                            if (Algorithm.LineSpacing(lines[i], lines[i + j]) < Misc.MmToFoot(200) + bias
+                            && Algorithm.LineSpacing(lines[i], lines[i + j]) > Misc.MmToFoot(200) - bias
                             && Algorithm.IsShadowing(lines[i], lines[i + j]))
                             {
                                 if (Algorithm.GenerateAxis(lines[i], lines[i + j]) != null)

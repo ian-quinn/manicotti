@@ -59,6 +59,9 @@ namespace Manicotti.Views
             //        maxBtn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             //    }
             //};
+
+            TextBlock titleBar = this.Template.FindName("txtTitle", this) as TextBlock;
+            titleBar.Text = "Manicotti";
         }
 
         private void InitializeStyle()
