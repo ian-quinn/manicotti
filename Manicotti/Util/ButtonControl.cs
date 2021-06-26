@@ -1,6 +1,9 @@
-﻿using System;
+﻿#region Namespaces
+using System;
+
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+#endregion
 
 namespace Manicotti.Util
 {

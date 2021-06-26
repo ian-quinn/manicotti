@@ -93,7 +93,39 @@ namespace Manicotti
                 return null;
             }
         }
-        
+
+
+        class MessageDescriptionGatheringPreprocessor : IFailuresPreprocessor
+        {
+            List<string> FailureList { get; set; }
+
+            public MessageDescriptionGatheringPreprocessor()
+            {
+                FailureList = new List<string>();
+            }
+
+            public FailureProcessingResult PreprocessFailures(FailuresAccessor failuresAccessor)
+            {
+                foreach (FailureMessageAccessor fMA in failuresAccessor.GetFailureMessages())
+                {
+                    FailureList.Add(fMA.GetDescriptionText());
+                    FailureDefinitionId FailDefID
+                      = fMA.GetFailureDefinitionId();
+
+                    //if (FailDefID == BuiltInFailures
+                    //  .GeneralFailures.DuplicateValue)
+                    //    failuresAccessor.DeleteWarning(fMA);
+                }
+                return FailureProcessingResult.Continue;
+            }
+
+            public void ShowDialogue()
+            {
+                string s = string.Join("\r\n", FailureList);
+                TaskDialog.Show("Post Processing Failures:", s);
+            }
+        }
+
 
         public static void Execute(UIApplication uiapp, List<Curve> doorCrvs, List<Curve> windowCrvs, 
             List<Curve> wallCrvs, List<Util.TeighaText.CADTextModel> labels, Level level, bool IsSilent)
@@ -192,9 +224,13 @@ namespace Manicotti
             {
                 // Main transaction
                 // Plot axis of doors/windows and create the instance
-                using (Transaction tx = new Transaction(doc))
+                using (Transaction tx = new Transaction(doc, "Generate sub-surfaces & marks"))
                 {
-                    tx.Start("Generate sub-surface and its mark");
+                    FailureHandlingOptions options = tx.GetFailureHandlingOptions();
+                    options.SetFailuresPreprocessor(new Util.FailureSwallower(false, false));
+                    tx.SetFailureHandlingOptions(options);
+
+                    tx.Start();
 
                     /*
                     Plane Geomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
@@ -311,11 +347,12 @@ namespace Manicotti
                         FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
                             Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                     }
-
                     tx.Commit();
                 }
             }
 
+            /////////////////////////////
+            // UNDER PRESENTATION MODE //
             else
             {
                 string caption = "Create openings";
@@ -325,9 +362,13 @@ namespace Manicotti
 
                 foreach (Curve doorAxis in doorAxes)
                 {
-                    using (Transaction tx = new Transaction(doc))
+                    using (Transaction tx = new Transaction(doc, "Generate doors & adherences"))
                     {
-                        tx.Start("Generate doors and their adherences");
+                        //FailureHandlingOptions failOpt = tx.GetFailureHandlingOptions();
+                        //failOpt.SetFailuresPreprocessor(new Util.WarningSwallower(false, false));
+                        //tx.SetFailureHandlingOptions(failOpt);]
+                        
+                        tx.Start();
 
                         Wall hostWall = Wall.Create(doc, doorAxis, level.Id, true);
 
@@ -360,6 +401,7 @@ namespace Manicotti
 
                         FamilyInstance fi = doc.Create.NewFamilyInstance(insertPt, fs, hostWall, level,
                             Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+
                         tx.Commit();
                     }
                     pb1.Increment();
@@ -373,9 +415,10 @@ namespace Manicotti
                 // Create window axis & instance
                 foreach (Curve windowAxis in windowAxes)
                 {
-                    using(Transaction tx = new Transaction(doc))
+                    using(Transaction tx = new Transaction(doc, "Generate windows & adherences"))
                     {
-                        tx.Start("Generate doors and their adherences");
+                        tx.Start();
+
                         Wall hostWall = Wall.Create(doc, windowAxis, level.Id, true);
 
                         double width = Math.Round(Misc.FootToMm(windowAxis.Length), 0);

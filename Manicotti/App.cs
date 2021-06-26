@@ -28,8 +28,8 @@ namespace Manicotti
             BitmapImage modelImg = new BitmapImage(uriImage);
 
             // Test button for floorplan split
-            PushButtonData createAllButtonData = new PushButtonData("create_all", "Build up model\non all levels", thisAssemblyPath,
-                "Manicotti.CmdCreateAll");
+            PushButtonData createAllButtonData = new PushButtonData("create_all", "Build up model\non all levels", 
+                thisAssemblyPath, "Manicotti.CmdCreateAll");
             createAllButtonData.AvailabilityClassName = "Manicotti.Util.ButtonControl";
             PushButton createAll = modelBuild.AddItem(createAllButtonData) as PushButton;
             createAll.ToolTip = "Split geometries and texts by their floors." +
@@ -49,8 +49,8 @@ namespace Manicotti
             BitmapImage columnImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Column.ico", UriKind.Absolute));
             column.Image = columnImg;
             
-            PushButtonData opening = new PushButtonData("create_opening", "Openings", thisAssemblyPath,
-                "Manicotti.CmdCreateOpening");
+            PushButtonData opening = new PushButtonData("create_opening", "Openings", 
+                thisAssemblyPath, "Manicotti.CmdCreateOpening");
             opening.ToolTip = "Insert openings. To test the demo, Link_demo.dwg must be linked. (need layer DOOR, WINDOW & WALL)";
             BitmapImage openingImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Opening.ico", UriKind.Absolute));
             opening.Image = openingImg;
@@ -69,8 +69,8 @@ namespace Manicotti
             // Currently we disable this panel that is still under test
             modelFix.Enabled = false;
             
-            PushButton mesh = modelFix.AddItem(new PushButtonData("mesh", "Patch\nAxis Grid", thisAssemblyPath,
-                "Manicotti.MeshPatch")) as PushButton;
+            PushButton mesh = modelFix.AddItem(new PushButtonData("mesh", "Patch\nAxis Grid", 
+                thisAssemblyPath, "Manicotti.MeshPatch")) as PushButton;
             mesh.ToolTip = "WIP. Create the axis grid of walls. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG) ";
             BitmapImage meshImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Anchor.ico", UriKind.Absolute));
             mesh.LargeImage = meshImg;
@@ -81,14 +81,14 @@ namespace Manicotti
             BitmapImage regionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Room.ico", UriKind.Absolute));
             region.Image = regionImg;
 
-            PushButtonData sketch = new PushButtonData("sketch", "Sketch DWG", thisAssemblyPath,
-                "Manicotti.SketchDWG");
+            PushButtonData sketch = new PushButtonData("sketch", "Sketch DWG", 
+                thisAssemblyPath, "Manicotti.SketchDWG");
             sketch.ToolTip = "Extract geometries and texts. To test the demo, Link_test.dwg must be linked. (act on Linked DWG)";
             BitmapImage channelImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Sketch.ico", UriKind.Absolute));
             sketch.Image = channelImg;
 
-            PushButtonData fusion = new PushButtonData("fusion", "Regen Axis", thisAssemblyPath,
-                "Manicotti.Fusion");
+            PushButtonData fusion = new PushButtonData("fusion", "Regen Axis", 
+                thisAssemblyPath, "Manicotti.Fusion");
             fusion.ToolTip = "Space mesh regeneration. (act on Walls & Curtains). WIP";
             BitmapImage fusionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Boundary.ico", UriKind.Absolute));
             fusion.Image = fusionImg;

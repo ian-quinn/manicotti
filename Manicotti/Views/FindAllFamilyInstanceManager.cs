@@ -1,11 +1,15 @@
-﻿using Autodesk.Revit.DB;
-using Manicotti.Util;
+﻿#region Namespaces
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+
+using Autodesk.Revit.DB;
+
+using Manicotti.Util;
+#endregion
 
 namespace Manicotti.Views
 {

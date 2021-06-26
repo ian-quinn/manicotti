@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -12,6 +13,7 @@ using Autodesk.Revit.UI.Selection;
 
 namespace Manicotti
 {
+
     [Transaction(TransactionMode.Manual)]
     public static class CreateWall
     {
@@ -57,9 +59,9 @@ namespace Manicotti
             string caption = "Extrude Walls";
             int n = mergedAxes.Count;
 
-            /*using (Transaction tx = new Transaction(doc))
+            /*using (Transaction tx = new Transaction(doc, "Generate walls"))
             {
-                tx.Start("Generate walls");
+                tx.Start();
 
                 // Wall generation
                 foreach (Curve axis in mergedAxes)
@@ -72,9 +74,13 @@ namespace Manicotti
 
             if (IsSilent == true)
             {
-                using (Transaction tx = new Transaction(doc))
+                using (Transaction tx = new Transaction(doc, "Generate a wall"))
                 {
-                    tx.Start("Generate a wall");
+                    FailureHandlingOptions options = tx.GetFailureHandlingOptions();
+                    options.SetFailuresPreprocessor(new Util.FailureSwallower(false, false));
+                    tx.SetFailureHandlingOptions(options);
+
+                    tx.Start();
                     foreach (Curve axis in mergedAxes)
                     {
                         Wall.Create(doc, axis, level.Id, true);
@@ -88,9 +94,9 @@ namespace Manicotti
                 Views.ProgressBar pb = new Views.ProgressBar(caption, task, n);
                 foreach (Curve axis in mergedAxes)
                 {
-                    using (Transaction tx = new Transaction(doc))
+                    using (Transaction tx = new Transaction(doc, "Generate a wall"))
                     {
-                        tx.Start("Generate a wall");
+                        tx.Start();
                         Wall.Create(doc, axis, level.Id, true);
                         tx.Commit();
                     }

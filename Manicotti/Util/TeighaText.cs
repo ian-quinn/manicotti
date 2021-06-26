@@ -1,15 +1,20 @@
-﻿using System;
+﻿#region Namespaces
+using System;
 using System.IO;
 using System.Text;
+using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+
 using Teigha.Runtime;
 using Teigha.DatabaseServices;
 using Teigha.Geometry;
-using System.Reflection;
+#endregion
+
 
 namespace Manicotti.Util
 {

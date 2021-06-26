@@ -26,6 +26,8 @@ namespace Manicotti
             Document doc = uidoc.Document;
             View active_view = doc.ActiveView;
 
+            double tolerance = commandData.Application.Application.ShortCurveTolerance;
+
 
             // Pick Import Instance
             ImportInstance import = null;
@@ -51,16 +53,20 @@ namespace Manicotti
             // Cluster all geometry elements and texts into datatrees
             // Two procedures are intertwined
             List<GeometryObject> dwg_frames = Util.TeighaGeometry.ExtractElement(uidoc, import, 
-                Properties.Settings.Default.layerFrame, "PolyLine");
+                Properties.Settings.Default.layerFrame, "PolyLine"); // framework is polyline by default
             List<GeometryObject> dwg_geos = Util.TeighaGeometry.ExtractElement(uidoc, import);
+            
             // Terminate if no geometry has been found
             if (dwg_geos == null)
+            {
+                System.Windows.MessageBox.Show("A drawing frame is mandantory", "Tips");
                 return Result.Failed;
+            }
 
             List<PolyLine> closedPolys = new List<PolyLine>();
             List<PolyLine> parentPolys = new List<PolyLine>();
-            double tolerance = commandData.Application.Application.ShortCurveTolerance;
-            Debug.Print("Number of geos is " + dwg_frames.Count().ToString());
+
+            Debug.Print("Number of geos acting as the framework is " + dwg_frames.Count().ToString());
             
             if (dwg_frames.Count > 0)
             {
@@ -248,189 +254,212 @@ namespace Manicotti
 
 
             // Main process
+            // ITERATION FLAG
             for (int i = 1; i <= levelCounter; i++)
             {
-                Transform alignment = Transform.CreateTranslation(transDict[i]);
-
-                // Align the labels to the origin
-                foreach (Util.TeighaText.CADTextModel label in textDict[i])
+                TransactionGroup tg = new TransactionGroup(doc, "Generate on floor-" + i.ToString());
                 {
-                    label.Location = label.Location + transDict[i];
-                }
-
-                // Sort out lines
-                List<Curve> wallCrvs = new List<Curve>();
-                List<Curve> columnCrvs = new List<Curve>();
-                List<Curve> doorCrvs = new List<Curve>();
-                List<Curve> windowCrvs = new List<Curve>();
-                foreach (GeometryObject go in geoDict[i])
-                {
-                    var gStyle = doc.GetElement(go.GraphicsStyleId) as GraphicsStyle;
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerWall)
+                    try
                     {
-                        if (go.GetType().Name == "Line")
+                        tg.Start();
+
+                        // MILESTONE
+                        // Align the labels to the origin
+                        Transform alignment = Transform.CreateTranslation(transDict[i]);
+                        foreach (Util.TeighaText.CADTextModel label in textDict[i])
                         {
-                            Curve wallLine = go as Curve;
-                            wallCrvs.Add(wallLine.CreateTransformed(alignment) as Line);
+                            label.Location = label.Location + transDict[i];
                         }
-                        if (go.GetType().Name == "PolyLine")
+
+                        // MILESTONE
+                        // Sort out lines
+                        List<Curve> wallCrvs = new List<Curve>();
+                        List<Curve> columnCrvs = new List<Curve>();
+                        List<Curve> doorCrvs = new List<Curve>();
+                        List<Curve> windowCrvs = new List<Curve>();
+                        foreach (GeometryObject go in geoDict[i])
                         {
-                            CurveArray wallPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
-                            foreach (Curve crv in wallPolyLine_shattered)
+                            var gStyle = doc.GetElement(go.GraphicsStyleId) as GraphicsStyle;
+                            if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerWall)
                             {
-                                wallCrvs.Add(crv.CreateTransformed(alignment) as Line);
-                            }
-                        }
-                    }
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerColumn)
-                    {
-                        if (go.GetType().Name == "Line")
-                        {
-                            Curve columnLine = go as Curve;
-                            columnCrvs.Add(columnLine.CreateTransformed(alignment));
-                        }
-                        if (go.GetType().Name == "PolyLine")
-                        {
-                            CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
-                            foreach (Curve crv in columnPolyLine_shattered)
-                            {
-                                columnCrvs.Add(crv.CreateTransformed(alignment));
-                            }
-                        }
-                    }
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerDoor)
-                    {
-                        Curve doorCrv = go as Curve;
-                        PolyLine poly = go as PolyLine;
-                        if (null != doorCrv)
-                        {
-                            doorCrvs.Add(doorCrv.CreateTransformed(alignment));
-                        }
-                        if (null != poly)
-                        {
-                            CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(poly, tolerance);
-                            foreach (Curve crv in columnPolyLine_shattered)
-                            {
-                                doorCrvs.Add(crv.CreateTransformed(alignment) as Line);
-                            }
-                        }
-                    }
-                    if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerWindow)
-                    {
-                        Curve windowCrv = go as Curve;
-                        PolyLine poly = go as PolyLine;
-                        if (null != windowCrv)
-                        {
-                            windowCrvs.Add(windowCrv.CreateTransformed(alignment));
-                        }
-                        if (null != poly)
-                        {
-                            CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(poly, tolerance);
-                            foreach (Curve crv in columnPolyLine_shattered)
-                            {
-                                windowCrvs.Add(crv.CreateTransformed(alignment) as Line);
-                            }
-                        }
-                    }
-                }
-
-
-                // Create additional levels (ignore what's present)
-                // Consider to use sub-transaction here
-                using (var t_level = new Transaction(doc))
-                {
-                    t_level.Start("Create levels");
-                    Level floor = Level.Create(doc, (i - 1) * floorHeight);
-                    ViewPlan floorView = ViewPlan.Create(doc, viewType.Id, floor.Id);
-                    floorView.Name = "F-" + i.ToString();
-                    t_level.Commit();
-                }
-
-                // Grab the current building level
-                FilteredElementCollector colLevels = new FilteredElementCollector(doc)
-                    .WhereElementIsNotElementType()
-                    .OfCategory(BuiltInCategory.INVALID)
-                    .OfClass(typeof(Level));
-                Level currentLevel = colLevels.LastOrDefault() as Level;
-
-                // Sub-transactions are packed within these functions.
-                CreateWall.Execute(uiapp, wallCrvs, currentLevel, true);
-                CreateColumn.Execute(uiapp, columnCrvs, currentLevel, true);
-                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], currentLevel, true);
-
-                var footprint = CreateRegion.Execute(uiapp, wallCrvs, columnCrvs, windowCrvs, doorCrvs);
-
-                // Create floor
-                using (Transaction t_floor = new Transaction(doc))
-                {
-                    t_floor.Start("Generate Floor");
-
-                    Floor newFloor = doc.Create.NewFloor(footprint, floorType, currentLevel, false, XYZ.BasisZ);
-                    newFloor.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM).Set(0);
-
-                    t_floor.Commit();
-                }
-
-                // Generate rooms after the topology is established
-                using (var t_space = new Transaction(doc))
-                {
-                    t_space.Start("Create rooms");
-
-                    doc.Regenerate();
-
-                    PlanTopology planTopology = doc.get_PlanTopology(currentLevel);
-                    if (doc.ActiveView.ViewType == ViewType.FloorPlan)
-                    {
-                        foreach (PlanCircuit circuit in planTopology.Circuits)
-                        {
-                            if (null != circuit && !circuit.IsRoomLocated)
-                            {
-                                Room room = doc.Create.NewRoom(null, circuit);
-                                room.LimitOffset = floorHeight;
-                                room.BaseOffset = 0;
-                                string roomName = "";
-                                foreach (Util.TeighaText.CADTextModel label in textDict[i])
+                                if (go.GetType().Name == "Line")
                                 {
-                                    if (label.Layer == Properties.Settings.Default.layerSpace)
+                                    Curve wallLine = go as Curve;
+                                    wallCrvs.Add(wallLine.CreateTransformed(alignment) as Line);
+                                }
+                                if (go.GetType().Name == "PolyLine")
+                                {
+                                    CurveArray wallPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
+                                    foreach (Curve crv in wallPolyLine_shattered)
                                     {
-                                        if (room.IsPointInRoom(label.Location + XYZ.BasisZ * (i - 1) * floorHeight))
-                                        {
-                                            roomName += label.Text;
-                                        }
+                                        wallCrvs.Add(crv.CreateTransformed(alignment) as Line);
                                     }
                                 }
-                                if (roomName != "") { room.Name = roomName; }
+                            }
+                            if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerColumn)
+                            {
+                                if (go.GetType().Name == "Line")
+                                {
+                                    Curve columnLine = go as Curve;
+                                    columnCrvs.Add(columnLine.CreateTransformed(alignment));
+                                }
+                                if (go.GetType().Name == "PolyLine")
+                                {
+                                    CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(go as PolyLine, tolerance);
+                                    foreach (Curve crv in columnPolyLine_shattered)
+                                    {
+                                        columnCrvs.Add(crv.CreateTransformed(alignment));
+                                    }
+                                }
+                            }
+                            if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerDoor)
+                            {
+                                Curve doorCrv = go as Curve;
+                                PolyLine poly = go as PolyLine;
+                                if (null != doorCrv)
+                                {
+                                    doorCrvs.Add(doorCrv.CreateTransformed(alignment));
+                                }
+                                if (null != poly)
+                                {
+                                    CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(poly, tolerance);
+                                    foreach (Curve crv in columnPolyLine_shattered)
+                                    {
+                                        doorCrvs.Add(crv.CreateTransformed(alignment) as Line);
+                                    }
+                                }
+                            }
+                            if (gStyle.GraphicsStyleCategory.Name == Properties.Settings.Default.layerWindow)
+                            {
+                                Curve windowCrv = go as Curve;
+                                PolyLine poly = go as PolyLine;
+                                if (null != windowCrv)
+                                {
+                                    windowCrvs.Add(windowCrv.CreateTransformed(alignment));
+                                }
+                                if (null != poly)
+                                {
+                                    CurveArray columnPolyLine_shattered = RegionDetect.PolyLineToCurveArray(poly, tolerance);
+                                    foreach (Curve crv in columnPolyLine_shattered)
+                                    {
+                                        windowCrvs.Add(crv.CreateTransformed(alignment) as Line);
+                                    }
+                                }
                             }
                         }
-                    }
-                    t_space.Commit();
-                }
 
-                // Create roof when iterating to the last level
-                if (i == levelCounter)
-                {
-                    using (var t_roof = new Transaction(doc))
-                    {
-                        t_roof.Start("Create roof");
-                        Level roofLevel = Level.Create(doc, i * floorHeight);
-                        ViewPlan floorView = ViewPlan.Create(doc, viewType.Id, roofLevel.Id);
-                        floorView.Name = "Roof";
-
-                        ModelCurveArray footPrintToModelCurveMapping = new ModelCurveArray();
-                        FootPrintRoof footprintRoof = doc.Create.NewFootPrintRoof(footprint, roofLevel, roofType,
-                            out footPrintToModelCurveMapping);
-
-                        //ModelCurveArrayIterator iterator = footPrintToModelCurveMapping.ForwardIterator();
-                        /*
-                        iterator.Reset();
-                        while (iterator.MoveNext())
+                        // MILESTONE
+                        // Create additional levels (ignore what's present)
+                        // Consider to use sub-transaction here
+                        using (var t_level = new Transaction(doc))
                         {
-                            ModelCurve modelCurve = iterator.Current as ModelCurve;
-                            footprintRoof.set_DefinesSlope(modelCurve, true);
-                            footprintRoof.set_SlopeAngle(modelCurve, 0.5);
+                            t_level.Start("Create levels");
+                            Level floor = Level.Create(doc, (i - 1) * floorHeight);
+                            ViewPlan floorView = ViewPlan.Create(doc, viewType.Id, floor.Id);
+                            floorView.Name = "F-" + i.ToString();
+                            t_level.Commit();
                         }
-                        */
-                        t_roof.Commit();
+
+                        // Grab the current building level
+                        FilteredElementCollector colLevels = new FilteredElementCollector(doc)
+                            .WhereElementIsNotElementType()
+                            .OfCategory(BuiltInCategory.INVALID)
+                            .OfClass(typeof(Level));
+                        Level currentLevel = colLevels.LastOrDefault() as Level;
+                        // The newly created level will append to the list,
+                        // but this is not a safe choice
+
+                        // Sub-transactions are packed within these functions.
+                        // MILESTONE
+                        CreateWall.Execute(uiapp, wallCrvs, currentLevel, true);
+                        // MILESTONE
+                        CreateColumn.Execute(uiapp, columnCrvs, currentLevel, true);
+                        // MILESTONE
+                        CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], currentLevel, true);
+
+                        // Create floor
+                        // MILESTONE
+                        var footprint = CreateRegion.Execute(uiapp, wallCrvs, columnCrvs, windowCrvs, doorCrvs);
+                        using (var t_floor = new Transaction(doc))
+                        {
+                            t_floor.Start("Generate Floor");
+
+                            Floor newFloor = doc.Create.NewFloor(footprint, floorType, currentLevel, false, XYZ.BasisZ);
+                            newFloor.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM).Set(0);
+
+                            t_floor.Commit();
+                        }
+
+                        // Generate rooms after the topology is established
+                        // MILESTONE
+                        using (var t_space = new Transaction(doc))
+                        {
+                            t_space.Start("Create rooms");
+
+                            doc.Regenerate();
+
+                            PlanTopology planTopology = doc.get_PlanTopology(currentLevel);
+                            if (doc.ActiveView.ViewType == ViewType.FloorPlan)
+                            {
+                                foreach (PlanCircuit circuit in planTopology.Circuits)
+                                {
+                                    if (null != circuit && !circuit.IsRoomLocated)
+                                    {
+                                        Room room = doc.Create.NewRoom(null, circuit);
+                                        room.LimitOffset = floorHeight;
+                                        room.BaseOffset = 0;
+                                        string roomName = "";
+                                        foreach (Util.TeighaText.CADTextModel label in textDict[i])
+                                        {
+                                            if (label.Layer == Properties.Settings.Default.layerSpace)
+                                            {
+                                                if (room.IsPointInRoom(label.Location + XYZ.BasisZ * (i - 1) * floorHeight))
+                                                {
+                                                    roomName += label.Text;
+                                                }
+                                            }
+                                        }
+                                        if (roomName != "") { room.Name = roomName; }
+                                    }
+                                }
+                            }
+                            t_space.Commit();
+                        }
+
+                        // Create roof when iterating to the last level
+                        // MILESTONE
+                        if (i == levelCounter)
+                        {
+                            using (var t_roof = new Transaction(doc))
+                            {
+                                t_roof.Start("Create roof");
+                                Level roofLevel = Level.Create(doc, i * floorHeight);
+                                ViewPlan floorView = ViewPlan.Create(doc, viewType.Id, roofLevel.Id);
+                                floorView.Name = "Roof";
+
+                                ModelCurveArray footPrintToModelCurveMapping = new ModelCurveArray();
+                                FootPrintRoof footprintRoof = doc.Create.NewFootPrintRoof(footprint, roofLevel, roofType,
+                                    out footPrintToModelCurveMapping);
+
+                                //ModelCurveArrayIterator iterator = footPrintToModelCurveMapping.ForwardIterator();
+                                /*
+                                iterator.Reset();
+                                while (iterator.MoveNext())
+                                {
+                                    ModelCurve modelCurve = iterator.Current as ModelCurve;
+                                    footprintRoof.set_DefinesSlope(modelCurve, true);
+                                    footprintRoof.set_SlopeAngle(modelCurve, 0.5);
+                                }
+                                */
+                                t_roof.Commit();
+                            }
+                        }
+                        tg.Assimilate();
+                    }
+                    catch
+                    {
+                        System.Windows.MessageBox.Show("Error", "Tips");
+                        tg.RollBack();
                     }
                 }
             }

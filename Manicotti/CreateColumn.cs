@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -80,9 +81,9 @@ namespace Manicotti
             Document doc = uidoc.Document;
             
             Document familyDoc = app.NewFamilyDocument(Properties.Settings.Default.url_columnFamily);
-            using (Transaction tx_createFamily = new Transaction(familyDoc))
+            using (Transaction tx_createFamily = new Transaction(familyDoc, "Create family"))
             {
-                tx_createFamily.Start("Create family");
+                tx_createFamily.Start();
 
                 Plane familyGeomplane = Plane.CreateByNormalAndOrigin(XYZ.BasisZ, XYZ.Zero);
                 SketchPlane sketch = SketchPlane.Create(familyDoc, familyGeomplane);
@@ -198,9 +199,13 @@ namespace Manicotti
             // Column generation
             if (IsSilent == true)
             {
-                using (Transaction tx = new Transaction(doc))
+                using (Transaction tx = new Transaction(doc, "Generate rectangular columns"))
                 {
-                    tx.Start("Generate rectangular columns");
+                    FailureHandlingOptions options = tx.GetFailureHandlingOptions();
+                    options.SetFailuresPreprocessor(new Util.FailureSwallower(false, false));
+                    tx.SetFailureHandlingOptions(options);
+
+                    tx.Start();
                     foreach (List<Curve> baselines in columnRect)
                     {
                         double width = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item1;
@@ -230,9 +235,9 @@ namespace Manicotti
                         Debug.Print("Generic Model Family returns no symbol");
                         continue;
                     }
-                    using (Transaction tx = new Transaction(doc))
+                    using (Transaction tx = new Transaction(doc, "Generate a special shaped column"))
                     {
-                        tx.Start("Generate a special shaped column");
+                        tx.Start();
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ basePt = XYZ.Zero;
                         Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
@@ -252,9 +257,9 @@ namespace Manicotti
 
                 foreach (List<Curve> baselines in columnRect)
                 {
-                    using (Transaction tx = new Transaction(doc))
+                    using (Transaction tx = new Transaction(doc, "Generate a rectangular column"))
                     {
-                        tx.Start("Generate a rectangular column");
+                        tx.Start();
                         
                         double width = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item1;
                         double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
@@ -288,9 +293,9 @@ namespace Manicotti
                         Debug.Print("Generic Model Family returns no symbol");
                         continue;
                     }
-                    using (Transaction tx = new Transaction(doc))
+                    using (Transaction tx = new Transaction(doc, "Generate a special shaped column"))
                     {
-                        tx.Start("Generate a special shaped column");
+                        tx.Start();
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ basePt = XYZ.Zero;
                         Line columnBaseAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));

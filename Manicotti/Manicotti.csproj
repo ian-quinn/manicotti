@@ -67,8 +67,11 @@
   <ItemGroup>
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="CommitTransaction.cs" />
     <Compile Include="Util\ExternalDataWrapper.cs" />
+    <Compile Include="Util\FailureCollector.cs" />
     <Compile Include="Util\PublicControl.cs" />
+    <Compile Include="Util\FailureSwallower.cs" />
     <Compile Include="Views\BaseWindow.cs" />
     <Compile Include="Views\CmdFindAllFamilyInstance.cs" />
     <Compile Include="Views\Configuration.xaml.cs">
