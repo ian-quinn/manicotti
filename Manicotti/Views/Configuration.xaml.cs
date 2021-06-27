@@ -58,5 +58,78 @@ namespace Manicotti.Views
             Properties.Settings.Default.layerFrame = "FRAME";
             Properties.Settings.Default.Save();
         }
+
+
+        private void BtnOpen1_Click(object sender, RoutedEventArgs e)
+        {
+            string strA = strrRfaName();
+            if (!string.IsNullOrEmpty(strA))
+            {
+                url_door.Text = strA;
+            }
+        }
+
+        public string strrRfaName()
+        {
+            string strName = string.Empty;
+            System.Windows.Forms.OpenFileDialog ofd = null;
+            ofd = new System.Windows.Forms.OpenFileDialog();
+            ofd.Title = "Revit文件";
+            ofd.FileName = "";
+            ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            ofd.Filter = "Revit文件(*.rfa)|*.rfa";
+            ofd.ValidateNames = true;
+            ofd.CheckFileExists = true;
+            ofd.CheckPathExists = true;
+            ofd.FilterIndex = 1;
+            //string strName = string.Empty;
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                strName = ofd.FileName;
+            }
+            return strName;
+        }
+
+        private void BtnOpen2_Click(object sender, RoutedEventArgs e)
+        {
+            string strA = strrRfaName();
+            if (!string.IsNullOrEmpty(strA))
+            {
+                url_window.Text = strA;
+            }
+        }
+
+        private void BtnOpen3_Click(object sender, RoutedEventArgs e)
+        {
+            string strA = strrRfaName();
+            if (!string.IsNullOrEmpty(strA))
+            {
+                url_column.Text = strA;
+            }
+        }
+
+        private void BtnOpen4_Click(object sender, RoutedEventArgs e)
+        {
+            string strName = string.Empty;
+            System.Windows.Forms.OpenFileDialog ofd = null;
+            ofd = new System.Windows.Forms.OpenFileDialog();
+            ofd.Title = "Revit文件";
+            ofd.FileName = "";
+            ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            ofd.Filter = "Revit文件(*.rft)|*.rft";
+            ofd.ValidateNames = true;
+            ofd.CheckFileExists = true;
+            ofd.CheckPathExists = true;
+            ofd.FilterIndex = 1;
+            //string strName = string.Empty;
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                strName = ofd.FileName;
+            }
+            if (!string.IsNullOrEmpty(strName))
+            {
+                url_column.Text = strName;
+            }
+        }
     }
 }

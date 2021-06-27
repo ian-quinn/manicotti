@@ -1,17 +1,20 @@
-﻿<src:BaseWindow x:Class="Manicotti.Views.FindElement"
+﻿<local:BaseWindow x:Class="Manicotti.Views.FindElement"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:src="clr-namespace:Manicotti.Views"
+             xmlns:local="clr-namespace:Manicotti.Views"
              mc:Ignorable="d"
              WindowStyle="None" AllowsTransparency="True" 
              Width="400" Height="800" Loaded="FindElement_Loaded">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="26"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DataGrid Name="DgFindElement" ItemsSource="{Binding}" Margin="0" IsReadOnly="True" AutoGenerateColumns="False" RowHeaderWidth="0" >
+        <TextBlock x:Name="Tip" Text="过滤类别:" FontSize="15" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="6,0"/>
+        <ComboBox Name="CmdCategory" Width="250" VerticalAlignment="Stretch" HorizontalAlignment="Right" SelectionChanged="CmdCategory_SelectionChanged" Margin="6,0"/>
+        <DataGrid Name="DgFindElement" ItemsSource="{Binding}" Margin="0"  AutoGenerateColumns="False" RowHeaderWidth="0"  Grid.Row="1" CanUserAddRows="False">
             <DataGrid.Resources>
                 <Style x:Key="DataGridStyle" TargetType="{x:Type DataGrid}">
                     <Setter Property="FontSize" Value="12"/>
@@ -61,7 +64,19 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="名称" Width="*">
+                <DataGridTemplateColumn Header="" Width="auto" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Check,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding IsEna,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Foreground="{Binding ForeGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="{Binding BackGround,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Click="Button_Click" Height="24"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Header="名称" Width="*" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Label  Content="{Binding Name,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -72,7 +87,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="数量" Width="50">
+                <DataGridTemplateColumn Header="数量" Width="50" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Label Content="{Binding Number,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -83,7 +98,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="Manufacture" Width="100">
+                <DataGridTemplateColumn Header="Manufacture" Width="100" IsReadOnly="True">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Label Content="{Binding Manufacturies,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -98,4 +113,4 @@
         </DataGrid>
 
     </Grid>
-</src:BaseWindow>
+</local:BaseWindow>

@@ -23,9 +23,11 @@ namespace Manicotti.Views
         public void Excetal()
         {
             List<Tuple<ElementId, string, int, string>> tuples = keyValuePair();
-            List<Tuple<string, int, string, string>> tupleFam = keyValuePairFam(tuples);
-            FindElement wPF_FindElement = new FindElement(tupleFam);
-            wPF_FindElement.Show();
+            List<string> lstCategory = new List<string>();
+            List<Tuple<string, int, string, string, string, ElementId>> tupleFam = keyValuePairFam(tuples, ref lstCategory);
+
+            FindElement findElement = new FindElement(tupleFam, lstCategory);
+            findElement.Show();
         }
         public List<Tuple<ElementId, string, int, string>> keyValuePair()
         {
@@ -72,17 +74,19 @@ namespace Manicotti.Views
             return keyValuePairs;
         }
 
-        public List<Tuple<string, int, string, string>> keyValuePairFam(List<Tuple<ElementId, string, int, string>> tuples)
+        public List<Tuple<string, int, string, string, string, ElementId>> keyValuePairFam(List<Tuple<ElementId, string, int, string>> tuples, ref List<string> lstCategory)
         {
-            List<Tuple<string, int, string, string>> keyValuePairFml = new List<Tuple<string, int, string, string>>();
-            List<Tuple<ElementId, string, string, int, string>> keyValuePairs = new List<Tuple<ElementId, string, string, int, string>>();
+            List<Tuple<string, int, string, string, string, ElementId>> keyValuePairFml = new List<Tuple<string, int, string, string, string, ElementId>>();
+            List<Tuple<ElementId, string, string, int, string, string>> keyValuePairs = new List<Tuple<ElementId, string, string, int, string, string>>();
             List<Tuple<ElementId, int>> elementIds = new List<Tuple<ElementId, int>>();
             foreach (var item in tuples)
             {
                 FamilySymbol family = (Wrapper.Doc.GetElement(item.Item1) as FamilySymbol);
+                string strCategory = family.Category.Name;
+                lstCategory.Add(strCategory);
                 string strName = family.Family.Name;
                 ElementId elementId = family.Family.Id;
-                keyValuePairs.Add(new Tuple<ElementId, string, string, int, string>(elementId, strName, item.Item2, item.Item3, item.Item4));
+                keyValuePairs.Add(new Tuple<ElementId, string, string, int, string, string>(elementId, strName, item.Item2, item.Item3, item.Item4, strCategory));
                 if (elementIds.Find(t => t.Item1 == elementId) == null)
                 {
                     elementIds.Add(new Tuple<ElementId, int>(elementId, item.Item3));
@@ -100,17 +104,17 @@ namespace Manicotti.Views
             foreach (var item in elementIds)
             {
 
-                List<Tuple<ElementId, string, string, int, string>> keyValuePairsFam = keyValuePairs.FindAll(t => t.Item1 == item.Item1).ToList();
+                List<Tuple<ElementId, string, string, int, string, string>> keyValuePairsFam = keyValuePairs.FindAll(t => t.Item1 == item.Item1).ToList();
                 for (int i = 0; i < keyValuePairsFam.Count; i++)
                 {
                     if (i == 0)
                     {
-                        keyValuePairFml.Add(new Tuple<string, int, string, string>(keyValuePairsFam[i].Item2, item.Item2, "族名称", ""));
-                        keyValuePairFml.Add(new Tuple<string, int, string, string>(keyValuePairsFam[i].Item3, keyValuePairsFam[i].Item4, "族类型", keyValuePairsFam[i].Item5));
+                        keyValuePairFml.Add(new Tuple<string, int, string, string, string, ElementId>(keyValuePairsFam[i].Item2, item.Item2, "族名称", "", keyValuePairsFam[i].Item6, item.Item1));
+                        keyValuePairFml.Add(new Tuple<string, int, string, string, string, ElementId>(keyValuePairsFam[i].Item3, keyValuePairsFam[i].Item4, "族类型", keyValuePairsFam[i].Item5, keyValuePairsFam[i].Item6, item.Item1));
                     }
                     else
                     {
-                        keyValuePairFml.Add(new Tuple<string, int, string, string>(keyValuePairsFam[i].Item3, keyValuePairsFam[i].Item4, "族类型", keyValuePairsFam[i].Item5));
+                        keyValuePairFml.Add(new Tuple<string, int, string, string, string, ElementId>(keyValuePairsFam[i].Item3, keyValuePairsFam[i].Item4, "族类型", keyValuePairsFam[i].Item5, keyValuePairsFam[i].Item6, item.Item1));
                     }
                 }
             }

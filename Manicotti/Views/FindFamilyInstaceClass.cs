@@ -12,7 +12,7 @@ using System.Windows.Media;
 
 namespace Manicotti.Views
 {
-    class FindFamilyInstaceClass
+    public class FindFamilyInstaceClass
     {
 
         public static Brush BlackWord = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString("#333333"));
@@ -59,12 +59,19 @@ namespace Manicotti.Views
         private string manufacturies = "";
         public string Manufacturies { get { return manufacturies; } set { manufacturies = value; NotifyPropertyChanged("Manufacturies"); } }
 
-        
+        private string check = "";
+        public string Check { get { return check; } set { check = value; NotifyPropertyChanged("Check"); } }
+
+
+        private bool isEna = false;
+        public bool IsEna { get { return isEna; } set { isEna = value; NotifyPropertyChanged("IsEna"); } }
+
+        private string strElemID = "";
+        public string StrElemId { get { return strElemID; } set { strElemID = value; NotifyPropertyChanged("StrElemId"); } }
+
         protected void NotifyPropertyChanged(string info)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
         }
     }
-
-   
 }

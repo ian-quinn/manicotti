@@ -46,6 +46,9 @@ namespace Manicotti
 
             // Fetch baselines
             List<Curve> wallCrvs;
+            //图层点选功能
+            //string strA = selectLayer.strGraphicsStyleName(wrapper.UiDoc);
+            //System.Windows.Forms.MessageBox.Show(strA);
             try
             {
                 wallCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerWall, tolerance);
