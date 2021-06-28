@@ -1,5 +1,6 @@
 ﻿#region Namespaces
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -81,14 +82,34 @@ namespace Manicotti
                 System.Windows.MessageBox.Show("Please make sure there's a base level in current view", "Tips");
                 return Result.Cancelled;
             }
+
+
+            // Check if the families are ready
+            if (!File.Exists(Properties.Settings.Default.url_column))
+            {
+                System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
+                return Result.Cancelled;
+            }
+            Family fColumn = null;
+            using (Transaction tx = new Transaction(doc, "Load necessary families"))
+            {
+                tx.Start();
+                if (!doc.LoadFamily(Properties.Settings.Default.url_column, out fColumn))
+                {
+                    System.Windows.MessageBox.Show("Loading family failed", "Tips");
+                    return Result.Cancelled;
+                }
+                tx.Commit();
+            }
             
+
 
             // Start batching
             TransactionGroup tg = new TransactionGroup(doc, "Create columns");
-            tg.Start();
             try
             {
-                CreateColumn.Execute(uiapp, columnCrvs, defaultLevel, false);
+                tg.Start();
+                CreateColumn.Execute(uiapp, columnCrvs, fColumn.Name, defaultLevel, false);
                 tg.Assimilate();
             }
             catch (Exception e)

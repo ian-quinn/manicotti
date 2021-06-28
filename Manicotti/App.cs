@@ -63,6 +63,12 @@ namespace Manicotti
             BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Winform.ico", UriKind.Absolute));
             config.LargeImage = configImg;
 
+            PushButton info = modelBuild.AddItem(new PushButtonData("info", "Pivot\nTable", 
+                thisAssemblyPath, "Manicotti.Views.CmdFindAllFamilyInstance")) as PushButton;
+            info.ToolTip = "List of generated instances. WIP";
+            BitmapImage infoImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Info.ico", UriKind.Absolute));
+            info.LargeImage = infoImg;
+
 
             // 2nd Panel
             RibbonPanel modelFix = ribbonPanel(a, "Manicotti", "Misc.");
@@ -95,11 +101,12 @@ namespace Manicotti
 
             IList<RibbonItem> stackedAlgorithm = modelFix.AddStackedItems(region, sketch, fusion);
 
-            PushButton test = modelFix.AddItem(new PushButtonData(
-                "test", "Test\nButton", thisAssemblyPath, "Manicotti.TestIntersect")) as PushButton;
+            PushButton test = modelFix.AddItem(new PushButtonData("test", "Test\nButton", 
+                thisAssemblyPath, "Manicotti.TestIntersect")) as PushButton;
             test.ToolTip = "Default and preferance settings. WIP";
             BitmapImage testImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Error.ico", UriKind.Absolute));
             test.LargeImage = testImg;
+
 
             a.ApplicationClosing += a_ApplicationClosing;
 

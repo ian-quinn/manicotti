@@ -87,9 +87,9 @@ namespace Manicotti
 
 
             TransactionGroup tg = new TransactionGroup(doc, "Create walls");
-            tg.Start();
             try
             {
+                tg.Start();
                 CreateWall.Execute(uiapp, wallCrvs, defaultLevel, false);
                 tg.Assimilate();
             }

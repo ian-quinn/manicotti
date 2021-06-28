@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using System.Linq;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -37,14 +37,14 @@ namespace Manicotti
                 {
                     if (!doc.LoadFamily(Properties.Settings.Default.url_door, out f))
                     {
-                        Debug.Print("Unable to load M_Door-Single-Panel.rfa");
+                        Debug.Print("Unable to load the default Door");
                     }
                 }
                 if (type == "Window")
                 {
                     if (!doc.LoadFamily(Properties.Settings.Default.url_window, out f))
                     {
-                        Debug.Print("Unable to load M_Window-Fixed.rfa");
+                        Debug.Print("Unable to load the default Window");
                     }
                 }
                 if (type == "")
@@ -95,40 +95,9 @@ namespace Manicotti
         }
 
 
-        class MessageDescriptionGatheringPreprocessor : IFailuresPreprocessor
-        {
-            List<string> FailureList { get; set; }
-
-            public MessageDescriptionGatheringPreprocessor()
-            {
-                FailureList = new List<string>();
-            }
-
-            public FailureProcessingResult PreprocessFailures(FailuresAccessor failuresAccessor)
-            {
-                foreach (FailureMessageAccessor fMA in failuresAccessor.GetFailureMessages())
-                {
-                    FailureList.Add(fMA.GetDescriptionText());
-                    FailureDefinitionId FailDefID
-                      = fMA.GetFailureDefinitionId();
-
-                    //if (FailDefID == BuiltInFailures
-                    //  .GeneralFailures.DuplicateValue)
-                    //    failuresAccessor.DeleteWarning(fMA);
-                }
-                return FailureProcessingResult.Continue;
-            }
-
-            public void ShowDialogue()
-            {
-                string s = string.Join("\r\n", FailureList);
-                TaskDialog.Show("Post Processing Failures:", s);
-            }
-        }
-
-
         public static void Execute(UIApplication uiapp, List<Curve> doorCrvs, List<Curve> windowCrvs, 
-            List<Curve> wallCrvs, List<Util.TeighaText.CADTextModel> labels, Level level, bool IsSilent)
+            List<Curve> wallCrvs, List<Util.TeighaText.CADTextModel> labels, 
+            string nameDoor, string nameWindow, Level level, bool IsSilent)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -224,10 +193,14 @@ namespace Manicotti
             {
                 // Main transaction
                 // Plot axis of doors/windows and create the instance
+
                 using (Transaction tx = new Transaction(doc, "Generate sub-surfaces & marks"))
                 {
                     FailureHandlingOptions options = tx.GetFailureHandlingOptions();
                     options.SetFailuresPreprocessor(new Util.FailureSwallower(false, false));
+                    // Switch this for the failure list test
+                    // Util.FailureCollector fc = new Util.FailureCollector();
+                    // options.SetFailuresPreprocessor(fc);
                     tx.SetFailureHandlingOptions(options);
 
                     tx.Start();
@@ -293,7 +266,7 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
+                        FamilySymbol fs = NewOpeningType(uiapp, nameDoor, width, height, "Door");
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }
 
@@ -340,7 +313,7 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
+                        FamilySymbol fs = NewOpeningType(uiapp, nameWindow, width, height, "Window");
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }
 
@@ -349,6 +322,8 @@ namespace Manicotti
                     }
                     tx.Commit();
                 }
+                // Switch this for the failure list test
+                // fc.ShowDialogue();
             }
 
             /////////////////////////////
@@ -395,7 +370,8 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, "M_Single-Flush", width, height, "Door");
+                        FamilySymbol fs = NewOpeningType(uiapp, nameDoor, width, height, "Door");
+
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }
 
@@ -448,7 +424,8 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, "M_Fixed", width, height, "Window");
+                        FamilySymbol fs = NewOpeningType(uiapp, nameWindow, width, height, "Window");
+
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }
 

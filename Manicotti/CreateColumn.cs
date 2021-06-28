@@ -17,7 +17,6 @@ namespace Manicotti
     public static class CreateColumn
     {
         // add new type of a family instance if not exist
-        // M_Rectangular Column.rfa loaded by default is used here
         public static FamilySymbol NewRectColumnType(UIApplication uiapp, string familyName, double width, double depth)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
@@ -31,7 +30,7 @@ namespace Manicotti
                 // add default path and error handling here
                 if (!doc.LoadFamily(Properties.Settings.Default.url_column, out f))
                 {
-                    Debug.Print("Unable to load the .rfa file of column");
+                    Debug.Print("Unable to load the default column");
                 }
             }
 
@@ -150,7 +149,7 @@ namespace Manicotti
 
 
         // Main transaction
-        public static void Execute(UIApplication uiapp, List<Curve> columnLines, Level level, bool IsSilent)
+        public static void Execute(UIApplication uiapp, List<Curve> columnLines, string nameCollumn, Level level, bool IsSilent)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -188,7 +187,7 @@ namespace Manicotti
             //FamilySymbol column_demo = columnTypes.Find((FamilySymbol fs) => { return fs.Name == "Column_demo"});
             foreach (FamilySymbol columnType in colColumns)
             {
-                if (columnType.Name == "M_Rectangular Column")
+                if (columnType.Name == nameCollumn)
                 {
                     rectangularColumn = columnType as FamilySymbol;
                     break;
@@ -212,7 +211,7 @@ namespace Manicotti
                         double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
                         double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
 
-                        FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
+                        FamilySymbol fs = NewRectColumnType(uiapp, nameCollumn, width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
@@ -265,7 +264,7 @@ namespace Manicotti
                         double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
                         double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
 
-                        FamilySymbol fs = NewRectColumnType(uiapp, "M_Rectangular Column", width, depth);
+                        FamilySymbol fs = NewRectColumnType(uiapp, nameCollumn, width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));

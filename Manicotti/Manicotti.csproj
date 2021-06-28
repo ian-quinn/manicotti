@@ -117,6 +117,7 @@
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
+    <Resource Include="Resources\ico\Info.ico" />
     <Resource Include="Resources\ico\Flask.ico" />
     <Resource Include="Resources\ico\House.ico" />
     <Resource Include="Resources\lib\TD_Mgd_3.03_9.dll" />

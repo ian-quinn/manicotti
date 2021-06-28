@@ -3,16 +3,16 @@
   <Profiles />
   <Settings>
     <Setting Name="url_window" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Doors\M_Window-Fixed.rfa</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="url_door" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Windows\M_Door-Single-Panel.rfa</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="url_column" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Libraries\US Metric\Columns\M_Rectangular Column.rfa</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="url_columnFamily" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="floorHeight" Type="System.Double" Scope="User">
       <Value Profile="(Default)">4000</Value>

@@ -1,5 +1,6 @@
 ﻿#region Namespaces
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace Manicotti
 
             double tolerance = commandData.Application.Application.ShortCurveTolerance;
 
-
+            ///////////////////////
             // Pick Import Instance
             ImportInstance import = null;
             try
@@ -46,7 +47,48 @@ namespace Manicotti
                 return Result.Cancelled;
             }
 
+            //////////////////////////////////
+            // Check if the families are ready
+            // Consider to add more customized families (in the Setting Panel)
+            if (!File.Exists(Properties.Settings.Default.url_door) && File.Exists(Properties.Settings.Default.url_window)
+                && File.Exists(Properties.Settings.Default.url_column))
+            {
+                System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
+                return Result.Cancelled;
+            }
+            Family fColumn, fDoor, fWindow = null;
+            using (Transaction tx = new Transaction(doc, "Load necessary families"))
+            {
+                tx.Start();
+                if (!doc.LoadFamily(Properties.Settings.Default.url_column, out fColumn))
+                {
+                    System.Windows.MessageBox.Show("Please check the column family path is solid", "Tips");
+                    return Result.Cancelled;
+                }
+                if (!doc.LoadFamily(Properties.Settings.Default.url_door, out fDoor) ||
+                    !doc.LoadFamily(Properties.Settings.Default.url_door, out fWindow))
+                {
+                    System.Windows.MessageBox.Show("Please check the door/window family path is solid", "Tips");
+                    return Result.Cancelled;
+                }
+                tx.Commit();
+            }
+                
+            // Prepare a family for ViewPlan creation
+            // It may be a coincidence that the 1st ViewFamilyType is for the FloorPlan
+            // Uplift needed here (doomed if it happends to be a CeilingPlan)
+            ViewFamilyType viewType = new FilteredElementCollector(doc)
+                .OfClass(typeof(ViewFamilyType)).First() as ViewFamilyType;
 
+            RoofType roofType = new FilteredElementCollector(doc)
+                .OfClass(typeof(RoofType)).FirstOrDefault<Element>() as RoofType;
+
+            FloorType floorType = new FilteredElementCollector(doc)
+                .OfClass(typeof(FloorType))
+                .First<Element>(e => e.Name.Equals("Generic 150mm")) as FloorType;
+
+
+            ////////////////////
             // DATA PREPARATIONS
 
             // Prepare frames and levels
@@ -206,20 +248,8 @@ namespace Manicotti
             Debug.Print("textDict: " + textDict.Count().ToString() + " " + textDict[1].Count().ToString());
 
 
+            ////////////////////
             // MAIN TRANSACTIONS
-
-            // Prepare a family for ViewPlan creation
-            // It may be a coincidence that the 1st ViewFamilyType is for the FloorPlan
-            // Uplift needed here (doomed if it happends to be a CeilingPlan)
-            ViewFamilyType viewType = new FilteredElementCollector(doc)
-                .OfClass(typeof(ViewFamilyType)).First() as ViewFamilyType;
-
-            RoofType roofType = new FilteredElementCollector(doc)
-                .OfClass(typeof(RoofType)).FirstOrDefault<Element>() as RoofType;
-            
-            FloorType floorType = new FilteredElementCollector(doc)
-                .OfClass(typeof(FloorType))
-                .First<Element>(e => e.Name.Equals("Generic 150mm")) as FloorType;
 
             // Prepare a family and configurations for TextNote (Put it inside transactions)
             /*
@@ -253,7 +283,6 @@ namespace Manicotti
             */
 
 
-            // Main process
             // ITERATION FLAG
             for (int i = 1; i <= levelCounter; i++)
             {
@@ -370,12 +399,14 @@ namespace Manicotti
                         // but this is not a safe choice
 
                         // Sub-transactions are packed within these functions.
+                        // The family names should be defined by the user in WPF
                         // MILESTONE
                         CreateWall.Execute(uiapp, wallCrvs, currentLevel, true);
                         // MILESTONE
-                        CreateColumn.Execute(uiapp, columnCrvs, currentLevel, true);
+                        CreateColumn.Execute(uiapp, columnCrvs, fColumn.Name, currentLevel, true);
                         // MILESTONE
-                        CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], currentLevel, true);
+                        CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], 
+                            fDoor.Name, fWindow.Name, currentLevel, true);
 
                         // Create floor
                         // MILESTONE

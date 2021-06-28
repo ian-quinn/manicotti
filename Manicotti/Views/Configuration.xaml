@@ -99,26 +99,27 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="5 0 5 0">
-                        <TextBox Name="wallLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+                        <TextBox Name="layerWall" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=layerWall, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Name="columnLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+                        <TextBox Name="layerColumn" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=layerColumn, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Name="frameLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+                        <TextBox Name="layerFrame" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=layerFrame, Mode=TwoWay}" Margin="0 2 0 2"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Margin="5 0 5 0">
                         <TextBlock Text="Window layer" Margin="0 5 0 5"/>
                         <TextBlock Text="Door layer" Margin="0 5 0 5"/>
-                        <TextBlock Text="-" Margin="0 5 0 5"/>
+                        <TextBlock Text="Spacetag layer" Margin="0 5 0 5"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="3" Margin="5 0 0 0">
-                        <TextBox Name="windowLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+                        <TextBox Name="layerWindow" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=layerWindow, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Name="doorLayer" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+                        <TextBox Name="layerDoor" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=layerDoor, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Padding="2" IsReadOnly="True" Background="#eee" Margin="0 2 0 2"/>
+                        <TextBox Name="layerSpace" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=layerSpace, Mode=TwoWay}" IsReadOnly="True" Background="#eee" Margin="0 2 0 2"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>
@@ -202,7 +203,8 @@
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Content="Apply" Grid.Column="0" Margin="0 0 5 0" Command="ApplicationCommands.Close"/>
+                <!--<Button Content="Apply" Grid.Column="0" Margin="0 0 5 0" Command="ApplicationCommands.Close"/>-->
+                <Button Content="Apply" Grid.Column="0" Margin="0 0 5 0" Click="apply_Click"/>
                 <Button Content="Reset to default" Grid.Column="1" Margin="5 0 0 0" Click="reset_Click"/>
             </Grid>
 

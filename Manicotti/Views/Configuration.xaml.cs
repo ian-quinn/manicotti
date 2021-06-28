@@ -1,18 +1,8 @@
 ﻿#region Namespaces
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using Autodesk.Revit.DB;
 #endregion
@@ -34,17 +24,37 @@ namespace Manicotti.Views
 
         private void apply_Click(object sender, RoutedEventArgs e)
         {
+            Properties.Settings.Default.url_column = url_column.Text;
+            Properties.Settings.Default.url_door = url_door.Text;
+            Properties.Settings.Default.url_window = url_window.Text;
+            Properties.Settings.Default.url_columnFamily = url_columnFamily.Text;
+            Properties.Settings.Default.floorHeight = double.Parse(floorHeight.Text);
+            Properties.Settings.Default.sillHeight = double.Parse(sillHeight.Text);
+            Properties.Settings.Default.wallThickness = double.Parse(wallThickness.Text);
+            Properties.Settings.Default.minLength = double.Parse(minLength.Text);
+            Properties.Settings.Default.jointRadius = double.Parse(jointRadius.Text);
+            Properties.Settings.Default.layerColumn = layerColumn.Text;
+            Properties.Settings.Default.layerWall = layerWall.Text;
+            Properties.Settings.Default.layerWindow = layerWindow.Text;
+            Properties.Settings.Default.layerSpace = layerSpace.Text;
+            Properties.Settings.Default.layerFrame = layerFrame.Text;
             Properties.Settings.Default.Save();
+            this.Close();
         }
 
         private void CloseCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
-            Properties.Settings.Default.Save();
+            // Properties.Settings.Default.Save();
             this.Close();
         }
 
         private void reset_Click(object sender, RoutedEventArgs e)
         {
+            string thisAssemblyFolderPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            Properties.Settings.Default.url_column = thisAssemblyFolderPath + @"\M_Rectangular Column.rfa";
+            Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\M_Door-Single-Panel.rfa";
+            Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\M_Window-Fixed.rfa";
             Properties.Settings.Default.url_columnFamily = @"C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft";
             Properties.Settings.Default.floorHeight = 4000;
             Properties.Settings.Default.sillHeight = 1200;
@@ -56,7 +66,6 @@ namespace Manicotti.Views
             Properties.Settings.Default.layerWindow = "WINDOW";
             Properties.Settings.Default.layerSpace = "SPACE";
             Properties.Settings.Default.layerFrame = "FRAME";
-            Properties.Settings.Default.Save();
         }
 
 

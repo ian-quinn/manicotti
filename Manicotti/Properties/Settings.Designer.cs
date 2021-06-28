@@ -25,7 +25,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Doors\\M_Window-Fixed.rfa")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string url_window {
             get {
                 return ((string)(this["url_window"]));
@@ -37,8 +37,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Windows\\M_Door-Single-Panel." +
-            "rfa")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string url_door {
             get {
                 return ((string)(this["url_door"]));
@@ -50,8 +49,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\ProgramData\\Autodesk\\RVT 2020\\Libraries\\US Metric\\Columns\\M_Rectangular Column" +
-            ".rfa")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string url_column {
             get {
                 return ((string)(this["url_column"]));
@@ -63,7 +61,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\ProgramData\\Autodesk\\RVT 2020\\Family Templates\\English\\Metric Column.rft")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string url_columnFamily {
             get {
                 return ((string)(this["url_columnFamily"]));

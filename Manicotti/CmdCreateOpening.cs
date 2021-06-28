@@ -116,6 +116,27 @@ namespace Manicotti
             }
 
 
+            // Check if the families are ready
+            if (!File.Exists(Properties.Settings.Default.url_door) && File.Exists(Properties.Settings.Default.url_window))
+            {
+                System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
+                return Result.Cancelled;
+            }
+            Family fDoor, fWindow = null;
+            using (Transaction tx = new Transaction(doc, "Load necessary families"))
+            {
+                tx.Start();
+                if (!doc.LoadFamily(Properties.Settings.Default.url_door, out fDoor) ||
+                !doc.LoadFamily(Properties.Settings.Default.url_window, out fWindow))
+                {
+                    System.Windows.MessageBox.Show("Loading family failed", "Tips");
+                    return Result.Cancelled;
+                }
+                tx.Commit();
+            }
+
+
+
             /*
             // LineStyle filter
             CurveElementFilter filter = new CurveElementFilter(CurveElementType.ModelCurve);
@@ -150,10 +171,11 @@ namespace Manicotti
             */
 
             TransactionGroup tg = new TransactionGroup(doc, "Create openings");
-            tg.Start();
             try
             {
-                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels, defaultLevel, false);
+                tg.Start();
+                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels, 
+                    fDoor.Name, fWindow.Name, defaultLevel, false);
                 tg.Assimilate();
             }
             catch (Exception e)
