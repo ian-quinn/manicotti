@@ -1,6 +1,7 @@
 ﻿#region Namespaces
 using System;
 using System.IO;
+using System.Xml;
 using System.Windows;
 using System.Windows.Input;
 
@@ -21,6 +22,7 @@ namespace Manicotti.Views
         {
             InitializeComponent();
         }
+
 
         private void apply_Click(object sender, RoutedEventArgs e)
         {
@@ -52,9 +54,9 @@ namespace Manicotti.Views
         {
             string thisAssemblyFolderPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            Properties.Settings.Default.url_column = thisAssemblyFolderPath + @"\M_Rectangular Column.rfa";
-            Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\M_Door-Single-Panel.rfa";
-            Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\M_Window-Fixed.rfa";
+            Properties.Settings.Default.url_column = thisAssemblyFolderPath + @"\Resources\rfa\M_Rectangular Column.rfa";
+            Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\Resources\rfa\M_Door-Single-Panel.rfa";
+            Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\Resources\rfa\M_Window-Fixed.rfa";
             Properties.Settings.Default.url_columnFamily = @"C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft";
             Properties.Settings.Default.floorHeight = 4000;
             Properties.Settings.Default.sillHeight = 1200;

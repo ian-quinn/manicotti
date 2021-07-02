@@ -23,7 +23,6 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
             
-
             Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
             {

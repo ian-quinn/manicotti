@@ -202,5 +202,41 @@ namespace Manicotti.Properties {
                 this["layerFrame"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string name_window {
+            get {
+                return ((string)(this["name_window"]));
+            }
+            set {
+                this["name_window"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string name_door {
+            get {
+                return ((string)(this["name_door"]));
+            }
+            set {
+                this["name_door"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string name_column {
+            get {
+                return ((string)(this["name_column"]));
+            }
+            set {
+                this["name_column"] = value;
+            }
+        }
     }
 }

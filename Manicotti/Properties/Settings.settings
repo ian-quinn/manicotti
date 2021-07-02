@@ -47,5 +47,14 @@
     <Setting Name="layerFrame" Type="System.String" Scope="User">
       <Value Profile="(Default)">FRAME</Value>
     </Setting>
+    <Setting Name="name_window" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="name_door" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="name_column" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -58,6 +58,8 @@
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TD_Mgd_3.03_9, Version=3.0.0.8111, Culture=neutral, PublicKeyToken=460a0bef3ba73253, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Resources\lib\TD_Mgd_3.03_9.dll</HintPath>
@@ -67,9 +69,11 @@
   <ItemGroup>
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="CmdPartAtom.cs" />
     <Compile Include="CommitTransaction.cs" />
     <Compile Include="Util\ExternalDataWrapper.cs" />
     <Compile Include="Util\FailureCollector.cs" />
+    <Compile Include="Util\FamilyLoadOption.cs" />
     <Compile Include="Util\PublicControl.cs" />
     <Compile Include="Util\FailureSwallower.cs" />
     <Compile Include="Util\SelectLayer.cs" />
@@ -117,6 +121,7 @@
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
+    <Resource Include="Resources\ico\Reload.ico" />
     <Resource Include="Resources\ico\Info.ico" />
     <Resource Include="Resources\ico\Flask.ico" />
     <Resource Include="Resources\ico\House.ico" />
@@ -164,13 +169,13 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <Resource Include="Resources\rfa\M_Door-Single-Panel.rfa">
+    <None Include="Resources\rfa\M_Door-Single-Panel.rfa">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\rfa\M_Rectangular Column.rfa">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </None>
     <Resource Include="Resources\lib\TD_DynBlocks_3.03_9.tx" />
+    <None Include="Resources\rfa\M_Rectangular Column.rfa">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\rfa\M_Window-Fixed.rfa">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

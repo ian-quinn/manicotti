@@ -33,7 +33,33 @@ namespace Manicotti
 
             double tolerance = commandData.Application.Application.ShortCurveTolerance;
 
-            
+
+            // Check if the families are ready
+            if (Properties.Settings.Default.name_door == null ||
+                Properties.Settings.Default.name_window == null)
+            {
+                System.Windows.MessageBox.Show("Please select the door/window type in settings", "Tips");
+                return Result.Cancelled;
+            }
+            //if (!File.Exists(Properties.Settings.Default.url_door) && File.Exists(Properties.Settings.Default.url_window))
+            //{
+            //    System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
+            //    return Result.Cancelled;
+            //}
+            //Family fDoor, fWindow = null;
+            //using (Transaction tx = new Transaction(doc, "Load necessary families"))
+            //{
+            //    tx.Start();
+            //    if (!doc.LoadFamily(Properties.Settings.Default.url_door, out fDoor) ||
+            //    !doc.LoadFamily(Properties.Settings.Default.url_window, out fWindow))
+            //    {
+            //        System.Windows.MessageBox.Show("Loading family failed", "Tips");
+            //        return Result.Cancelled;
+            //    }
+            //    tx.Commit();
+            //}
+
+
             // Pick Import Instance
             ImportInstance import = null;
             try
@@ -116,27 +142,6 @@ namespace Manicotti
             }
 
 
-            // Check if the families are ready
-            if (!File.Exists(Properties.Settings.Default.url_door) && File.Exists(Properties.Settings.Default.url_window))
-            {
-                System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
-                return Result.Cancelled;
-            }
-            Family fDoor, fWindow = null;
-            using (Transaction tx = new Transaction(doc, "Load necessary families"))
-            {
-                tx.Start();
-                if (!doc.LoadFamily(Properties.Settings.Default.url_door, out fDoor) ||
-                !doc.LoadFamily(Properties.Settings.Default.url_window, out fWindow))
-                {
-                    System.Windows.MessageBox.Show("Loading family failed", "Tips");
-                    return Result.Cancelled;
-                }
-                tx.Commit();
-            }
-
-
-
             /*
             // LineStyle filter
             CurveElementFilter filter = new CurveElementFilter(CurveElementType.ModelCurve);
@@ -174,8 +179,10 @@ namespace Manicotti
             try
             {
                 tg.Start();
-                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels, 
-                    fDoor.Name, fWindow.Name, defaultLevel, false);
+                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels,
+                    Properties.Settings.Default.name_door,
+                    Properties.Settings.Default.name_window,
+                    defaultLevel, false);
                 tg.Assimilate();
             }
             catch (Exception e)

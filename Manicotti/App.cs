@@ -63,6 +63,12 @@ namespace Manicotti
             BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Winform.ico", UriKind.Absolute));
             config.LargeImage = configImg;
 
+            PushButton load = modelBuild.AddItem(new PushButtonData("load", "Reload\nFamilies",
+                thisAssemblyPath, "Manicotti.CmdPartAtom")) as PushButton;
+            load.ToolTip = "Reload the default families.";
+            BitmapImage loadImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Reload.ico", UriKind.Absolute));
+            load.LargeImage = loadImg;
+
             PushButton info = modelBuild.AddItem(new PushButtonData("info", "Pivot\nTable", 
                 thisAssemblyPath, "Manicotti.Views.CmdFindAllFamilyInstance")) as PushButton;
             info.ToolTip = "List of generated instances. WIP";

@@ -27,6 +27,26 @@ namespace Manicotti
             double tolerance = commandData.Application.Application.ShortCurveTolerance;
 
 
+            // Check if the families are ready
+            if (Properties.Settings.Default.name_column == null)
+            {
+                System.Windows.MessageBox.Show("Please select the column type in settings", "Tips");
+                return Result.Cancelled;
+            }
+            //if (!File.Exists(Properties.Settings.Default.url_column))
+            //{
+            //    System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
+            //    return Result.Cancelled;
+            //}
+            //Family fColumn;
+            //using (Transaction tx = new Transaction(doc, "Load necessary families"))
+            //{
+            //    tx.Start();
+            //    doc.LoadFamily(Properties.Settings.Default.url_column, new Util.SampleFamilyLoadOptions(), out fColumn);
+            //    tx.Commit();
+            //}
+
+
             // Pick Import Instance
             ImportInstance import = null;
             try
@@ -84,32 +104,14 @@ namespace Manicotti
             }
 
 
-            // Check if the families are ready
-            if (!File.Exists(Properties.Settings.Default.url_column))
-            {
-                System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
-                return Result.Cancelled;
-            }
-            Family fColumn = null;
-            using (Transaction tx = new Transaction(doc, "Load necessary families"))
-            {
-                tx.Start();
-                if (!doc.LoadFamily(Properties.Settings.Default.url_column, out fColumn))
-                {
-                    System.Windows.MessageBox.Show("Loading family failed", "Tips");
-                    return Result.Cancelled;
-                }
-                tx.Commit();
-            }
-            
-
-
             // Start batching
             TransactionGroup tg = new TransactionGroup(doc, "Create columns");
             try
             {
                 tg.Start();
-                CreateColumn.Execute(uiapp, columnCrvs, fColumn.Name, defaultLevel, false);
+                CreateColumn.Execute(uiapp, columnCrvs,
+                    Properties.Settings.Default.name_column,
+                    defaultLevel, false);
                 tg.Assimilate();
             }
             catch (Exception e)

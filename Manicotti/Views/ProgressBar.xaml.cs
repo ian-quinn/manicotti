@@ -62,11 +62,22 @@ namespace Manicotti.Views
         {
             btnOk.Visibility = Visibility.Visible;
             btnCancel.Visibility = Visibility.Collapsed;
+            //if (ProcessCancelled)
+            //    txtStatus.Text = string.Format("Aborted. {1}/{2} completed.", _format, progress.Value, _max);
+            //else
+            //    txtStatus.Text = string.Format("Completed. {1}/{2}", _format, progress.Value, _max);
+            if (ProcessCancelled) txtStatus.Text = "Cancelled.";
+            else txtStatus.Text = "Complete.";
+        }
 
-            if (ProcessCancelled)
-                txtStatus.Text = string.Format("Aborted. {1}/{2} completed.", _format, progress.Value, _max);
-            else
-                txtStatus.Text = string.Format("Complete. {1}/{2}", _format, progress.Value, _max);
+        public void CustomizeStatus(string status, int procession)
+        {
+            btnOk.Visibility = Visibility.Collapsed;
+            btnCancel.Visibility = Visibility.Visible;
+
+            txtStatus.Text = status;
+            progress.Value += procession;
+            System.Windows.Forms.Application.DoEvents();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)

@@ -47,33 +47,48 @@ namespace Manicotti
                 return Result.Cancelled;
             }
 
+
+            // Initiate the progress bar
+            Views.ProgressBar pb = new Views.ProgressBar("Modeling entire building", "Initiation...", 100);
+            if (pb.ProcessCancelled) return Result.Cancelled;
+
+
             //////////////////////////////////
             // Check if the families are ready
+            pb.CustomizeStatus("Checking families...", 2);
+            if (pb.ProcessCancelled) return Result.Cancelled;
             // Consider to add more customized families (in the Setting Panel)
-            if (!File.Exists(Properties.Settings.Default.url_door) && File.Exists(Properties.Settings.Default.url_window)
-                && File.Exists(Properties.Settings.Default.url_column))
+            if (Properties.Settings.Default.name_door == null ||
+                Properties.Settings.Default.name_window == null ||
+                Properties.Settings.Default.name_column == null)
             {
-                System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
+                System.Windows.MessageBox.Show("Please select the column/door/window type in settings", "Tips");
                 return Result.Cancelled;
             }
-            Family fColumn, fDoor, fWindow = null;
-            using (Transaction tx = new Transaction(doc, "Load necessary families"))
-            {
-                tx.Start();
-                if (!doc.LoadFamily(Properties.Settings.Default.url_column, out fColumn))
-                {
-                    System.Windows.MessageBox.Show("Please check the column family path is solid", "Tips");
-                    return Result.Cancelled;
-                }
-                if (!doc.LoadFamily(Properties.Settings.Default.url_door, out fDoor) ||
-                    !doc.LoadFamily(Properties.Settings.Default.url_door, out fWindow))
-                {
-                    System.Windows.MessageBox.Show("Please check the door/window family path is solid", "Tips");
-                    return Result.Cancelled;
-                }
-                tx.Commit();
-            }
-                
+            //if (!File.Exists(Properties.Settings.Default.url_door) && File.Exists(Properties.Settings.Default.url_window)
+            //    && File.Exists(Properties.Settings.Default.url_column))
+            //{
+            //    System.Windows.MessageBox.Show("Please check the family path is solid", "Tips");
+            //    return Result.Cancelled;
+            //}
+            //Family fColumn, fDoor, fWindow = null;
+            //using (Transaction tx = new Transaction(doc, "Load necessary families"))
+            //{
+            //    tx.Start();
+            //    if (!doc.LoadFamily(Properties.Settings.Default.url_column, out fColumn))
+            //    {
+            //        System.Windows.MessageBox.Show("Please check the column family path is solid", "Tips");
+            //        return Result.Cancelled;
+            //    }
+            //    if (!doc.LoadFamily(Properties.Settings.Default.url_door, out fDoor) ||
+            //        !doc.LoadFamily(Properties.Settings.Default.url_window, out fWindow))
+            //    {
+            //        System.Windows.MessageBox.Show("Please check the door/window family path is solid", "Tips");
+            //        return Result.Cancelled;
+            //    }
+            //    tx.Commit();
+            //}
+
             // Prepare a family for ViewPlan creation
             // It may be a coincidence that the 1st ViewFamilyType is for the FloorPlan
             // Uplift needed here (doomed if it happends to be a CeilingPlan)
@@ -84,13 +99,13 @@ namespace Manicotti
                 .OfClass(typeof(RoofType)).FirstOrDefault<Element>() as RoofType;
 
             FloorType floorType = new FilteredElementCollector(doc)
-                .OfClass(typeof(FloorType))
-                .First<Element>(e => e.Name.Equals("Generic 150mm")) as FloorType;
+                .OfClass(typeof(FloorType)).FirstOrDefault<Element>() as FloorType;
 
 
             ////////////////////
             // DATA PREPARATIONS
-
+            pb.CustomizeStatus("Processing geometries...", 3);
+            if (pb.ProcessCancelled) return Result.Cancelled;
             // Prepare frames and levels
             // Cluster all geometry elements and texts into datatrees
             // Two procedures are intertwined
@@ -286,6 +301,9 @@ namespace Manicotti
             // ITERATION FLAG
             for (int i = 1; i <= levelCounter; i++)
             {
+                pb.CustomizeStatus("On Floor " + i.ToString() + "... with lines", 5);
+                if (pb.ProcessCancelled) return Result.Cancelled;
+
                 TransactionGroup tg = new TransactionGroup(doc, "Generate on floor-" + i.ToString());
                 {
                     try
@@ -401,12 +419,20 @@ namespace Manicotti
                         // Sub-transactions are packed within these functions.
                         // The family names should be defined by the user in WPF
                         // MILESTONE
+                        pb.CustomizeStatus("On Floor " + i.ToString() + "... with Walls", 90 / levelCounter / 4);
+                        if (pb.ProcessCancelled) return Result.Cancelled;
                         CreateWall.Execute(uiapp, wallCrvs, currentLevel, true);
+
                         // MILESTONE
-                        CreateColumn.Execute(uiapp, columnCrvs, fColumn.Name, currentLevel, true);
+                        pb.CustomizeStatus("On Floor " + i.ToString() + "... with Columns", 90 / levelCounter / 4);
+                        if (pb.ProcessCancelled) return Result.Cancelled;
+                        CreateColumn.Execute(uiapp, columnCrvs, Properties.Settings.Default.name_column, currentLevel, true);
+
                         // MILESTONE
+                        pb.CustomizeStatus("On Floor " + i.ToString() + "... with Openings", 90 / levelCounter / 4);
+                        if (pb.ProcessCancelled) return Result.Cancelled;
                         CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], 
-                            fDoor.Name, fWindow.Name, currentLevel, true);
+                            Properties.Settings.Default.name_door, Properties.Settings.Default.name_window, currentLevel, true);
 
                         // Create floor
                         // MILESTONE
@@ -422,6 +448,8 @@ namespace Manicotti
                         }
 
                         // Generate rooms after the topology is established
+                        pb.CustomizeStatus("On Floor " + i.ToString() + "... with Rooms", 90 / levelCounter / 4);
+                        if (pb.ProcessCancelled) return Result.Cancelled;
                         // MILESTONE
                         using (var t_space = new Transaction(doc))
                         {
@@ -456,6 +484,8 @@ namespace Manicotti
                             }
                             t_space.Commit();
                         }
+                        
+
 
                         // Create roof when iterating to the last level
                         // MILESTONE
@@ -493,6 +523,7 @@ namespace Manicotti
                         tg.RollBack();
                     }
                 }
+                pb.JobCompleted();
             }
 
             return Result.Succeeded;
