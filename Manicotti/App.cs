@@ -19,6 +19,7 @@ namespace Manicotti
             //string thisAssemblyPath = AssemblyLoadEventArgs.getExecutingAssembly().Location;
             string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
 
+            ////////////
             // 1st Panel
             RibbonPanel modelBuild = ribbonPanel(a, "Manicotti", "Create Model");
             //var globePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "icon.PNG");
@@ -57,26 +58,34 @@ namespace Manicotti
 
             IList<RibbonItem> stackedGeometry = modelBuild.AddStackedItems(wall, column, opening);
 
-            PushButton config = modelBuild.AddItem(new PushButtonData("config", "Default\nSettings",
-                thisAssemblyPath, "Manicotti.Views.CmdConfig")) as PushButton;
-            config.ToolTip = "Default and preferance settings. WIP";
-            BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Winform.ico", UriKind.Absolute));
-            config.LargeImage = configImg;
 
-            PushButton load = modelBuild.AddItem(new PushButtonData("load", "Reload\nFamilies",
-                thisAssemblyPath, "Manicotti.CmdPartAtom")) as PushButton;
+            ////////////
+            // 2nd Panel
+            RibbonPanel modelSetting = ribbonPanel(a, "Manicotti", "Settings");
+
+            PushButtonData config = new PushButtonData("config", "Default Settings",
+                thisAssemblyPath, "Manicotti.Views.CmdConfig");
+            wall.ToolTip = "Default and preferance settings. WIP";
+            BitmapImage configImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Winform.ico", UriKind.Absolute));
+            config.Image = configImg;
+
+            PushButtonData load = new PushButtonData("load", "Reload Families",
+                thisAssemblyPath, "Manicotti.CmdPartAtom");
             load.ToolTip = "Reload the default families.";
             BitmapImage loadImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Reload.ico", UriKind.Absolute));
-            load.LargeImage = loadImg;
+            load.Image = loadImg;
 
-            PushButton info = modelBuild.AddItem(new PushButtonData("info", "Pivot\nTable", 
-                thisAssemblyPath, "Manicotti.Views.CmdFindAllFamilyInstance")) as PushButton;
+            PushButtonData info = new PushButtonData("info", "Pivot Table",
+                thisAssemblyPath, "Manicotti.Views.CmdFindAllFamilyInstance");
             info.ToolTip = "List of generated instances. WIP";
             BitmapImage infoImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Info.ico", UriKind.Absolute));
-            info.LargeImage = infoImg;
+            info.Image = infoImg;
+
+            IList<RibbonItem> stackedSetting = modelSetting.AddStackedItems(config, load, info);
 
 
-            // 2nd Panel
+            ////////////
+            // 3rd Panel
             RibbonPanel modelFix = ribbonPanel(a, "Manicotti", "Misc.");
             // Currently we disable this panel that is still under test
             modelFix.Enabled = false;

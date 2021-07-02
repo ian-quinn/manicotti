@@ -121,8 +121,9 @@
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
-    <Resource Include="Resources\ico\Reload.ico" />
     <Resource Include="Resources\ico\Info.ico" />
+    <Resource Include="Resources\ico\Reload.ico" />
+    <Resource Include="Resources\ico\Winform.ico" />
     <Resource Include="Resources\ico\Flask.ico" />
     <Resource Include="Resources\ico\House.ico" />
     <Resource Include="Resources\lib\TD_Mgd_3.03_9.dll" />
@@ -143,7 +144,6 @@
     <Resource Include="Resources\ico\Room.ico" />
     <Resource Include="Resources\ico\Sketch.ico" />
     <Resource Include="Resources\ico\Wall.ico" />
-    <Resource Include="Resources\ico\Winform.ico" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\BaseWindowStyle.xaml">
