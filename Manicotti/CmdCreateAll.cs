@@ -60,7 +60,8 @@ namespace Manicotti
             // Consider to add more customized families (in the Setting Panel)
             if (Properties.Settings.Default.name_door == null ||
                 Properties.Settings.Default.name_window == null ||
-                Properties.Settings.Default.name_column == null)
+                Properties.Settings.Default.name_columnRect == null ||
+                Properties.Settings.Default.name_columnRound == null)
             {
                 System.Windows.MessageBox.Show("Please select the column/door/window type in settings", "Tips");
                 return Result.Cancelled;
@@ -426,7 +427,10 @@ namespace Manicotti
                         // MILESTONE
                         pb.CustomizeStatus("On Floor " + i.ToString() + "... with Columns", 90 / levelCounter / 4);
                         if (pb.ProcessCancelled) return Result.Cancelled;
-                        CreateColumn.Execute(uiapp, columnCrvs, Properties.Settings.Default.name_column, currentLevel, true);
+                        CreateColumn.Execute(uiapp, columnCrvs, 
+                            Properties.Settings.Default.name_columnRect, 
+                            Properties.Settings.Default.name_columnRound,
+                            currentLevel, true);
 
                         // MILESTONE
                         pb.CustomizeStatus("On Floor " + i.ToString() + "... with Openings", 90 / levelCounter / 4);

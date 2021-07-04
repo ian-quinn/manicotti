@@ -28,7 +28,8 @@ namespace Manicotti
 
 
             // Check if the families are ready
-            if (Properties.Settings.Default.name_column == null)
+            if (Properties.Settings.Default.name_columnRect == null ||
+                Properties.Settings.Default.name_columnRound == null)
             {
                 System.Windows.MessageBox.Show("Please select the column type in settings", "Tips");
                 return Result.Cancelled;
@@ -110,7 +111,8 @@ namespace Manicotti
             {
                 tg.Start();
                 CreateColumn.Execute(uiapp, columnCrvs,
-                    Properties.Settings.Default.name_column,
+                    Properties.Settings.Default.name_columnRect,
+                    Properties.Settings.Default.name_columnRound,
                     defaultLevel, false);
                 tg.Assimilate();
             }

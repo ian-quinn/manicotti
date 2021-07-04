@@ -99,20 +99,23 @@ namespace Manicotti.Util
         public static List<Curve> ShatterCADGeometry(UIDocument uidoc, ImportInstance import, string layer, double tolerance)
         {
             List<Curve> shatteredCrvs = new List<Curve>();
+            //List<Arc> arcs = new List<Arc>();
             List<GeometryObject> dwg_geos = TeighaGeometry.ExtractElement(uidoc, import, layer);
             if (dwg_geos.Count > 0)
             {
                 foreach (var obj in dwg_geos)
                 {
-                    Curve crv = obj as Curve;
-                    PolyLine poly = obj as PolyLine;
                     if (obj.GetType().ToString() == "Autodesk.Revit.DB.Arc")
                     {
+                        Arc arc = obj as Arc;
                         Debug.Print("An arc detected");
-                        Line flattenCrv = Line.CreateBound(crv.GetEndPoint(0), crv.GetEndPoint(1));
-                        shatteredCrvs.Add(flattenCrv as Curve);
+                        shatteredCrvs.Add(arc);
                         continue;
                     }
+
+                    Curve crv = obj as Curve;
+                    PolyLine poly = obj as PolyLine;
+                    
                     if (null != crv)
                     {
                         shatteredCrvs.Add(crv);

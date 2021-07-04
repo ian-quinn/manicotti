@@ -20,14 +20,13 @@ namespace Manicotti
         public static FamilySymbol NewRectColumnType(UIApplication uiapp, string familyName, double width, double depth)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
-            Application app = uiapp.Application;
             Document doc = uidoc.Document;
             
             Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
             {
                 // add default path and error handling here
-                if (!doc.LoadFamily(Properties.Settings.Default.url_column, out f))
+                if (!doc.LoadFamily(Properties.Settings.Default.url_columnRect, out f))
                 {
                     Debug.Print("Unable to load the default column");
                 }
@@ -63,6 +62,59 @@ namespace Manicotti
                 // the specified parameter name is case sensitive:
                 s.LookupParameter("Width").Set(Misc.MmToFoot(width));
                 s.LookupParameter("Depth").Set(Misc.MmToFoot(depth));
+
+                return s;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static FamilySymbol NewRoundColumnType(UIApplication uiapp, string familyName, double diameter)
+        {
+            UIDocument uidoc = uiapp.ActiveUIDocument;
+            Document doc = uidoc.Document;
+
+            Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
+            if (null == f)
+            {
+                // add default path and error handling here
+                if (!doc.LoadFamily(Properties.Settings.Default.url_columnRound, out f))
+                {
+                    Debug.Print("Unable to load the default column");
+                }
+            }
+
+            if (null != f)
+            {
+                Debug.Print("Family name={0}", f.Name);
+
+                // Pick any symbol for duplication (for iteration convenient choose the last):
+                FamilySymbol s = null;
+                foreach (ElementId id in f.GetFamilySymbolIds())
+                {
+                    s = doc.GetElement(id) as FamilySymbol;
+                    if (s.Name == diameter.ToString() + "mm Diameter")
+                    {
+                        return s;
+                    }
+                }
+
+                Debug.Assert(null != s, "expected at least one symbol to be defined in family");
+
+                // Duplicate the existing symbol:
+                s = s.Duplicate(diameter.ToString() + "mm Diameter") as FamilySymbol;
+
+                // Analyse the symbol parameters:
+                foreach (Parameter param in s.Parameters)
+                {
+                    Debug.Print("Parameter name={0}, value={1}", param.Definition.Name, param.AsValueString());
+                }
+
+                // Define new dimensions for our new type;
+                // the specified parameter name is case sensitive:
+                s.LookupParameter("Diameter").Set(Misc.MmToFoot(diameter));
 
                 return s;
             }
@@ -148,7 +200,8 @@ namespace Manicotti
 
 
         // Main transaction
-        public static void Execute(UIApplication uiapp, List<Curve> columnLines, string nameCollumn, Level level, bool IsSilent)
+        public static void Execute(UIApplication uiapp, List<Curve> columnLines, 
+            string nameRectColumn, string nameRoundColumn, Level level, bool IsSilent)
         {
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -156,12 +209,31 @@ namespace Manicotti
 
             // Sort out column boundary
             // Consider using CurveArray to store the data
-            List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(columnLines);
             List<List<Curve>> columnRect = new List<List<Curve>>();
+            List<Arc> columnRound = new List<Arc>();
             List<List<Curve>> columnSpecialShaped = new List<List<Curve>>();
+
+            List<int> delIndex = new List<int>();
+            List<Curve> sortedLines = new List<Curve>();
+            foreach (Curve columnLine in columnLines)
+            {
+                if (columnLine.GetType().ToString() == "Autodesk.Revit.DB.Arc")
+                {
+                    columnRound.Add(columnLine as Arc);
+                    delIndex.Add(columnLines.IndexOf(columnLine));
+                }
+                else
+                {
+                    sortedLines.Add(columnLine);
+                }
+            }
+            // this is the temperal method
+            List<List<Curve>> columnGroups = Algorithm.ClusterByIntersect(sortedLines);
+            Debug.Print("Baselines are sorted well");
+
             foreach (List<Curve> columnGroup in columnGroups)
             {
-                if (Algorithm.GetPtsOfCrvs(columnGroup).Count() == columnGroup.Count())
+                if (Algorithm.GetPtsOfCrvs(columnGroup).Count == columnGroup.Count)
                 {
                     if (Algorithm.IsRectangle(columnGroup))
                     {
@@ -173,7 +245,8 @@ namespace Manicotti
                     }
                 }
             }
-            Debug.Print("Got rectangle {0}, and unique shape {1}", columnRect.Count(), columnSpecialShaped.Count());
+            Debug.Print("Got rectangle {0}, round {1}, and unique shape {2}", 
+                columnRect.Count, columnRound.Count, columnSpecialShaped.Count);
 
 
             // Grab the columntype
@@ -186,7 +259,7 @@ namespace Manicotti
             //FamilySymbol column_demo = columnTypes.Find((FamilySymbol fs) => { return fs.Name == "Column_demo"});
             foreach (FamilySymbol columnType in colColumns)
             {
-                if (columnType.Name == nameCollumn)
+                if (columnType.Name == nameRectColumn)
                 {
                     rectangularColumn = columnType as FamilySymbol;
                     break;
@@ -210,7 +283,7 @@ namespace Manicotti
                         double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
                         double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
 
-                        FamilySymbol fs = NewRectColumnType(uiapp, nameCollumn, width, depth);
+                        FamilySymbol fs = NewRectColumnType(uiapp, nameRectColumn, width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
@@ -263,7 +336,7 @@ namespace Manicotti
                         double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
                         double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
 
-                        FamilySymbol fs = NewRectColumnType(uiapp, nameCollumn, width, depth);
+                        FamilySymbol fs = NewRectColumnType(uiapp, nameRectColumn, width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
@@ -279,8 +352,35 @@ namespace Manicotti
                 }
                 pb1.Close();
 
+
+                task = "Creating round columns...";
+                Views.ProgressBar pb2 = new Views.ProgressBar(caption, task, columnRound.Count);
+
+                foreach (Arc baseline in columnRound)
+                {
+                    using (Transaction tx = new Transaction(doc, "Generate a rounded column"))
+                    {
+                        tx.Start();
+                        XYZ basePt = baseline.Center;
+                        double diameter = Misc.FootToMm(Math.Round(2 * baseline.Radius, 2));
+
+                        FamilySymbol fs = NewRoundColumnType(uiapp, nameRoundColumn, diameter);
+                        if (!fs.IsActive) { fs.Activate(); }
+
+                        Line columnCenterAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
+                        // z pointing down to apply a clockwise rotation
+                        FamilyInstance fi = doc.Create.NewFamilyInstance(basePt, fs, level, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        
+                        tx.Commit();
+                    }
+                    pb2.Increment();
+                    if (pb2.ProcessCancelled) { break; }
+                }
+                pb2.Close();
+
+
                 task = "Creating special shaped columns...";
-                Views.ProgressBar pb2 = new Views.ProgressBar(caption, task, columnSpecialShaped.Count);
+                Views.ProgressBar pb3 = new Views.ProgressBar(caption, task, columnSpecialShaped.Count);
 
                 foreach (List<Curve> baselines in columnSpecialShaped)
                 {
@@ -301,10 +401,10 @@ namespace Manicotti
                         // DANGEROUS! the coordination transformation should be added here
                         tx.Commit();
                     }
-                    pb2.Increment();
-                    if (pb2.ProcessCancelled) { break; }
+                    pb3.Increment();
+                    if (pb3.ProcessCancelled) { break; }
                 }
-                pb2.JobCompleted();
+                pb3.JobCompleted();
             }
             
         }

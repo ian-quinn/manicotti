@@ -8,7 +8,10 @@
     <Setting Name="url_door" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="url_column" Type="System.String" Scope="User">
+    <Setting Name="url_columnRect" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="url_columnRound" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="url_columnFamily" Type="System.String" Scope="User">
@@ -53,7 +56,10 @@
     <Setting Name="name_door" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="name_column" Type="System.String" Scope="User">
+    <Setting Name="name_columnRect" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="name_columnRound" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

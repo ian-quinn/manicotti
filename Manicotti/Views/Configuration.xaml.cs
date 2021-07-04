@@ -26,7 +26,8 @@ namespace Manicotti.Views
 
         private void apply_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.url_column = url_column.Text;
+            Properties.Settings.Default.url_columnRect = url_columnRect.Text;
+            Properties.Settings.Default.url_columnRound = url_columnRound.Text;
             Properties.Settings.Default.url_door = url_door.Text;
             Properties.Settings.Default.url_window = url_window.Text;
             Properties.Settings.Default.url_columnFamily = url_columnFamily.Text;
@@ -54,7 +55,8 @@ namespace Manicotti.Views
         {
             string thisAssemblyFolderPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            Properties.Settings.Default.url_column = thisAssemblyFolderPath + @"\Resources\rfa\M_Rectangular Column.rfa";
+            Properties.Settings.Default.url_columnRect = thisAssemblyFolderPath + @"\Resources\rfa\M_Rectangular Column.rfa";
+            Properties.Settings.Default.url_columnRound = thisAssemblyFolderPath + @"\Resources\rfa\M_Round Column.rfa";
             Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\Resources\rfa\M_Door-Single-Panel.rfa";
             Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\Resources\rfa\M_Window-Fixed.rfa";
             Properties.Settings.Default.url_columnFamily = @"C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft";
@@ -115,11 +117,20 @@ namespace Manicotti.Views
             string strA = strrRfaName();
             if (!string.IsNullOrEmpty(strA))
             {
-                url_column.Text = strA;
+                url_columnRect.Text = strA;
             }
         }
 
         private void BtnOpen4_Click(object sender, RoutedEventArgs e)
+        {
+            string strA = strrRfaName();
+            if (!string.IsNullOrEmpty(strA))
+            {
+                url_columnRound.Text = strA;
+            }
+        }
+
+        private void BtnOpen5_Click(object sender, RoutedEventArgs e)
         {
             string strName = string.Empty;
             System.Windows.Forms.OpenFileDialog ofd = null;
@@ -139,7 +150,7 @@ namespace Manicotti.Views
             }
             if (!string.IsNullOrEmpty(strName))
             {
-                url_column.Text = strName;
+                url_columnFamily.Text = strName;
             }
         }
     }

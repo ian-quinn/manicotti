@@ -58,9 +58,10 @@ namespace Manicotti
             }
 
 
-            if (Properties.Settings.Default.url_column == null ||
-                Properties.Settings.Default.url_column == null ||
-                Properties.Settings.Default.url_column == null)
+            if (Properties.Settings.Default.url_columnRect == null ||
+                Properties.Settings.Default.url_columnRound == null ||
+                Properties.Settings.Default.url_door == null ||
+                Properties.Settings.Default.url_window == null)
             {
                 System.Windows.MessageBox.Show("Please check the default family settings", "Tips");
                 return Result.Cancelled;
@@ -68,14 +69,19 @@ namespace Manicotti
             
             Transaction trans = new Transaction(doc, "Extract Part Atom");
             trans.Start();
-            string name_column = CreatePartAtom(Properties.Settings.Default.url_column);
+            string name_columnRect = CreatePartAtom(Properties.Settings.Default.url_columnRect);
+            string name_columnRound = CreatePartAtom(Properties.Settings.Default.url_columnRound);
             string name_door = CreatePartAtom(Properties.Settings.Default.url_door);
             string name_window = CreatePartAtom(Properties.Settings.Default.url_window);
             trans.Commit();
 
-            if (name_column != null)
+            if (name_columnRect != null)
             {
-                Properties.Settings.Default.name_column = GetFamilyName(name_column);
+                Properties.Settings.Default.name_columnRect = GetFamilyName(name_columnRect);
+            }
+            if (name_columnRound != null)
+            {
+                Properties.Settings.Default.name_columnRound = GetFamilyName(name_columnRound);
             }
             if (name_door != null)
             {

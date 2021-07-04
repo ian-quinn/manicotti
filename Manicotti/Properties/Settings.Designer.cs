@@ -50,12 +50,24 @@ namespace Manicotti.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string url_column {
+        public string url_columnRect {
             get {
-                return ((string)(this["url_column"]));
+                return ((string)(this["url_columnRect"]));
             }
             set {
-                this["url_column"] = value;
+                this["url_columnRect"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string url_columnRound {
+            get {
+                return ((string)(this["url_columnRound"]));
+            }
+            set {
+                this["url_columnRound"] = value;
             }
         }
         
@@ -230,12 +242,24 @@ namespace Manicotti.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string name_column {
+        public string name_columnRect {
             get {
-                return ((string)(this["name_column"]));
+                return ((string)(this["name_columnRect"]));
             }
             set {
-                this["name_column"] = value;
+                this["name_columnRect"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string name_columnRound {
+            get {
+                return ((string)(this["name_columnRound"]));
+            }
+            set {
+                this["name_columnRound"] = value;
             }
         }
     }

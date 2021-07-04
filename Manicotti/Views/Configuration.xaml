@@ -8,7 +8,8 @@
              mc:Ignorable="d"
              WindowStartupLocation="CenterScreen"
              Background="White"
-             Height="570" Width="400"
+             Height="600" Width="400"
+             SizeToContent="Height"
              WindowStyle="None" AllowsTransparency="True">
 
     <Window.Resources>
@@ -53,27 +54,37 @@
                         <RowDefinition Height="22"/>
                         <RowDefinition Height="22"/>
                         <RowDefinition Height="22"/>
+                        <RowDefinition Height="22"/>
+                        <RowDefinition Height="22"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="46"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Backup .rfa path for door" Margin="0 6 0 2"/>
+                    <TextBlock Text=".rfa path for door" Margin="0 6 0 2"/>
                     <TextBox Name="url_door" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=url_door, Mode=TwoWay}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Left" Grid.Row="1" />
                     <Button x:Name="BtnOpen1" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Margin="6,0" Click="BtnOpen1_Click"/>
-                    <TextBlock Text="Backup .rfa path for window" Margin="0 6 0 2" Grid.Row="2"/>
+                    
+                    <TextBlock Text=".rfa path for window" Margin="0 6 0 2" Grid.Row="2"/>
                     <TextBox Name="url_window" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
            Path=url_window, Mode=TwoWay}" Grid.Row="3"/>
                     <Button x:Name="BtnOpen2" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="3" Grid.Column="1" Margin="6,0" Click="BtnOpen2_Click"/>
-                    <TextBlock Text="Backup .rfa path for column" Margin="0 6 0 2" Grid.Row="4"/>
-                    <TextBox Name="url_column" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_column, Mode=TwoWay}" Grid.Row="5"/>
+                    
+                    <TextBlock Text=".rfa path for rectangular column" Margin="0 6 0 2" Grid.Row="4"/>
+                    <TextBox Name="url_columnRect" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=url_columnRect, Mode=TwoWay}" Grid.Row="5"/>
                     <Button x:Name="BtnOpen3" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="5" Grid.Column="1" Margin="6,0" Click="BtnOpen3_Click"/>
-                    <TextBlock Text="Default .rft path for special shaped column" Margin="0 6 0 2" Grid.Row="6"/>
+
+                    <TextBlock Text=".rfa path for round column" Margin="0 6 0 2" Grid.Row="6"/>
+                    <TextBox Name="url_columnRound" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=url_columnRound, Mode=TwoWay}" Grid.Row="7"/>
+                    <Button x:Name="BtnOpen4" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="7" Grid.Column="1" Margin="6,0" Click="BtnOpen4_Click"/>
+
+                    <TextBlock Text=".rft path for special shaped column" Margin="0 6 0 2" Grid.Row="8"/>
                     <TextBox Name="url_columnFamily" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_columnFamily, Mode=TwoWay}" Grid.Row="7"/>
-                    <Button  x:Name="BtnOpen4" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="7" Grid.Column="1" Margin="6,0" Click="BtnOpen4_Click"/>
+           Path=url_columnFamily, Mode=TwoWay}" Grid.Row="9"/>
+                    <Button  x:Name="BtnOpen5" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="9" Grid.Column="1" Margin="6,0" Click="BtnOpen5_Click"/>
                 </Grid>
                 
             </GroupBox>

@@ -176,6 +176,9 @@
     <None Include="Resources\rfa\M_Rectangular Column.rfa">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Resources\rfa\M_Round Column.rfa">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\rfa\M_Window-Fixed.rfa">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
