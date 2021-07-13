@@ -15,12 +15,9 @@ namespace Manicotti
     public static class CreateRegion
     {
         // Main thread
-        public static CurveArray Execute(UIApplication uiapp, List<Curve> wallCrvs, List<Curve> columnCrvs, 
+        public static CurveArray Execute(Document doc, List<Curve> wallCrvs, List<Curve> columnCrvs, 
             List<Curve> windowCrvs, List<Curve> doorCrvs)
         {
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            Application app = uiapp.Application;
-            Document doc = uidoc.Document;
             View view = doc.ActiveView;
             
             
@@ -82,10 +79,10 @@ namespace Manicotti
             wallCrvs.AddRange(patchLines);
 
             // Merge lines when they are parallel and almost intersected (knob)
-            List<Curve> mergeLines = MeshPatch.CloseGapAtBreakpoint(wallCrvs);
+            List<Curve> mergeLines = CmdPatchBoundary.CloseGapAtBreakpoint(wallCrvs);
 
             // 
-            List<Curve> fixedLines = MeshPatch.CloseGapAtCorner(mergeLines);
+            List<Curve> fixedLines = CmdPatchBoundary.CloseGapAtCorner(mergeLines);
 
             #endregion
             // OUTPUT List<Line> fixedLines
@@ -270,9 +267,9 @@ namespace Manicotti
                             {
                                 if (j != i)
                                 {
-                                    if (null != MeshPatch.ExtendLine(centerLine, columnGroup[j]))
+                                    if (null != CmdPatchBoundary.ExtendLine(centerLine, columnGroup[j]))
                                     {
-                                        nestLines.Add(MeshPatch.ExtendLine(centerLine, columnGroup[j]));
+                                        nestLines.Add(CmdPatchBoundary.ExtendLine(centerLine, columnGroup[j]));
                                     }
                                 }
                             }
@@ -324,7 +321,7 @@ namespace Manicotti
             // The boolean union method of the loops needs to fix
             var perimeter = RegionDetect.GetBoundary(loops);
 
-            var recPerimeter = MeshPatch.CloseGapAtBreakpoint(perimeter);
+            var recPerimeter = CmdPatchBoundary.CloseGapAtBreakpoint(perimeter);
 
             #endregion
             // OUTPUT List<CurveArray> loops

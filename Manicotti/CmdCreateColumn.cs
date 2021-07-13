@@ -24,7 +24,7 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
 
-            double tolerance = commandData.Application.Application.ShortCurveTolerance;
+            double tolerance = app.ShortCurveTolerance;
 
 
             // Check if the families are ready
@@ -110,7 +110,7 @@ namespace Manicotti
             try
             {
                 tg.Start();
-                CreateColumn.Execute(uiapp, columnCrvs,
+                CreateColumn.Execute(app, doc, columnCrvs,
                     Properties.Settings.Default.name_columnRect,
                     Properties.Settings.Default.name_columnRound,
                     defaultLevel, false);

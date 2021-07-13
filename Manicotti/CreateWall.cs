@@ -22,7 +22,7 @@ namespace Manicotti
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
-            
+
 
             // Bundle double lines and generate their axes
             List<Curve> axes = new List<Curve>();

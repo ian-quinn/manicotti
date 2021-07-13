@@ -14,18 +14,35 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public class SketchDWG : IExternalCommand
+    public class CmdSketchDWG : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
+            Application app = uiapp.Application;
             Document doc = uidoc.Document;
+
             View active_view = doc.ActiveView;
 
+            double tolerance = app.ShortCurveTolerance;
+
             // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
-            var import = doc.GetElement(r) as ImportInstance;
+            ImportInstance import = null;
+            try
+            {
+                Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
+                import = doc.GetElement(r) as ImportInstance;
+            }
+            catch
+            {
+                return Result.Cancelled;
+            }
+            if (import == null)
+            {
+                System.Windows.MessageBox.Show("CAD not found", "Tips");
+                return Result.Cancelled;
+            }
 
             List<GeometryObject> dwg_geos = Util.TeighaGeometry.ExtractElement(uidoc, import);
             //List<GeometryObject> dwg_geos = CADGeoUtil.ExtractElement(uidoc, import, "WALL", "Line");
@@ -45,7 +62,6 @@ namespace Manicotti
                     
                     foreach (var obj in dwg_geos)
                     {
-                        double tolerance = commandData.Application.Application.ShortCurveTolerance;
                         // The variable will be null if the implicit cast fails, thus...
                         // This will sort the curve(line) and polyline into two categories automatically
                         Curve crv = obj as Curve;

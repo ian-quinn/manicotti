@@ -22,13 +22,9 @@ namespace Manicotti
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        private static FamilySymbol NewOpeningType(UIApplication uiapp, string familyName, 
+        private static FamilySymbol NewOpeningType(Document doc, string familyName, 
             double width, double height, string type = "")
         {
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            Application app = uiapp.Application;
-            Document doc = uidoc.Document;
-
             Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
             {
@@ -95,13 +91,10 @@ namespace Manicotti
         }
 
 
-        public static void Execute(UIApplication uiapp, List<Curve> doorCrvs, List<Curve> windowCrvs, 
+        public static void Execute(Document doc, List<Curve> doorCrvs, List<Curve> windowCrvs, 
             List<Curve> wallCrvs, List<Util.TeighaText.CADTextModel> labels, 
             string nameDoor, string nameWindow, Level level, bool IsSilent)
         {
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            Application app = uiapp.Application;
-            Document doc = uidoc.Document;
             View view = doc.ActiveView;
 
             var doorClusters = Algorithm.ClusterByIntersect(doorCrvs);
@@ -266,7 +259,7 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, nameDoor, width, height, "Door");
+                        FamilySymbol fs = NewOpeningType(doc, nameDoor, width, height, "Door");
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }
 
@@ -313,7 +306,7 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, nameWindow, width, height, "Window");
+                        FamilySymbol fs = NewOpeningType(doc, nameWindow, width, height, "Window");
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }
 
@@ -370,7 +363,7 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new door with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, nameDoor, width, height, "Door");
+                        FamilySymbol fs = NewOpeningType(doc, nameDoor, width, height, "Door");
 
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }
@@ -424,7 +417,7 @@ namespace Manicotti
                         }
 
                         Debug.Print("Create new window with dimension {0}x{1}", width.ToString(), height.ToString());
-                        FamilySymbol fs = NewOpeningType(uiapp, nameWindow, width, height, "Window");
+                        FamilySymbol fs = NewOpeningType(doc, nameWindow, width, height, "Window");
 
                         if (null == fs) { continue; }
                         if (!fs.IsActive) { fs.Activate(); }

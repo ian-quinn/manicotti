@@ -63,10 +63,19 @@ namespace Manicotti
                 Properties.Settings.Default.url_door == null ||
                 Properties.Settings.Default.url_window == null)
             {
-                System.Windows.MessageBox.Show("Please check the default family settings", "Tips");
+                System.Windows.MessageBox.Show("Family files not defined", "Tips");
                 return Result.Cancelled;
             }
-            
+
+            if (!File.Exists(Properties.Settings.Default.url_columnRect) ||
+                !File.Exists(Properties.Settings.Default.url_columnRound) ||
+                !File.Exists(Properties.Settings.Default.url_door) ||
+                !File.Exists(Properties.Settings.Default.url_window))
+            {
+                System.Windows.MessageBox.Show("Family URL may not be valid", "Tips");
+                return Result.Cancelled;
+            }
+
             Transaction trans = new Transaction(doc, "Extract Part Atom");
             trans.Start();
             string name_columnRect = CreatePartAtom(Properties.Settings.Default.url_columnRect);

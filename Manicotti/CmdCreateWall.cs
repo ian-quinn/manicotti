@@ -23,7 +23,7 @@ namespace Manicotti
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
 
-            double tolerance = commandData.Application.Application.ShortCurveTolerance;
+            double tolerance = app.ShortCurveTolerance;
 
 
             // Pick Import Instance

@@ -17,11 +17,8 @@ namespace Manicotti
     public static class CreateColumn
     {
         // add new type of a family instance if not exist
-        public static FamilySymbol NewRectColumnType(UIApplication uiapp, string familyName, double width, double depth)
+        public static FamilySymbol NewRectColumnType(Document doc, string familyName, double width, double depth)
         {
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            Document doc = uidoc.Document;
-            
             Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
             {
@@ -71,11 +68,8 @@ namespace Manicotti
             }
         }
 
-        public static FamilySymbol NewRoundColumnType(UIApplication uiapp, string familyName, double diameter)
+        public static FamilySymbol NewRoundColumnType(Document doc, string familyName, double diameter)
         {
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            Document doc = uidoc.Document;
-
             Family f = Misc.GetFirstElementOfTypeNamed(doc, typeof(Family), familyName) as Family;
             if (null == f)
             {
@@ -124,12 +118,8 @@ namespace Manicotti
             }
         }
 
-        public static FamilySymbol NewSpecialShapedColumnType(UIApplication uiapp, CurveArray boundary)
+        public static FamilySymbol NewSpecialShapedColumnType(Application app, Document doc, CurveArray boundary)
         {
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            Application app = uiapp.Application;
-            Document doc = uidoc.Document;
-            
             Document familyDoc = app.NewFamilyDocument(Properties.Settings.Default.url_columnFamily);
             using (Transaction tx_createFamily = new Transaction(familyDoc, "Create family"))
             {
@@ -200,13 +190,9 @@ namespace Manicotti
 
 
         // Main transaction
-        public static void Execute(UIApplication uiapp, List<Curve> columnLines, 
+        public static void Execute(Application app, Document doc, List<Curve> columnLines, 
             string nameRectColumn, string nameRoundColumn, Level level, bool IsSilent)
         {
-            UIDocument uidoc = uiapp.ActiveUIDocument;
-            Application app = uiapp.Application;
-            Document doc = uidoc.Document;
-
             // Sort out column boundary
             // Consider using CurveArray to store the data
             List<List<Curve>> columnRect = new List<List<Curve>>();
@@ -283,7 +269,7 @@ namespace Manicotti
                         double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
                         double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
 
-                        FamilySymbol fs = NewRectColumnType(uiapp, nameRectColumn, width, depth);
+                        FamilySymbol fs = NewRectColumnType(doc, nameRectColumn, width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
@@ -300,7 +286,7 @@ namespace Manicotti
                 foreach (List<Curve> baselines in columnSpecialShaped)
                 {
                     var boundary = Algorithm.RectifyPolygon(Misc.CrvsToLines(baselines));
-                    FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
+                    FamilySymbol fs = NewSpecialShapedColumnType(app, doc, boundary);
                     if (null == fs)
                     {
                         Debug.Print("Generic Model Family returns no symbol");
@@ -336,7 +322,7 @@ namespace Manicotti
                         double depth = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item2;
                         double angle = Algorithm.GetSizeOfRectangle(Misc.CrvsToLines(baselines)).Item3;
 
-                        FamilySymbol fs = NewRectColumnType(uiapp, nameRectColumn, width, depth);
+                        FamilySymbol fs = NewRectColumnType(doc, nameRectColumn, width, depth);
                         if (!fs.IsActive) { fs.Activate(); }
                         XYZ columnCenterPt = Algorithm.GetCenterPt(baselines);
                         Line columnCenterAxis = Line.CreateBound(columnCenterPt, columnCenterPt.Add(-XYZ.BasisZ));
@@ -364,7 +350,7 @@ namespace Manicotti
                         XYZ basePt = baseline.Center;
                         double diameter = Misc.FootToMm(Math.Round(2 * baseline.Radius, 2));
 
-                        FamilySymbol fs = NewRoundColumnType(uiapp, nameRoundColumn, diameter);
+                        FamilySymbol fs = NewRoundColumnType(doc, nameRoundColumn, diameter);
                         if (!fs.IsActive) { fs.Activate(); }
 
                         Line columnCenterAxis = Line.CreateBound(basePt, basePt.Add(-XYZ.BasisZ));
@@ -385,7 +371,7 @@ namespace Manicotti
                 foreach (List<Curve> baselines in columnSpecialShaped)
                 {
                     var boundary = Algorithm.RectifyPolygon(Misc.CrvsToLines(baselines));
-                    FamilySymbol fs = NewSpecialShapedColumnType(uiapp, boundary);
+                    FamilySymbol fs = NewSpecialShapedColumnType(app, doc, boundary);
                     if (null == fs)
                     {
                         Debug.Print("Generic Model Family returns no symbol");

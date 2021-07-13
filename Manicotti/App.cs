@@ -86,41 +86,58 @@ namespace Manicotti
 
             ////////////
             // 3rd Panel
-            RibbonPanel modelFix = ribbonPanel(a, "Manicotti", "Misc.");
-            // Currently we disable this panel that is still under test
-            modelFix.Enabled = false;
+            RibbonPanel modelSketch = ribbonPanel(a, "Manicotti", "Sketch");
+
+            PushButtonData sketchDWG = new PushButtonData("sketchDWG", "Photocopy DWG",
+                thisAssemblyPath, "Manicotti.CmdSketchDWG");
+            sketchDWG.ToolTip = "Extract geometries and texts. To test the demo, Link_test.dwg must be linked. (act on Linked DWG)";
+            BitmapImage sketchdwgImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Sketchdwg.ico", UriKind.Absolute));
+            sketchDWG.Image = sketchdwgImg;
+
+            PushButtonData sketchLocation = new PushButtonData("sketchLocation", "Mark Location",
+                thisAssemblyPath, "Manicotti.CmdSketchLocation");
+            sketchLocation.ToolTip = "Draw model lines based on component axis";
+            BitmapImage sketchlocImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Sketchlocation.ico", UriKind.Absolute));
+            sketchLocation.Image = sketchlocImg;
             
-            PushButton mesh = modelFix.AddItem(new PushButtonData("mesh", "Patch\nAxis Grid", 
-                thisAssemblyPath, "Manicotti.MeshPatch")) as PushButton;
-            mesh.ToolTip = "WIP. Create the axis grid of walls. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG) ";
+            IList<RibbonItem> stackedSketch = modelSketch.AddStackedItems(sketchDWG, sketchLocation);
+
+
+            ////////////
+            // 4th Panel
+            RibbonPanel modelFix = ribbonPanel(a, "Manicotti", "Algorithm");
+            PushButton mesh = modelFix.AddItem(new PushButtonData("mesh", "Patch\nAxis Grid",
+                thisAssemblyPath, "Manicotti.CmdPatchBoundary")) as PushButton;
+            mesh.ToolTip = "WIP. Patch all the space boundaries. To test the demo, Link_demo.dwg must be linked. (act on Linked DWG) ";
             BitmapImage meshImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Anchor.ico", UriKind.Absolute));
             mesh.LargeImage = meshImg;
+
+
+            ////////////
+            // 5th Panel
+            RibbonPanel modelTest = ribbonPanel(a, "Manicotti", "Misc.");
+            // Currently in progress and disabled
+            modelTest.Enabled = false;
 
             PushButtonData region = new PushButtonData("detect_region", "Detect Region",
                 thisAssemblyPath, "Manicotti.RegionDetect");
             region.ToolTip = "Detect enclosed regions. (act on ModelLines with WALL linetype)";
             BitmapImage regionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Room.ico", UriKind.Absolute));
             region.Image = regionImg;
-
-            PushButtonData sketch = new PushButtonData("sketch", "Sketch DWG", 
-                thisAssemblyPath, "Manicotti.SketchDWG");
-            sketch.ToolTip = "Extract geometries and texts. To test the demo, Link_test.dwg must be linked. (act on Linked DWG)";
-            BitmapImage channelImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Sketch.ico", UriKind.Absolute));
-            sketch.Image = channelImg;
-
+            
             PushButtonData fusion = new PushButtonData("fusion", "Regen Axis", 
                 thisAssemblyPath, "Manicotti.Fusion");
             fusion.ToolTip = "Space mesh regeneration. (act on Walls & Curtains). WIP";
             BitmapImage fusionImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Boundary.ico", UriKind.Absolute));
             fusion.Image = fusionImg;
 
-            IList<RibbonItem> stackedAlgorithm = modelFix.AddStackedItems(region, sketch, fusion);
-
-            PushButton test = modelFix.AddItem(new PushButtonData("test", "Test\nButton", 
-                thisAssemblyPath, "Manicotti.TestIntersect")) as PushButton;
+            PushButtonData test = new PushButtonData("test", "Test\nButton", 
+                thisAssemblyPath, "Manicotti.TestIntersect");
             test.ToolTip = "Default and preferance settings. WIP";
             BitmapImage testImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Error.ico", UriKind.Absolute));
-            test.LargeImage = testImg;
+            test.Image = testImg;
+
+            IList<RibbonItem> stackedTest = modelTest.AddStackedItems(region, fusion, test);
 
 
             a.ApplicationClosing += a_ApplicationClosing;

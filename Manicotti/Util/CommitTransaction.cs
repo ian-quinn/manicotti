@@ -10,6 +10,11 @@ using Autodesk.Revit.DB;
 
 namespace Manicotti
 {
+    /// <summary>
+    /// Abandoned for now.
+    /// Correlated functions are within:
+    /// FailureCollector / FailureSwallower
+    /// </summary>
     static class CommitTransaction
     {
         public static void CommitTrans(this Transaction transaction, bool deleteWarning = true, bool deleteError = false)

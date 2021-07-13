@@ -28,10 +28,12 @@ namespace Manicotti
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
+
             View view = doc.ActiveView;
+
             Selection sel = uidoc.Selection;
 
-            double tolerance = commandData.Application.Application.ShortCurveTolerance;
+            double tolerance = app.ShortCurveTolerance;
 
 
             // Check if the families are ready
@@ -179,7 +181,7 @@ namespace Manicotti
             try
             {
                 tg.Start();
-                CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, labels,
+                CreateOpening.Execute(doc, doorCrvs, windowCrvs, wallCrvs, labels,
                     Properties.Settings.Default.name_door,
                     Properties.Settings.Default.name_window,
                     defaultLevel, false);

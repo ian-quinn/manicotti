@@ -47,11 +47,11 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">
-      <HintPath>D:\Autodesk\Revit 2020\RevitAPI.dll</HintPath>
+      <HintPath>..\..\Program Files\Autodesk\Revit 2020\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>D:\Autodesk\Revit 2020\RevitAPIUI.dll</HintPath>
+      <HintPath>..\..\Program Files\Autodesk\Revit 2020\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -70,11 +70,12 @@
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
     <Compile Include="CmdPartAtom.cs" />
-    <Compile Include="CommitTransaction.cs" />
+    <Compile Include="Util\CommitTransaction.cs" />
+    <Compile Include="CmdSketchLocation.cs" />
+    <Compile Include="Util\Sketch.cs" />
     <Compile Include="Util\ExternalDataWrapper.cs" />
     <Compile Include="Util\FailureCollector.cs" />
     <Compile Include="Util\FamilyLoadOption.cs" />
-    <Compile Include="Util\PublicControl.cs" />
     <Compile Include="Util\FailureSwallower.cs" />
     <Compile Include="Util\SelectLayer.cs" />
     <Compile Include="Views\BaseWindow.cs" />
@@ -95,10 +96,10 @@
     <Compile Include="CmdCreateOpening.cs" />
     <Compile Include="Util\ButtonControl.cs" />
     <Compile Include="Util\TeighaGeometry.cs" />
-    <Compile Include="SketchDWG.cs" />
+    <Compile Include="CmdSketchDWG.cs" />
     <Compile Include="CmdCreateColumn.cs" />
     <Compile Include="CmdCreateAll.cs" />
-    <Compile Include="MeshPatch.cs" />
+    <Compile Include="CmdPatchBoundary.cs" />
     <Compile Include="CreateColumn.cs" />
     <Compile Include="CreateWall.cs" />
     <Compile Include="Util\ElementOfClassSelectionFilter.cs" />
@@ -121,6 +122,8 @@
     <Content Include="Manicotti.addin">
       <SubType>Designer</SubType>
     </Content>
+    <Resource Include="Resources\ico\sketchdwg.ico" />
+    <Resource Include="Resources\ico\sketchlocation.ico" />
     <Resource Include="Resources\ico\Info.ico" />
     <Resource Include="Resources\ico\Reload.ico" />
     <Resource Include="Resources\ico\Winform.ico" />

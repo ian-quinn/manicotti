@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 
 using Autodesk.Revit.Attributes;
+using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
@@ -24,10 +25,12 @@ namespace Manicotti
 
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
+            Application app = uiapp.Application;
             Document doc = uidoc.Document;
+
             View active_view = doc.ActiveView;
 
-            double tolerance = commandData.Application.Application.ShortCurveTolerance;
+            double tolerance = app.ShortCurveTolerance;
 
             ///////////////////////
             // Pick Import Instance
@@ -427,7 +430,7 @@ namespace Manicotti
                         // MILESTONE
                         pb.CustomizeStatus("On Floor " + i.ToString() + "... with Columns", 90 / levelCounter / 4);
                         if (pb.ProcessCancelled) return Result.Cancelled;
-                        CreateColumn.Execute(uiapp, columnCrvs, 
+                        CreateColumn.Execute(app, doc, columnCrvs, 
                             Properties.Settings.Default.name_columnRect, 
                             Properties.Settings.Default.name_columnRound,
                             currentLevel, true);
@@ -435,12 +438,12 @@ namespace Manicotti
                         // MILESTONE
                         pb.CustomizeStatus("On Floor " + i.ToString() + "... with Openings", 90 / levelCounter / 4);
                         if (pb.ProcessCancelled) return Result.Cancelled;
-                        CreateOpening.Execute(uiapp, doorCrvs, windowCrvs, wallCrvs, textDict[i], 
+                        CreateOpening.Execute(doc, doorCrvs, windowCrvs, wallCrvs, textDict[i], 
                             Properties.Settings.Default.name_door, Properties.Settings.Default.name_window, currentLevel, true);
 
                         // Create floor
                         // MILESTONE
-                        var footprint = CreateRegion.Execute(uiapp, wallCrvs, columnCrvs, windowCrvs, doorCrvs);
+                        var footprint = CreateRegion.Execute(doc, wallCrvs, columnCrvs, windowCrvs, doorCrvs);
                         using (var t_floor = new Transaction(doc))
                         {
                             t_floor.Start("Generate Floor");

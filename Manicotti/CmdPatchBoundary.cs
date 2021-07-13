@@ -14,7 +14,7 @@ using Autodesk.Revit.UI.Selection;
 namespace Manicotti
 {
     [Transaction(TransactionMode.Manual)]
-    public class MeshPatch : IExternalCommand
+    public class CmdPatchBoundary : IExternalCommand
     {
         /// <summary>
         /// Extend the line to a boundary line. If the line has already surpassed it, trim the line instead.
@@ -186,15 +186,30 @@ namespace Manicotti
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
             Document doc = uidoc.Document;
+
             View view = doc.ActiveView;
+
             Selection sel = uidoc.Selection;
 
-            double tolerance = commandData.Application.Application.ShortCurveTolerance;
-
-            // Pick Import Instance
-            Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
-            var import = doc.GetElement(r) as ImportInstance;
+            double tolerance = app.ShortCurveTolerance;
             
+            // Pick Import Instance
+            ImportInstance import = null;
+            try
+            {
+                Reference r = uidoc.Selection.PickObject(ObjectType.Element, new Util.ElementsOfClassSelectionFilter<ImportInstance>());
+                import = doc.GetElement(r) as ImportInstance;
+            }
+            catch
+            {
+                return Result.Cancelled;
+            }
+            if (import == null)
+            {
+                System.Windows.MessageBox.Show("CAD not found", "Tips");
+                return Result.Cancelled;
+            }
+
             List<Curve> columnCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, "COLUMN", tolerance);
             List<Curve> wallCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, "WALL", tolerance);
             List<Curve> doorCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, "DOOR", tolerance);
