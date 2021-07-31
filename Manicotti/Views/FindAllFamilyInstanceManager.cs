@@ -40,7 +40,7 @@ namespace Manicotti.Views
                 string strA = string.Empty;
                 try
                 {
-                    strA = item.Symbol.LookupParameter("Manufacture").AsString();
+                    strA = item.Symbol.LookupParameter("Material").AsString();
                 }
                 catch
                 {
@@ -51,7 +51,7 @@ namespace Manicotti.Views
                     try
 
                     {
-                        strA = item.Symbol.LookupParameter("生产商").AsString();
+                        strA = item.Symbol.LookupParameter("材料").AsString();
                     }
                     catch
                     {

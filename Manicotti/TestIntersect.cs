@@ -100,8 +100,8 @@ namespace Manicotti
             baseline.MakeUnbound();
             XYZ _ptStart = baseline.Project(ptStart1).XYZPoint;
             XYZ _ptEnd = baseline.Project(ptEnd1).XYZPoint;
-            Debug.Print("_start: " + Misc.PrintXYZ(_ptStart));
-            Debug.Print("_end: " + Misc.PrintXYZ(_ptEnd));
+            Debug.Print("_start: " + Misc.PointString(_ptStart));
+            Debug.Print("_end: " + Misc.PointString(_ptEnd));
             Line checkline = Line.CreateBound(_ptStart, _ptEnd);
             SetComparisonResult projection = checkline.Intersect(wallLines[1] as Line, out IntersectionResultArray projections);
             Debug.Print("Shadowing?" + projection.ToString());

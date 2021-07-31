@@ -262,5 +262,17 @@ namespace Manicotti.Properties {
                 this["name_columnRound"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string layerCache {
+            get {
+                return ((string)(this["layerCache"]));
+            }
+            set {
+                this["layerCache"] = value;
+            }
+        }
     }
 }

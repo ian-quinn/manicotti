@@ -66,6 +66,18 @@ namespace Manicotti
                 default: return '*';
             }
         }
+
+        public static List<string> GetLayerNames(string layerChain)
+        {
+            List<string> names = new List<string>();
+            string[] split = layerChain.Split(new string[] { ",", "." }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string name in split)
+            {
+                names.Add(name.Trim());
+            }
+            Debug.Print("##### " + ListString(names));
+            return names;
+        }
         #endregion // for Teigha text recognition
 
 
@@ -178,36 +190,305 @@ namespace Manicotti
             }
             return lines;
         }
-        
+
         #endregion
 
 
-        #region DEBUG
+        #region Formatting
         /// <summary>
-        /// Return the coorinate of XYZ as a string
+        /// Return an English plural suffix for the given
+        /// number of items, i.e. 's' for zero or more
+        /// than one, and nothing for exactly one.
         /// </summary>
-        /// <param name="pt"></param>
-        /// <returns></returns>
-        public static string PrintXYZ(XYZ pt)
+        public static string PluralSuffix(int n)
         {
-            return string.Format(" ({0}, {1}, {2}) ", pt.X, pt.Y, pt.Z);
+            return 1 == n ? "" : "s";
         }
 
         /// <summary>
-        /// Return the content of List(int) as a string
+        /// Return an English plural suffix 'ies' or
+        /// 'y' for the given number of items.
         /// </summary>
-        /// <param name="seq"></param>
-        /// <returns></returns>
-        public static string PrintSeq(List<int> seq)
+        public static string PluralSuffixY(int n)
         {
-            string result = "";
-            foreach (int e in seq)
+            return 1 == n ? "y" : "ies";
+        }
+
+        /// <summary>
+        /// Return a dot (full stop) for zero
+        /// or a colon for more than zero.
+        /// </summary>
+        public static string DotOrColon(int n)
+        {
+            return 0 < n ? ":" : ".";
+        }
+
+        /// <summary>
+        /// Return a string for a real number
+        /// formatted to two decimal places.
+        /// </summary>
+        public static string RealString(double a)
+        {
+            return a.ToString("0.##");
+        }
+
+        /// <summary>
+        /// Return a hash string for a real number
+        /// formatted to nine decimal places.
+        /// </summary>
+        public static string HashString(double a)
+        {
+            return a.ToString("0.#########");
+        }
+
+        /// <summary>
+        /// Return a string representation in degrees
+        /// for an angle given in radians.
+        /// </summary>
+        public static string AngleString(double angle)
+        {
+            return RealString(angle * 180 / Math.PI) + " degrees";
+        }
+
+        /// <summary>
+        /// Return a string for a length in millimetres
+        /// formatted as an integer value.
+        /// </summary>
+        public static string MmString(double length)
+        {
+            //return RealString( FootToMm( length ) ) + " mm";
+            return Math.Round(FootToMm(length)).ToString() + " mm";
+        }
+
+        /// <summary>
+        /// Return a string for a UV point
+        /// or vector with its coordinates
+        /// formatted to two decimal places.
+        /// </summary>
+        public static string PointString(UV p, bool onlySpaceSeparator = false)
+        {
+            string format_string = onlySpaceSeparator ? "{0} {1}" : "({0},{1})";
+            return string.Format(format_string, RealString(p.U), RealString(p.V));
+        }
+
+        /// <summary>
+        /// Return a string for an XYZ point
+        /// or vector with its coordinates
+        /// formatted to two decimal places.
+        /// </summary>
+        public static string PointString(XYZ p, bool onlySpaceSeparator = false)
+        {
+            string format_string = onlySpaceSeparator ? "{0} {1} {2}" : "({0},{1},{2})";
+            return string.Format(format_string, RealString(p.X), RealString(p.Y), RealString(p.Z));
+        }
+
+        /// <summary>
+        /// Return a hash string for an XYZ point
+        /// or vector with its coordinates
+        /// formatted to nine decimal places.
+        /// </summary>
+        public static string HashString(XYZ p)
+        {
+            return string.Format("({0},{1},{2})", HashString(p.X), HashString(p.Y), HashString(p.Z));
+        }
+
+        /// <summary>
+        /// Return a string for this bounding box
+        /// with its coordinates formatted to two
+        /// decimal places.
+        /// </summary>
+        public static string BoundingBoxString(BoundingBoxUV bb, bool onlySpaceSeparator = false)
+        {
+            string format_string = onlySpaceSeparator ? "{0} {1}" : "({0},{1})";
+
+            return string.Format(format_string, PointString(bb.Min, onlySpaceSeparator), PointString(bb.Max, onlySpaceSeparator));
+        }
+
+        /// <summary>
+        /// Return a string for this bounding box
+        /// with its coordinates formatted to two
+        /// decimal places.
+        /// </summary>
+        public static string BoundingBoxString(BoundingBoxXYZ bb, bool onlySpaceSeparator = false)
+        {
+            string format_string = onlySpaceSeparator ? "{0} {1}" : "({0},{1})";
+
+            return string.Format(format_string, PointString(bb.Min, onlySpaceSeparator), PointString(bb.Max, onlySpaceSeparator));
+        }
+
+        /// <summary>
+        /// Return a string for this plane
+        /// with its coordinates formatted to two
+        /// decimal places.
+        /// </summary>
+        public static string PlaneString(Plane p)
+        {
+            return string.Format("plane origin {0}, plane normal {1}", PointString(p.Origin), PointString(p.Normal));
+        }
+
+        /// <summary>
+        /// Return a string for this transformation
+        /// with its coordinates formatted to two
+        /// decimal places.
+        /// </summary>
+        public static string TransformString(Transform t)
+        {
+            return string.Format("({0},{1},{2},{3})", PointString(t.Origin),
+              PointString(t.BasisX), PointString(t.BasisY), PointString(t.BasisZ));
+        }
+
+        /// <summary>
+        /// Return a string for a list of doubles 
+        /// formatted to two decimal places.
+        /// </summary>
+        public static string DoubleArrayString(IEnumerable<double> a, bool onlySpaceSeparator = false)
+        {
+            string separator = onlySpaceSeparator ? " " : ", ";
+
+            return string.Join(separator, a.Select<double, string>(x => RealString(x)));
+        }
+
+        /// <summary>
+        /// Return a string for this point array
+        /// with its coordinates formatted to two
+        /// decimal places.
+        /// </summary>
+        public static string PointArrayString(IEnumerable<UV> pts, bool onlySpaceSeparator = false)
+        {
+            string separator = onlySpaceSeparator ? " " : ", ";
+
+            return string.Join(separator, pts.Select<UV, string>(p => PointString(p, onlySpaceSeparator)));
+        }
+
+        /// <summary>
+        /// Return a string for this point array
+        /// with its coordinates formatted to two
+        /// decimal places.
+        /// </summary>
+        public static string PointArrayString(IEnumerable<XYZ> pts, bool onlySpaceSeparator = false)
+        {
+            string separator = onlySpaceSeparator ? " " : ", ";
+
+            return string.Join(separator, pts.Select<XYZ, string>(p => PointString(p, onlySpaceSeparator)));
+        }
+
+        /// <summary>
+        /// Return a string representing the data of a
+        /// curve. Currently includes detailed data of
+        /// line and arc elements only.
+        /// </summary>
+        public static string CurveString(Curve c)
+        {
+            string s = c.GetType().Name.ToLower();
+
+            XYZ p = c.GetEndPoint(0);
+            XYZ q = c.GetEndPoint(1);
+
+            s += string.Format(" {0} --> {1}", PointString(p), PointString(q));
+
+            // To list intermediate points or draw an
+            // approximation using straight line segments,
+            // we can access the curve tesselation, cf.
+            // CurveTessellateString:
+
+            //foreach( XYZ r in lc.Curve.Tessellate() )
+            //{
+            //}
+
+            // List arc data:
+
+            Arc arc = c as Arc;
+
+            if (null != arc)
             {
-                result = result + e.ToString() + " ";
+                s += string.Format(" center {0} radius {1}", PointString(arc.Center), arc.Radius);
             }
-            return result;
+
+            // Todo: add support for other curve types
+            // besides line and arc.
+
+            return s;
         }
-        #endregion
+
+        /// <summary>
+        /// Return a string for this curve with its
+        /// tessellated point coordinates formatted
+        /// to two decimal places.
+        /// </summary>
+        public static string CurveTessellateString(Curve curve)
+        {
+            return "curve tessellation " + PointArrayString(curve.Tessellate());
+        }
+
+        /// <summary>
+        /// Convert a UnitSymbolType enumeration value
+        /// to a brief human readable abbreviation string.
+        /// </summary>
+        public static string UnitSymbolTypeString(UnitSymbolType u)
+        {
+            string s = u.ToString();
+
+            Debug.Assert(s.StartsWith("UST_"),
+              "expected UnitSymbolType enumeration value to begin with 'UST_'");
+
+            s = s.Substring(4).Replace("_SUP_", "^").ToLower();
+
+            return s;
+        }
+
+
+        public static string ListString(List<string> list)
+        {
+            string fusion = "";
+            for (int index = 0; index < list.Count(); index++)
+            {
+                fusion = fusion + list[index] + " ";
+            }
+            return fusion;
+        }
+
+        public static string ListString(List<bool> list)
+        {
+            string fusion = "";
+            for (int index = 0; index < list.Count(); index++)
+            {
+                fusion = fusion + list[index].ToString() + " ";
+            }
+            return fusion;
+        }
+
+        public static string ListString(List<int> list)
+        {
+            string fusion = "";
+            for (int index = 0; index < list.Count(); index++)
+            {
+                fusion = fusion + list[index].ToString() + " ";
+            }
+            return fusion;
+        }
+
+        public static string ListString(List<double> list)
+        {
+            string fusion = "";
+            for (int index = 0; index < list.Count(); index++)
+            {
+                fusion = fusion + list[index].ToString() + " ";
+            }
+            return fusion;
+        }
+
+        public static string ListString(List<XYZ> list)
+        {
+            string fusion = "";
+            for (int index = 0; index < list.Count(); index++)
+            {
+                fusion = fusion + PointString(list[index]) + " ";
+            }
+            return fusion;
+        }
+
+
+        #endregion // Formatting
 
     }
 }

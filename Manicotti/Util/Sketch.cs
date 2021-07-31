@@ -1,8 +1,9 @@
-﻿using System;
+﻿#region Namespaces
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-#region Namespaces
+
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 #endregion

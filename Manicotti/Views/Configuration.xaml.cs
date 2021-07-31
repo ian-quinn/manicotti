@@ -4,8 +4,10 @@ using System.IO;
 using System.Xml;
 using System.Windows;
 using System.Windows.Input;
+using System.Diagnostics;
 
 using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 #endregion
 
 namespace Manicotti.Views
@@ -16,11 +18,16 @@ namespace Manicotti.Views
     public partial class Configuration : BaseWindow
     {
         // field
-        public Document document;
+        public ExternalEvent ExEvent;
+        public ExtPickLayer extPickLayer;
+
         // constructor
-        public Configuration(Document doc)
+        public Configuration(UIApplication uiapp)
         {
             InitializeComponent();
+
+            extPickLayer = new ExtPickLayer(uiapp);
+            ExEvent = ExternalEvent.Create(extPickLayer);
         }
 
 
@@ -55,10 +62,10 @@ namespace Manicotti.Views
         {
             string thisAssemblyFolderPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            Properties.Settings.Default.url_columnRect = thisAssemblyFolderPath + @"\Resources\rfa\M_Rectangular Column.rfa";
-            Properties.Settings.Default.url_columnRound = thisAssemblyFolderPath + @"\Resources\rfa\M_Round Column.rfa";
-            Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\Resources\rfa\M_Door-Single-Panel.rfa";
-            Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\Resources\rfa\M_Window-Fixed.rfa";
+            Properties.Settings.Default.url_columnRect = thisAssemblyFolderPath + @"\M_Rectangular Column.rfa";
+            Properties.Settings.Default.url_columnRound = thisAssemblyFolderPath + @"\M_Round Column.rfa";
+            Properties.Settings.Default.url_door = thisAssemblyFolderPath + @"\M_Door-Single-Panel.rfa";
+            Properties.Settings.Default.url_window = thisAssemblyFolderPath + @"\M_Window-Fixed.rfa";
             Properties.Settings.Default.url_columnFamily = @"C:\ProgramData\Autodesk\RVT 2020\Family Templates\English\Metric Column.rft";
             Properties.Settings.Default.floorHeight = 4000;
             Properties.Settings.Default.sillHeight = 1200;
@@ -70,17 +77,9 @@ namespace Manicotti.Views
             Properties.Settings.Default.layerWindow = "WINDOW";
             Properties.Settings.Default.layerSpace = "SPACE";
             Properties.Settings.Default.layerFrame = "FRAME";
+            Properties.Settings.Default.layerCache = "";
         }
 
-
-        private void BtnOpen1_Click(object sender, RoutedEventArgs e)
-        {
-            string strA = strrRfaName();
-            if (!string.IsNullOrEmpty(strA))
-            {
-                url_door.Text = strA;
-            }
-        }
 
         public string strrRfaName()
         {
@@ -103,7 +102,16 @@ namespace Manicotti.Views
             return strName;
         }
 
-        private void BtnOpen2_Click(object sender, RoutedEventArgs e)
+        private void BtnBrowseDoor(object sender, RoutedEventArgs e)
+        {
+            string strA = strrRfaName();
+            if (!string.IsNullOrEmpty(strA))
+            {
+                url_door.Text = strA;
+            }
+        }
+
+        private void BtnBrowseWin(object sender, RoutedEventArgs e)
         {
             string strA = strrRfaName();
             if (!string.IsNullOrEmpty(strA))
@@ -112,7 +120,7 @@ namespace Manicotti.Views
             }
         }
 
-        private void BtnOpen3_Click(object sender, RoutedEventArgs e)
+        private void BtnBrowseColRect(object sender, RoutedEventArgs e)
         {
             string strA = strrRfaName();
             if (!string.IsNullOrEmpty(strA))
@@ -121,7 +129,7 @@ namespace Manicotti.Views
             }
         }
 
-        private void BtnOpen4_Click(object sender, RoutedEventArgs e)
+        private void BtnBrowseColRound(object sender, RoutedEventArgs e)
         {
             string strA = strrRfaName();
             if (!string.IsNullOrEmpty(strA))
@@ -130,7 +138,7 @@ namespace Manicotti.Views
             }
         }
 
-        private void BtnOpen5_Click(object sender, RoutedEventArgs e)
+        private void BtnBrowseColTemplate(object sender, RoutedEventArgs e)
         {
             string strName = string.Empty;
             System.Windows.Forms.OpenFileDialog ofd = null;
@@ -153,5 +161,37 @@ namespace Manicotti.Views
                 url_columnFamily.Text = strName;
             }
         }
+
+        private void BtnPickFrame(object sender, RoutedEventArgs e)
+        {
+            extPickLayer.targetValue = "layerFrame";
+            ExEvent.Raise();
+        }
+        private void BtnPickWall(object sender, RoutedEventArgs e)
+        {
+            extPickLayer.targetValue = "layerWall";
+            ExEvent.Raise();
+        }
+        private void BtnPickColumn(object sender, RoutedEventArgs e)
+        {
+            extPickLayer.targetValue = "layerColumn";
+            ExEvent.Raise();
+        }
+        private void BtnPickWindow(object sender, RoutedEventArgs e)
+        {
+            extPickLayer.targetValue = "layerWindow";
+            ExEvent.Raise();
+        }
+        private void BtnPickDoor(object sender, RoutedEventArgs e)
+        {
+            extPickLayer.targetValue = "layerDoor";
+            ExEvent.Raise();
+        }
+        private void BtnPickSpace(object sender, RoutedEventArgs e)
+        {
+            extPickLayer.targetValue = "layerSpace";
+            ExEvent.Raise();
+        }
+
     }
 }

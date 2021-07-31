@@ -44,14 +44,17 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AdWindows">
+      <HintPath>D:\Autodesk\Revit 2020\AdWindows.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">
-      <HintPath>..\..\Program Files\Autodesk\Revit 2020\RevitAPI.dll</HintPath>
+      <HintPath>D:\Autodesk\Revit 2020\RevitAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\Program Files\Autodesk\Revit 2020\RevitAPIUI.dll</HintPath>
+      <HintPath>D:\Autodesk\Revit 2020\RevitAPIUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -60,9 +63,9 @@
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="TD_Mgd_3.03_9, Version=3.0.0.8111, Culture=neutral, PublicKeyToken=460a0bef3ba73253, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="TD_Mgd_3.03_9">
       <HintPath>Resources\lib\TD_Mgd_3.03_9.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -70,6 +73,7 @@
     <Compile Include="Algorithm.cs" />
     <Compile Include="App.cs" />
     <Compile Include="CmdPartAtom.cs" />
+    <Compile Include="ExtPickLayer.cs" />
     <Compile Include="Util\CommitTransaction.cs" />
     <Compile Include="CmdSketchLocation.cs" />
     <Compile Include="Util\Sketch.cs" />

@@ -81,12 +81,26 @@ namespace Manicotti
 
 
             // Fetch baselines
-            List<Curve> doorCrvs, windowCrvs, wallCrvs;
+            List<Curve> doorCrvs = new List<Curve>();
+            List<Curve> windowCrvs = new List<Curve>();
+            List<Curve> wallCrvs = new List<Curve>();
+            var wallLayers = Misc.GetLayerNames(Properties.Settings.Default.layerWall);
+            var doorLayers = Misc.GetLayerNames(Properties.Settings.Default.layerDoor);
+            var windowLayers = Misc.GetLayerNames(Properties.Settings.Default.layerWindow);
             try
             {
-                doorCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerDoor, tolerance);
-                windowCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerWindow, tolerance);
-                wallCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerWall, tolerance);
+                foreach (string doorLayer in doorLayers)
+                {
+                    doorCrvs.AddRange(Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, doorLayer, tolerance));
+                }
+                foreach (string windowLayer in windowLayers)
+                {
+                    windowCrvs.AddRange(Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, windowLayer, tolerance));
+                }
+                foreach (string wallLayer in wallLayers)
+                {
+                    wallCrvs.AddRange(Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, wallLayer, tolerance));
+                }
             }
             catch (Exception e)
             {

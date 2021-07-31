@@ -523,8 +523,8 @@ namespace Manicotti
             var arrayPerimeter = RegionDetect.AlignCrv(recPerimeter);
             for (int i = 0; i < arrayPerimeter.Size; i++)
             {
-                Debug.Print("Line-{0} {1} {2}", i, Misc.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(0)),
-                    Misc.PrintXYZ(arrayPerimeter.get_Item(i).GetEndPoint(1)));
+                Debug.Print("Line-{0} {1} {2}", i, Misc.PointString(arrayPerimeter.get_Item(i).GetEndPoint(0)),
+                    Misc.PointString(arrayPerimeter.get_Item(i).GetEndPoint(1)));
             }
             #endregion
             // OUTPUT List<CurveArray> loops

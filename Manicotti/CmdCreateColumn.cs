@@ -68,9 +68,14 @@ namespace Manicotti
 
             // Fetch baselines
             List<Curve> columnCrvs = new List<Curve>();
+            var columnLayers = Misc.GetLayerNames(Properties.Settings.Default.layerColumn);
             try
             {
-                columnCrvs = Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, Properties.Settings.Default.layerColumn, tolerance);
+                foreach (string columnLayer in columnLayers)
+                {
+                    columnCrvs.AddRange(Util.TeighaGeometry.ShatterCADGeometry(uidoc, import, columnLayer, tolerance));
+                }
+                
             }
             catch (Exception e)
             {

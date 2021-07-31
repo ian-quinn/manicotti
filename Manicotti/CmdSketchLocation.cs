@@ -1,5 +1,7 @@
 ﻿#region Namespaces
 using System.Collections.Generic;
+
+using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -13,10 +15,10 @@ namespace Manicotti
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            UIApplication app = commandData.Application;
-            UIDocument uidoc = app.ActiveUIDocument;
+            UIApplication uiapp = commandData.Application;
+            UIDocument uidoc = uiapp.ActiveUIDocument;
+            Application app = uiapp.Application;
             Document doc = uidoc.Document;
-            View view = doc.ActiveView;
             
             Selection sel = uidoc.Selection;
             ICollection<ElementId> ids = sel.GetElementIds();

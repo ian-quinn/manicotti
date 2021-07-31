@@ -6,9 +6,9 @@
              xmlns:src="clr-namespace:Manicotti.Views"
              xmlns:p="clr-namespace:Manicotti.Properties"
              mc:Ignorable="d"
-             WindowStartupLocation="CenterScreen"
+             WindowStartupLocation="Manual"
              Background="White"
-             Height="600" Width="400"
+             Height="620" Width="400"
              SizeToContent="Height"
              WindowStyle="None" AllowsTransparency="True">
 
@@ -26,65 +26,42 @@
                         <TextBlock Text="{Binding}" FontSize="12" Foreground="Gray" />
                     </DataTemplate>
                 </GroupBox.HeaderTemplate>
-                <!--<StackPanel>
-                    <TextBlock Text="Backup .rfa path for door" Margin="0 6 0 2"/>
-                    <TextBox Name="url_door" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-               Path=url_door, Mode=TwoWay}"/>
-
-                    <TextBlock Text="Backup .rfa path for window" Margin="0 6 0 2"/>
-                    <TextBox Name="url_window" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-               Path=url_window, Mode=TwoWay}"/>
-
-                    <TextBlock Text="Backup .rfa path for column" Margin="0 6 0 2"/>
-                    <TextBox Name="url_column" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-               Path=url_column, Mode=TwoWay}"/>
-
-                    <TextBlock Text="Default .rft path for special shaped column" Margin="0 6 0 2"/>
-                    <TextBox Name="url_columnFamily" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-               Path=url_columnFamily, Mode=TwoWay}"/>
-                </StackPanel>-->
 
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                        <RowDefinition Height="22"/>
-                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="9*"/>
                         <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="46"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text=".rfa path for door" Margin="0 6 0 2"/>
-                    <TextBox Name="url_door" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_door, Mode=TwoWay}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Left" Grid.Row="1" />
-                    <Button x:Name="BtnOpen1" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="1" Grid.Column="1" Margin="6,0" Click="BtnOpen1_Click"/>
-                    
-                    <TextBlock Text=".rfa path for window" Margin="0 6 0 2" Grid.Row="2"/>
-                    <TextBox Name="url_window" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_window, Mode=TwoWay}" Grid.Row="3"/>
-                    <Button x:Name="BtnOpen2" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="3" Grid.Column="1" Margin="6,0" Click="BtnOpen2_Click"/>
-                    
-                    <TextBlock Text=".rfa path for rectangular column" Margin="0 6 0 2" Grid.Row="4"/>
-                    <TextBox Name="url_columnRect" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_columnRect, Mode=TwoWay}" Grid.Row="5"/>
-                    <Button x:Name="BtnOpen3" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="5" Grid.Column="1" Margin="6,0" Click="BtnOpen3_Click"/>
 
-                    <TextBlock Text=".rfa path for round column" Margin="0 6 0 2" Grid.Row="6"/>
-                    <TextBox Name="url_columnRound" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_columnRound, Mode=TwoWay}" Grid.Row="7"/>
-                    <Button x:Name="BtnOpen4" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="7" Grid.Column="1" Margin="6,0" Click="BtnOpen4_Click"/>
+                    <StackPanel Grid.Column="0" Margin="0 0 5 0">
+                        <TextBlock Text="Door *.rfa" Margin="0 7 0 7"/>
+                        <TextBlock Text="Window *.rfa" Margin="0 7 0 7"/>
+                        <TextBlock Text="Rect-col *.rfa" Margin="0 7 0 7"/>
+                        <TextBlock Text="Round-col *.rfa" Margin="0 7 0 7"/>
+                        <TextBlock Text="Special-col *.rft" Margin="0 7 0 7"/>
+                    </StackPanel>
 
-                    <TextBlock Text=".rft path for special shaped column" Margin="0 6 0 2" Grid.Row="8"/>
-                    <TextBox Name="url_columnFamily" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=url_columnFamily, Mode=TwoWay}" Grid.Row="9"/>
-                    <Button  x:Name="BtnOpen5" Content="..." VerticalContentAlignment="Stretch"  Grid.Row="9" Grid.Column="1" Margin="6,0" Click="BtnOpen5_Click"/>
+                    <StackPanel Grid.Column="1" Margin="5 0 5 0">
+                        <TextBox Name="url_door" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=url_door, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="url_window" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=url_window, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="url_columnRect" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=url_columnRect, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="url_columnRound" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=url_columnRound, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="url_columnFamily" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=url_columnFamily, Mode=TwoWay}" IsReadOnly="True" Background="#eee" Margin="0 3 0 3"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="5 0 0 0">
+                        <Button x:Name="browseDoor" Padding="3" Content="@"  Margin="0 3 0 3" Click="BtnBrowseDoor"/>
+                        <Button x:Name="browseWin" Padding="3" Content="@"  Margin="0 3 0 3" Click="BtnBrowseWin"/>
+                        <Button x:Name="browseColRect" Padding="3" Content="@"  Margin="0 3 0 3" Click="BtnBrowseColRect"/>
+                        <Button x:Name="browseColRound" Padding="3" Content="@"  Margin="0 3 0 3" Click="BtnBrowseColRound"/>
+                        <Button x:Name="browseTemplate" Padding="3" Content="@"  Margin="0 3 0 3" Click="BtnBrowseColTemplate"/>
+                    </StackPanel>
                 </Grid>
                 
             </GroupBox>
@@ -97,40 +74,42 @@
                 </GroupBox.HeaderTemplate>
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="9*"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="0 0 5 0">
-                        <TextBlock Text="Wall layer" Margin="0 5 0 5"/>
-                        <TextBlock Text="Column layer" Margin="0 5 0 5"/>
-                        <TextBlock Text="Frame layer" Margin="0 5 0 5"/>
+                        <TextBlock Text="Frame layer" Margin="0 7 0 7"/>
+                        <TextBlock Text="Wall layer" Margin="0 7 0 7"/>
+                        <TextBlock Text="Column layer" Margin="0 7 0 7"/>
+                        <TextBlock Text="Window layer" Margin="0 7 0 7"/>
+                        <TextBlock Text="Door layer" Margin="0 7 0 7"/>
+                        <TextBlock Text="Spacetag layer" Margin="0 7 0 7"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="5 0 5 0">
-                        <TextBox Name="layerWall" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=layerWall, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Name="layerColumn" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=layerColumn, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Name="layerFrame" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=layerFrame, Mode=TwoWay}" Margin="0 2 0 2"/>
+                        <TextBox Name="layerFrame" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=layerFrame, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="layerWall" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=layerWall, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="layerColumn" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=layerColumn, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="layerWindow" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=layerWindow, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="layerDoor" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=layerDoor, Mode=TwoWay}" Margin="0 3 0 3"/>
+                        <TextBox Name="layerSpace" Padding="3" Text="{Binding Source={x:Static p:Settings.Default}, 
+           Path=layerSpace, Mode=TwoWay}" IsReadOnly="True" Background="#eee" Margin="0 3 0 3"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="2" Margin="5 0 5 0">
-                        <TextBlock Text="Window layer" Margin="0 5 0 5"/>
-                        <TextBlock Text="Door layer" Margin="0 5 0 5"/>
-                        <TextBlock Text="Spacetag layer" Margin="0 5 0 5"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="3" Margin="5 0 0 0">
-                        <TextBox Name="layerWindow" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=layerWindow, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Name="layerDoor" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=layerDoor, Mode=TwoWay}" Margin="0 2 0 2"/>
-                        <TextBox Name="layerSpace" Padding="2" Text="{Binding Source={x:Static p:Settings.Default}, 
-           Path=layerSpace, Mode=TwoWay}" IsReadOnly="True" Background="#eee" Margin="0 2 0 2"/>
+                    <StackPanel Grid.Column="2" Margin="5 0 0 0">
+                        <Button x:Name="pickFrame" Padding="3" Content="✛"  Margin="0 3 0 3" Click="BtnPickFrame"/>
+                        <Button x:Name="pickWall" Padding="3" Content="✛"  Margin="0 3 0 3" Click="BtnPickWall"/>
+                        <Button x:Name="pickColumn" Padding="3" Content="✛"  Margin="0 3 0 3" Click="BtnPickColumn"/>
+                        <Button x:Name="pickWindow" Padding="3" Content="✛"  Margin="0 3 0 3" Click="BtnPickWindow"/>
+                        <Button x:Name="pickDoor" Padding="3" Content="✛"  Margin="0 3 0 3" Click="BtnPickDoor"/>
+                        <Button x:Name="pickSpace" Padding="3" Content="✛"  Margin="0 3 0 3" Click="BtnPickSpace"/>
                     </StackPanel>
                 </Grid>
             </GroupBox>

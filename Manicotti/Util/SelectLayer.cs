@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -12,7 +13,7 @@ using Autodesk.Revit.UI.Selection;
 
 namespace Manicotti
 {
-    class selectLayer
+    class SelectLayer
     {
         public static string strGraphicsStyleName(UIDocument uidoc)
         {
@@ -23,7 +24,8 @@ namespace Manicotti
             GeometryObject geo = elm.GetGeometryObjectFromReference(r);
 
             GraphicsStyle gs = uidoc.Document.GetElement(geo.GraphicsStyleId) as GraphicsStyle;
-            string strNsme = gs.Name;
+            string strNsme = gs.GraphicsStyleCategory.Name;
+
             return strNsme;
         }
     }
