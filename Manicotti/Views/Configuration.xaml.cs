@@ -75,6 +75,7 @@ namespace Manicotti.Views
             Properties.Settings.Default.layerColumn = "COLUMN";
             Properties.Settings.Default.layerWall = "WALL";
             Properties.Settings.Default.layerWindow = "WINDOW";
+            Properties.Settings.Default.layerDoor = "DOOR";
             Properties.Settings.Default.layerSpace = "SPACE";
             Properties.Settings.Default.layerFrame = "FRAME";
             Properties.Settings.Default.layerCache = "";

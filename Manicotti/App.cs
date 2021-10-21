@@ -112,6 +112,8 @@ namespace Manicotti
             BitmapImage meshImg = new BitmapImage(new Uri("pack://application:,,,/Manicotti;component/Resources/ico/Anchor.ico", UriKind.Absolute));
             mesh.LargeImage = meshImg;
 
+            modelFix.Enabled = false;
+
 
             ////////////
             // 5th Panel
@@ -138,6 +140,8 @@ namespace Manicotti
             test.Image = testImg;
 
             IList<RibbonItem> stackedTest = modelTest.AddStackedItems(region, fusion, test);
+
+            modelTest.Enabled = false;
 
 
             a.ApplicationClosing += a_ApplicationClosing;
