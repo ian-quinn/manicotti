@@ -12,7 +12,7 @@ namespace Manicotti.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.1.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -25,7 +25,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Window-Fixed.rfa")]
         public string url_window {
             get {
                 return ((string)(this["url_window"]));
@@ -37,7 +37,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Door-Single-Panel.rfa")]
         public string url_door {
             get {
                 return ((string)(this["url_door"]));
@@ -49,7 +49,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Rectangular Column.rfa")]
         public string url_columnRect {
             get {
                 return ((string)(this["url_columnRect"]));
@@ -61,7 +61,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Round Column.rfa")]
         public string url_columnRound {
             get {
                 return ((string)(this["url_columnRound"]));
@@ -217,7 +217,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Window-Fixed")]
         public string name_window {
             get {
                 return ((string)(this["name_window"]));
@@ -229,7 +229,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Door-Single-Panel")]
         public string name_door {
             get {
                 return ((string)(this["name_door"]));
@@ -241,7 +241,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Rectangular Column")]
         public string name_columnRect {
             get {
                 return ((string)(this["name_columnRect"]));
@@ -253,7 +253,7 @@ namespace Manicotti.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("M_Round Column")]
         public string name_columnRound {
             get {
                 return ((string)(this["name_columnRound"]));

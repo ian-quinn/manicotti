@@ -3,16 +3,16 @@
   <Profiles />
   <Settings>
     <Setting Name="url_window" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Window-Fixed.rfa</Value>
     </Setting>
     <Setting Name="url_door" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Door-Single-Panel.rfa</Value>
     </Setting>
     <Setting Name="url_columnRect" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Rectangular Column.rfa</Value>
     </Setting>
     <Setting Name="url_columnRound" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Round Column.rfa</Value>
     </Setting>
     <Setting Name="url_columnFamily" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -51,16 +51,16 @@
       <Value Profile="(Default)">FRAME</Value>
     </Setting>
     <Setting Name="name_window" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Window-Fixed</Value>
     </Setting>
     <Setting Name="name_door" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Door-Single-Panel</Value>
     </Setting>
     <Setting Name="name_columnRect" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Rectangular Column</Value>
     </Setting>
     <Setting Name="name_columnRound" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">M_Round Column</Value>
     </Setting>
     <Setting Name="layerCache" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

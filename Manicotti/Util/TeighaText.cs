@@ -149,7 +149,7 @@ namespace Manicotti.Util
         {
             double MillimetersToUnits(double value)
             {
-                return UnitUtils.ConvertToInternalUnits(value, DisplayUnitType.DUT_MILLIMETERS);
+                return UnitUtils.ConvertToInternalUnits(value, UnitTypeId.Millimeters);
             }
             return new XYZ(MillimetersToUnits(point.X), MillimetersToUnits(point.Y), MillimetersToUnits(point.Z));
         }

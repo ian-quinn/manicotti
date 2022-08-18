@@ -424,7 +424,7 @@ namespace Manicotti
         /// Convert a UnitSymbolType enumeration value
         /// to a brief human readable abbreviation string.
         /// </summary>
-        public static string UnitSymbolTypeString(UnitSymbolType u)
+        /*public static string UnitSymbolTypeString(UnitSymbolType u)
         {
             string s = u.ToString();
 
@@ -434,7 +434,7 @@ namespace Manicotti
             s = s.Substring(4).Replace("_SUP_", "^").ToLower();
 
             return s;
-        }
+        }*/
 
 
         public static string ListString(List<string> list)
