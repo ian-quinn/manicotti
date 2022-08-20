@@ -7,49 +7,50 @@ Revit add-in to build up model automatically based on DWG drawings. This is a to
 ```
 manicotti
 ├ /Demo
-│ ├ *.dwg     - DWG file for testing
-│ └ *.gif     - Example movie
+│ ├ *.dwg             - DWG file for testing
+│ ├ *.jpg             - Screenshot
+│ └ *.dll             - Plugin DLL (Revit 2022)
 └ /Manicotti
-  ├ /Properties  - Assembly info
+  ├ /Properties       - Assembly info
   ├ /Resources
-  │ ├ /ico    - Button icon files
-  │ ├ /lib    - Teigha DLL files
-  │ └ /rfa    - Default Revit family files
+  │ ├ /ico            - Button icon files
+  │ ├ /lib            - Teigha DLL files
+  │ └ /rfa            - Revit family files
   ├ /Util
-  │ └ *.cs    - Utility methods
+  │ └ *.cs            - Utility methods
   ├ /Views
-  ├ ├ *.xaml  - View document
+  ├ ├ *.xaml          - WPF View document
   │ └ *.cs
-  ├ Manicotti.csproj  - Project configuration XML
+  ├ Manicotti.csproj  - Configuration XML
   ├ Manicotti.sln     - VS solution file
-  ├ App.cs    - Entry point
-  ├ *.cs      - Class library
+  ├ App.cs            - Entry point
+  ├ *.cs              - Class library
   └ Manicotti.addin   - Application manifest
 ```
 
 
 ## Test the Revit Add-in
 Test the demo by Revit 2022 (en-US) with all default family libraries installed. The default folder for Revit Add-in is `C:\ProgramData\Autodesk\Revit\Addins\2022\` , or `C:\Users\$username$\AppData\Roaming\Autodesk\Revit\Addins\2022\`.  
-The build events of the Visual Studio project will copy all necessary files to that directory after you build the source code. In case that you don't have VS, you need to create the plugin files manually under that directory. Like this:  
+The build events of the Visual Studio project will copy all necessary files to that directory after you build the source code. In case that you don't have VS, you need to copy those plugin files manually under that directory. Like this:  
 ```
 ProgramData\Autodesk\Revit\Addins\2022\
 ├ /Manicotti
 │ ├ TD_*.dll        - Copy from /Resources/lib
 │ └ Manicotti.dll   - Copy from /Demo
-└ Manicotti.addin
+└ Manicotti.addin   - Copy from /Manicotti
 ```
 Then start Revit and (video [ref](https://www.bilibili.com/video/BV17N4y1F7c1/?vd_source=9cd60edb139ebf7808403a2205ee49a1)):  
-- Insert -> Link CAD -> `Demo\Link_floor.dwg`
-- Manicotti -> Settings (check all .rfa files are loaded)
+- Insert -> Link CAD -> `...\Demo\Link_floor.dwg`
+- Manicotti -> Settings (check if all .rfa files are loaded)
 - Manicotti -> Build up model on all Levels
 - Select the linked DWG in the floorplan view (process takes almost 1min)
 
 
 ## Compile the source code
-The Manicotti add-in has been tested against Revit 2022. To apply it to other versions you need to rebuild it with correct .NET Framework. 
-Revit 2022/2021 - .NET **4.8**   
+The Manicotti add-in has been tested against Revit 2022. To apply it to other versions you need to rebuild it with correct .NET Framework.  
+Revit 2022/2021 - .NET **4.8**  
 Revit 2020/2019 - .NET 4.7  
-Revit 2018 - .NET 4.6  
+Revit 2018      - .NET 4.6  
  
 **REFERENCE** | The project hosts two external references, `RevitAPI.dll` and `RevitAPIUI.dll`. You can locate them under `...\Autodesk\Revit 2022\`  
 
